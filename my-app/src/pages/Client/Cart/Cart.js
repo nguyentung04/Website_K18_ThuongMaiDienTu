@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+
 import "./Cart.css";
 import CheckoutForm from "../CheckoutForm/CheckoutForm";
 import {
@@ -164,14 +165,9 @@ const Cart = () => {
       <Box background="#e4cc972e" mb="40px" p="20px" borderRadius="6px">
         {cart.map((item, index) => (
           <Box key={item.id}>
-            <button
-              className="remove-button"
-              onClick={() => removeFromCart(item.id)}
-            >
-              <DeleteIcon />
-            </button>
             <Flex>
-              <Img
+              <Img 
+              style={{mixBlendMode: "multiply"}}
                 src={`${BASE_URL}/uploads/products/${item.image}`}
                 alt={item.name}
                 maxWidth="114px"
@@ -199,16 +195,15 @@ const Cart = () => {
                     {item.name}
                   </Heading>
                 </Box>
-                <Text
-                  fontWeight="bold"
-                  className={fadePrice === item.id ? "fade" : "show"}
-               >
-                <span> Giá: </span>
-                 
-                  {item.discountPrice
-                    ? formatPrice(item.discountPrice)
-                    : formatPrice(item.price)}
-                </Text>
+                <Flex fontWeight="bold">
+                  <span> Giá: </span>{" "}
+                  <Text fontWeight="bold" style={{ marginLeft: "5px" }}>
+                    {item.discountPrice
+                      ? formatPrice(item.discountPrice)
+                      : formatPrice(item.price)}
+                  </Text>{" "}
+                </Flex>
+
                 <Flex align="center" gap={1}>
                   <Button
                     size="sm"
@@ -236,12 +231,26 @@ const Cart = () => {
                     +
                   </Button>
                 </Flex>
-                <Text
-                  fontWeight="bold"
-                  className={fadePrice === item.id ? "fade" : "show"}
+                <Flex fontWeight="bold">
+                  <span>
+                    {" "}
+                    Tổng giá: <br></br>
+                  </span>
+                  <Text
+                    fontWeight="bold"
+                    className={fadePrice === item.id ? "fade" : "show"}
+                    style={{ marginLeft: "5px" }}
+                  >
+                    {formatPrice(getProductTotal(item))}
+                  </Text>
+                </Flex>
+                <button
+                  className="remove-button"
+                  onClick={() => removeFromCart(item.id)}
                 >
-                <span> Tổng giá: </span> {formatPrice(getProductTotal(item))}
-                </Text>
+                  <DeleteIcon />
+                  <deleteIcon />
+                </button>
               </Box>
             </Flex>
 

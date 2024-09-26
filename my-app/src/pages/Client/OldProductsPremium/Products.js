@@ -628,7 +628,7 @@ const OldProductsPremium = () => {
 
     
       <section className="featured-products  container">
-        <h2>Đồng hồ nam đẹp - cao cấp</h2>
+        <h2>Đồng hồ cũ- cao cấp</h2>
         {/* ==================================== NÚT DANH MỤC VÀ SẮP XẾP ======================================== */}
         <div class="row filter-sort" id="filter-sort">
           <div class="col p-0">

@@ -72,12 +72,16 @@ const FeaturedProducts = () => {
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
-
-  const handleAddToCartAndOpenModal = (e, product) => {
+  const handleAddToCart = (e, product) => {
     e.stopPropagation(); // Prevent the event from triggering the product link
     addToCart(product); // Call the function to add the product to the cart
-    handleOpenModal(product); // Open the modal with the product details
   };
+
+  // const handleAddToCartAndOpenModal = (e, product) => {
+  //   e.stopPropagation(); // Prevent the event from triggering the product link
+  //   addToCart(product); // Call the function to add the product to the cart
+  //   handleOpenModal(product); // Open the modal with the product details
+  // };
   const addToCart = (product) => {
     if (product) {
       const details = {
@@ -160,8 +164,7 @@ const FeaturedProducts = () => {
                       </button>
                       <button
                         className="add-to-cart-icon"
-                     
-                        onClick={(e) => handleAddToCartAndOpenModal(e, product)}
+                        onClick={(e) => handleAddToCart(e, product, quantity)} 
                       >
                         <FaShoppingCart
                           size="25"

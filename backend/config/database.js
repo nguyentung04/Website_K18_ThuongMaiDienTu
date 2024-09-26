@@ -4,7 +4,7 @@ const connection = mysql.createConnection({
   host: 'localhost',  // Thay đổi theo cấu hình của bạn
   user: 'root',       // Thay đổi theo cấu hình của bạn
   password: 'mysql',  // Thay đổi theo cấu hình của bạn
-  database: 'Dong-l_ho_bee' // Thay đổi theo cấu hình của bạn
+  database: 'dong_ho_bee' // Thay đổi theo cấu hình của bạn
 });
 
 connection.connect((err) => {

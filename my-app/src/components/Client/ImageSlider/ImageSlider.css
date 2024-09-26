@@ -1,0 +1,20 @@
+.image-slider {
+    padding: 40px; /* Padding xung quanh slider */
+    box-sizing: border-box; /* Đảm bảo padding không làm thay đổi kích thước tổng thể của slider */
+    width: calc(100% - 80px); /* Đảm bảo slider có chiều rộng bằng bề ngang của trang trừ đi padding */
+   width: 1800px; /* Tùy chỉnh theo kích thước mong muốn nếu cần */
+    position: relative; /* Để sử dụng z-index nếu cần */
+    top: -20px; /* Di chuyển slider gần hơn với navbar */
+  }
+  
+  .slide {
+    position: relative;
+  }
+  
+  .slide img {
+    width: 100%; /* Đảm bảo ảnh chiếm toàn bộ chiều rộng của slide */
+    height: 600px; /* Đặt chiều cao của ảnh (hoặc điều chỉnh theo ý muốn) */
+    object-fit: cover; /* Giữ tỷ lệ và lấp đầy khu vực nếu cần */
+    border-radius: 8px; /* Bo góc ảnh nếu cần */
+  }
+  

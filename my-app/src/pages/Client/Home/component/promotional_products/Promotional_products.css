@@ -1,0 +1,191 @@
+.PromotionalProducts h2 {
+  width: 100%;
+  text-align: center;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #000;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0; margin-top: 40px ;
+}
+
+
+
+.PromotionalProducts h2:after {
+  margin-left: 10px;
+  content: ' ';
+  width: 70px;
+  height: 1px;
+  display: inline-block;
+  vertical-align: bottom;
+  background-color: #000;
+}
+
+.PromotionalProducts h2:before {
+  margin-right: 10px;
+  content: ' ';
+  width: 70px;
+  height: 1px;
+  display: inline-block;
+  vertical-align: bottom;
+  background-color: #000;
+}
+
+
+
+
+/* =========================================================== sản phẩm ============================ */
+.PromotionalProducts .swiper-wrappe {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  display: flex;
+  transition-property: transform;
+  transition-timing-function: var(--swiper-wrapper-transition-timing-function, initial);
+  box-sizing: content-box;
+}
+
+
+.PromotionalProducts .product-list {
+
+  gap: 6px;
+  display: flex;
+  grid-template-columns: repeat(4, 1fr);
+  /* 4-column layout */
+}
+
+.PromotionalProducts .swiper-slide {
+  flex-shrink: 0;
+  width: 100%;
+  /* height: 100%; */
+  position: relative;
+  transition-property: transform;
+  display: block;
+  width: 288px;
+  margin-right: 4px;
+  transition: transform 0.6s ease-in-out
+}
+
+.PromotionalProducts .product-box {
+  position: relative;
+  height: 100% !important;
+  background-color: #bcbab636;
+  border-radius: 6px;
+}
+
+.PromotionalProducts .plain {
+  mix-blend-mode: multiply;
+  transition: transform .2s;
+  color: currentColor;
+  -webkit-transition: color .3s, opacity .3s, -webkit-transform .3s;
+  transition: color .3s, opacity .3s, -webkit-transform .3s;
+  -o-transition: color .3s, opacity .3s, transform .3s;
+  transition: color .3s, opacity .3s, transform .3s;
+  transition: color .3s, opacity .3s, transform .3s, -webkit-transform .3s;
+  color: currentColor;
+}
+
+.PromotionalProducts .product-item {
+  padding: 30px 20px 20px;
+}
+
+
+
+.PromotionalProducts .product-item img {
+  width: 272px;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  height: 332px;
+  padding: 30px 20px 20px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+
+.PromotionalProducts .product-box .product-info {
+  padding: 20px;
+}
+
+.PromotionalProducts .plain:hover img {
+  transform: scale(1.05);
+}
+
+
+
+
+.PromotionalProducts .product-list .bg-gray {
+  width: 100%;
+  height: 100%;
+}
+
+
+.PromotionalProducts .product-list {
+  padding: 20px;
+}
+
+.PromotionalProducts .product-price,.product-title,
+.discount-price {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0.5rem 0;
+  font-weight: 700;
+}
+
+.PromotionalProducts .line-through {
+  text-decoration: line-through;
+  color: gray;
+}
+
+.PromotionalProducts .product-price .discount-price {
+  font-weight: bold;
+  color: #a60101;
+}
+
+/* ===================================================================================================== */
+
+
+.PromotionalProducts .swiper-android>.swiper-slide,
+.PromotionalProducts .swiper-wrapper {
+  transform: translate3d(0px, 0, 0);
+  display: flex;
+}
+
+.PromotionalProducts {
+  /* overflow: hidden;
+  position: relative; */
+  /* Relative positioning for container */
+  width: 1200px;
+}
+
+
+.PromotionalProducts .main-slider {
+  overflow: hidden;
+
+  right: 0;
+  /* Align to the right side */
+  width: 100%;
+  /* Slider takes up 75% of the container width */
+  height: 100%;
+  /* Slider takes the full height of the container */
+  z-index: 10;
+  /* Ensure slider is above the image */
+
+  margin-top: 40px;
+}
+
+.PromotionalProducts .swiper-slide img {
+  padding: 30px 20px 20px;
+  width: 100%;
+  /* Ensure images in slider take full width of the slide */
+  height: auto;
+  /* Maintain aspect ratio */
+}
+
+.PromotionalProducts  .products_blocks_wrapper {
+  display: flex;
+  justify-content: space-between;
+}

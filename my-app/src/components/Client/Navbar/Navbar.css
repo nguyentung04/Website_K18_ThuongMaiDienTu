@@ -1,0 +1,428 @@
+/* Navbar container */
+.stopnav{
+  height: 110px;
+}
+.Navbar {
+  /* background-color: #d4a373; */
+  /* Màu bò đậm */
+  padding: 10px 20px;
+  /* Đường viền dưới Navbar */
+ 
+
+  /* Đặt position relative để dropdown-content dựa vào navbar */
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: #fff;
+  /* Màu nền cho navbar */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  /* Tạo hiệu ứng đổ bóng */
+  z-index: 1000;
+
+}
+
+.Navbar .container {
+
+  z-index: 1000;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+
+/* Logo and Navbar Links container */
+.navbar-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  /* Để chiếm hết không gian giữa logo và đăng nhập/đăng ký */
+  justify-content: center;
+  /* Căn giữa các liên kết và logo */
+  gap: 20px;
+  /* Khoảng cách giữa các phần tử */
+}
+
+/* Logo styling */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-image {
+  height: 50px;
+  /* Chiều cao của logo */
+  width: auto;
+  /* Đảm bảo tỉ lệ chiều cao/chiều rộng của logo */
+}
+
+/* ==============================================  thẻ navbar-links ========================================== */
+/* Navbar links */
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  /* Khoảng cách giữa các liên kết */
+  font-size: 15px;
+  font-weight: 500;
+
+}
+
+.navbar-links a {
+  color: #000000;
+  /* Màu chữ của các liên kết */
+  text-decoration: none;
+  /* Loại bỏ gạch chân khỏi liên kết */
+  padding: 10px;
+  display: flex;
+  /* Căn chỉnh theo hàng ngang */
+  align-items: center;
+  /* Căn giữa icon và văn bản */
+  gap: 5px;
+  /* Khoảng cách giữa văn bản và icon */
+  transition: background-color 0.3s;
+}
+
+.navbar-links>a:hover,
+.navbar-links .dropdown:hover {
+  /* background-color: #f0e68c; */
+  background-color: #fff;
+  /* Thay đổi màu nền khi di chuột qua liên kết */
+  border-radius: 5px;
+  /* Làm tròn góc của liên kết khi hover */
+  color: #b29c6e;
+  /* Thay đổi màu chữ khi di chuột qua liên kết */
+  border: 2px solid #b29c6e;
+}
+
+
+/* đổi màu chữ sao khi click */
+.navbar-links>.active-link {
+  /* background-color: #f0e68c; */
+  background-color: #fff;
+  /* Thay đổi màu nền khi di chuột qua liên kết */
+  border-radius: 5px;
+  /* Làm tròn góc của liên kết khi hover */
+  color: #b29c6e;
+  /* Thay đổi màu chữ khi di chuột qua liên kết */
+  border: 2px solid #b29c6e;
+}
+
+.navbar-links a:hover {
+
+  /* Thay đổi màu nền khi di chuột qua liên kết */
+  border-radius: 5px;
+  /* Làm tròn góc của liên kết khi hover */
+  color: #b29c6e;
+}
+
+
+/* CustomStyles.css */
+.dropdown-item {
+  color: #000;
+  /* Default text color */
+}
+
+.dropdown-content>.dropdown-section>a {
+  position: relative;
+}
+
+/* ================================= ============================================== */
+/* Authentication and Cart */
+.navbar-auth {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Khoảng cách giữa các phần tử */
+  margin: 11px;
+}
+
+.cart-link {
+  color: #fff;
+  text-decoration: none;
+}
+
+.navbar-auth .order-history-link {
+  color: #fff;
+  text-decoration: none;
+}
+
+.navbar-username {
+  color: #fff;
+  /* Màu chữ của tên đăng nhập */
+}
+
+
+/* ========================================================= */
+
+/*============================================ Dropdown Menu =================================================*/
+.dropdown {
+  position: relative;
+}
+
+.dropbtn {
+  color: #fff;
+  text-decoration: none;
+  padding: 10px;
+  display: flex;
+  /* Căn chỉnh theo hàng ngang */
+  align-items: center;
+  /* Căn giữa icon và văn bản */
+  gap: 5px;
+  /* Khoảng cách giữa văn bản và icon */
+  transition: background-color 0.3s;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  /* Nền trắng cho dropdown */
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  /* Đổ bóng cho dropdown */
+  z-index: 10;
+  padding: 10px;
+  white-space: nowrap;
+  /* Ngăn chặn xuống dòng các phần tử */
+  margin-top: 3px;
+}
+
+.dropdown:hover .dropdown-content {
+  display: flex;
+  /* Hiển thị dropdown khi hover */
+  flex-direction: row;
+  /* Sắp xếp các phần tử theo chiều ngang */
+  list-style: none;
+  text-decoration: none;
+
+
+}
+
+.dropdown-section {
+  margin-right: 20px;
+}
+
+.dropdown-section h4 {
+  margin: 0;
+  padding-bottom: 10px;
+  color: #333;
+  /* Màu chữ cho tiêu đề trong dropdown */
+  font-weight: bold;
+  /* In đậm */
+  font-size: 1.1rem;
+  /* Tăng kích thước lên 1 xíu */
+}
+
+.dropdown-section a {
+  color: #333;
+  /* Màu chữ của liên kết */
+  text-decoration: none;
+  /* Loại bỏ gạch chân */
+  padding: 5px 0;
+  display: block;
+}
+
+/*  */
+/* Style này áp dụng cho tất cả các thẻ <a> bên trong các mục danh sách <li>
+   trong danh sách không có thứ tự <ul>, nằm trong một dropdown-section,
+   và dropdown-section này nằm trong dropdown-content */
+.navbar-links>.dropdown>.dropdown-content>.dropdown-section>ul>li>a {
+  position: relative;
+  /* Đảm bảo phần tử được định vị tương đối với chính nó, cho phép pseudo-element (::before) được định vị đúng */
+}
+
+/* Loại bỏ các dấu chấm tròn mặc định của danh sách không có thứ tự <ul> */
+.navbar-links>.dropdown>.dropdown-content>.dropdown-section>ul {
+  list-style: none;
+  /* Ẩn các dấu chấm mặc định của danh sách */
+}
+
+/* Tạo hiệu ứng đường kẻ ngang (ban đầu vô hình) trước thẻ <a>.
+     Nó hoạt động như một hiệu ứng gạch chân hoạt hình cho các liên kết. */
+.navbar-links>.dropdown>.dropdown-content>.dropdown-section>ul>li>a::before {
+  content: "";
+  /* Tạo một pseudo-element rỗng trước thẻ <a> */
+  height: 4px;
+  /* Định nghĩa chiều cao của đường kẻ (gạch chân) */
+  width: 0%;
+  /* Ban đầu, chiều rộng của đường kẻ là 0%, nên nó vô hình */
+  background: #b88f26;
+  /* Màu sắc của đường kẻ (màu vàng) */
+  position: absolute;
+  /* Định vị pseudo-element tương đối với thẻ <a> */
+  bottom: 0px;
+  /* Đặt pseudo-element ở dưới cùng của thẻ <a> */
+  transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  /* Thêm hiệu ứng chuyển mượt mà khi chiều rộng thay đổi */
+  left: 0px;
+  /* Căn đường kẻ về phía bên trái của thẻ <a> */
+}
+
+/* Khi hover, chiều rộng của đường kẻ được thay đổi thành 100%, làm cho nó hiện ra */
+.navbar-links>.dropdown>.dropdown-content>.dropdown-section>ul>li:hover>a::before {
+  width: 100%;
+  /* Mở rộng đường kẻ ra toàn bộ chiều rộng của thẻ <a> khi hover */
+}
+
+
+/* ====================================== form tìm kiếm ========================= */
+.search {
+  display: flex;
+  /* Đặt phần tử search sử dụng Flexbox để căn chỉnh */
+  flex-direction: row;
+  /* Căn chỉnh các phần tử con theo hàng ngang */
+  align-items: center;
+  /* Căn giữa các phần tử con theo chiều dọc */
+
+  padding: 10px;
+  /* Thêm khoảng cách bên trong phần tử */
+  border: 1px solid #b29c6e;
+  /* Đặt viền có màu vàng (#b29c6e) */
+  border-radius: 4px;
+  /* Bo tròn các góc của phần tử */
+  outline: none;
+  /* Loại bỏ viền mặc định khi phần tử được focus */
+  background-color: #fff;
+  /* Đặt nền của phần tử thành màu trắng */
+}
+
+.search input::placeholder {
+  margin-left: 10px;
+  /* Thêm khoảng cách bên trái cho placeholder của input */
+}
+
+.formcontrol {
+  width: 100%;
+  /* Input chiếm toàn bộ chiều rộng có thể trong khối chứa */
+  height: 21px;
+  /* Chiều cao của input */
+  background: transparent;
+  /* Nền trong suốt, không có màu nền */
+  border: 0;
+  /* Loại bỏ viền mặc định của input */
+  outline: 0;
+  /* Loại bỏ viền mặc định khi input được focus */
+  color: #000000;
+  /* Đặt màu chữ của input thành đen */
+  flex-grow: 1;
+  /* Cho phép input mở rộng để chiếm hết không gian còn lại */
+}
+
+.search svg {
+  margin-right: 10px;
+  /* Thêm khoảng cách bên phải cho biểu tượng SVG */
+}
+
+
+/* ======================== avata ================================ */
+/* ====== messeger============= */
+/* Định dạng cho các phần tử span trong .navbar-auth */
+.navbar-auth span {
+  color: #fff;
+  /* Màu chữ là trắng */
+  font-weight: 500;
+  /* Độ đậm của chữ là 500 (trung bình) */
+  font-size: 15px;
+  /* Kích thước chữ là 15px */
+}
+
+/* Container của ảnh đại diện (Avatar) với dạng hình tròn */
+.avatar-container {
+  display: inline-block;
+  /* Định dạng theo khối inline */
+  border-radius: 50%;
+  /* Bo tròn các góc để tạo hình tròn */
+  overflow: hidden;
+  /* Ẩn phần tràn ra khỏi khối container */
+  width: 50px;
+  /* Chiều rộng của container là 50px */
+  height: 50px;
+  /* Chiều cao của container là 50px */
+}
+
+/* Định dạng cho ảnh đại diện (Avatar) */
+.avatar {
+  width: 100%;
+  /* Ảnh chiếm toàn bộ chiều rộng của container */
+  height: 100%;
+  /* Ảnh chiếm toàn bộ chiều cao của container */
+  object-fit: cover;
+  /* Ảnh được cắt và căn chỉnh sao cho vừa khít container mà không biến dạng */
+}
+
+/* Định dạng cho phần văn bản chứa tên người dùng */
+.username-text {
+  margin-left: 10px;
+  /* Khoảng cách bên trái của văn bản là 10px */
+  font-size: 1rem;
+  /* Kích thước chữ là 1 rem */
+  font-weight: 500;
+  /* Độ đậm của chữ là 500 */
+  color: #000000;
+  /* Màu chữ là đen */
+}
+
+/* Định dạng cho menu thả xuống (dropdown menu) */
+.dropdown-menu {
+  border-radius: 8px;
+  /* Bo tròn các góc của menu thả xuống */
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+  /* Đổ bóng cho menu thả xuống */
+}
+
+/* Định dạng khi hover vào một mục trong menu thả xuống */
+.dropdown-item:hover {
+  background-color: #f0f0f0;
+  /* Thay đổi màu nền khi di chuột qua mục */
+}
+
+/* Định dạng cho menu thả xuống nằm ở phía bên phải */
+.navbar-nav .dropdown-menu-end {
+  right: 0;
+  /* Canh phải của menu */
+  left: auto;
+  /* Loại bỏ canh trái */
+}
+
+/* Khoảng cách giữa biểu tượng SVG và văn bản trong mục */
+.nav-item svg {
+  margin-right: 10px;
+  /* Thêm khoảng cách 10px bên phải biểu tượng SVG */
+}
+
+/* Định dạng khi một biểu tượng SVG trong dropdown-item được kích hoạt (click vào) */
+.dropdown-item svg:active {
+  color: #000000;
+  /* Thay đổi màu của biểu tượng SVG khi click vào */
+}
+
+
+
+
+/* ================ hiệu ứng khi nhấn =================== */
+
+.nav-link {
+  display: inline-block;
+  cursor: pointer;
+  transition: transform 0.5s ease-in-out;
+  /* Để có hình ảnh động mượt mà */
+}
+
+.nav-item>a:hover {
+  color: #b29c6e;
+}
+
+
+
+.nav-link:active,
+.position-relative:active,
+.dropbtn:active,
+.nav-link-introduce:active,
+.nav-link-trend:active,
+.nav-link-old:active,
+.navbar-logo:active {
+  transform: scale(0.95);
+  /* Thu nhỏ hình đại diện một chút khi nhấp chuột */
+}
+
+/* ================================================================== */

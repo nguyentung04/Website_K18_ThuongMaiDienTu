@@ -1,0 +1,346 @@
+/* ClientProfile.css */
+.Profile {
+    margin: 0 auto;
+    padding: 0 40px;
+    display: grid;
+    grid-template-columns: 4fr 8fr;
+    gap: 20px;
+    padding: 20px;
+    background-color: #b29c6e30;
+    max-width: 1200px;
+    font-size: 18px;
+}
+
+/* ======================= profile bên trái =========================== */
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    height: 320px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profile-container1>.avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+}
+
+.profile-container1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ======================== profile bên phải ============================== */
+.personal-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-item label,
+.delete-prompt label,
+.change-password-form-checkin>label {
+    font-weight: bold;
+    color: #555;
+
+    width: 30%;
+    display: block;
+    /* Allows the label to take full width and wrap */
+    margin-bottom: 5px;
+    /* Adds space between the label and the input */
+    font-weight: bold;
+    /* Optional: Makes the label text stand out */
+    white-space: normal;
+    /* Ensures the text wraps if it's too long */
+    word-break: break-word;
+    /* Allows long words to break and wrap */
+}
+
+.info-item button {
+    float: right;
+    font-weight: 500;
+    width: 63px;
+    height: 33px;
+}
+
+.info-item button:hover {
+    color: red;
+}
+
+.info-item {
+    border-bottom: 1px solid rgb(196, 196, 196);
+    margin-top: 30px;
+    margin-bottom: 10px;
+    display: flex;
+}
+
+.info-item-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* Ensures space between the text and the button */
+    gap: 10px;
+    /* Adds some spacing between the elements */
+    width: 100%;
+    /* Makes sure the flex container takes up the full width */
+    margin-bottom: 10px;
+}
+
+.info-item-actions span {
+    flex-grow: 1;
+    /* Ensures the span takes up the remaining space */
+}
+
+.info-item-actions button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+}
+
+/* ================================ form sửa thông tin =========================== */
+
+
+/* ClientProfile.css */
+
+/* Hiệu ứng mở form */
+.edit-form {
+
+    margin-bottom: 10px;
+  }
+
+
+  
+
+.info-item input {
+    border: 1px solid #dee2e6;
+    padding: 7px;
+    border: 1px solid #fffefe;
+    border-radius: 4px;
+    outline: none;
+    transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
+    width: 500px;
+}
+
+.delete-prompt input:focus,
+.info-item input:focus,
+.change-password-form-checkin>.change-password-form-input>input:focus {
+    border-color: #ffdc90;
+    box-shadow: 0 0 8px rgba(230, 191, 107, 0.788);
+    border: 1px solid #ffeabc;
+    border-radius: 4px;
+    outline: none;
+    transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
+
+}
+
+.delete-prompt input:hover,
+.info-item>form>input:hover,
+.change-password-form-checkin>.change-password-form-input>input:hover {
+    border-color: #b29c6e;
+    box-shadow: 0 0 8px rgba(248, 197, 55, 0.808);
+    background-color: #ffffff;
+    /* color: #b29c6e; */
+    border: 1px solid #e9b441;
+
+    transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
+
+}
+
+.info-item>form>.button-form>.button-form-cancel {
+    margin-right: 16px;
+    background: #f3eeee;
+    padding: revert;
+    border-radius: 5px;
+    margin-top: 6px;
+    width: 92px;
+    height: 33px;
+    font-size: 18px;
+    font-weight: bolder;
+    color: #555;
+
+}
+
+.info-item>form>.button-form>.button-form-save {
+
+    margin-right: 16px;
+    background: #fcca1e;
+    padding: revert;
+    border-radius: 5px;
+    margin-top: 6px;
+    width: 92px;
+    height: 33px;
+    font-size: 18px;
+    font-weight: bolder;
+    color: #555;
+
+}
+
+.change-password-form .button-form-save:hover,
+.change-password-form .button-form-cancel:hover,
+.delete-prompt .button-form-cancel:hover,
+.delete-prompt .button-form-save:hover,
+.info-item>form>.button-form>.button-form-save:hover,
+.info-item>form>.button-form>.button-form-cancel:hover {
+
+    color: #fff;
+    background: #747066;
+
+
+}
+
+/* =========================================================== */
+.input-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.input-group label {
+    margin-right: 10px;
+
+
+}
+
+/* ================================ xóa tài khoản ===================================== */
+.delete-account,
+.logout-button {
+    margin-top: 20px;
+}
+
+.profile-container button,
+.delete-button,
+.logout-button button {
+    background-color: #ff4d4f;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.profile-container button:hover .delete-button:hover,
+.logout-button button:hover {
+    background-color: #ff7875;
+}
+
+/* ===================================== xác thực mật khẩu ================================ */
+.delete-prompt {
+
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+
+}
+
+.delete-prompt-from {
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    width: 70%;
+}
+
+.delete-prompt .button-form-save,
+.change-password-form .button-form-save {
+
+    margin-right: 16px;
+    background: #fcca1e;
+    padding: revert;
+    border-radius: 5px;
+    margin-top: 6px;
+    width: 145px;
+    height: 33px;
+    font-size: 18px;
+    font-weight: bolder;
+    color: #555;
+
+}
+
+.delete-prompt .button-form-cancel,
+.button-form-cancel {
+    margin-right: 16px;
+    background: #f3eeee;
+    padding: revert;
+    border-radius: 5px;
+    margin-top: 6px;
+    width: 92px;
+    height: 33px;
+    font-size: 18px;
+    font-weight: bolder;
+    color: #555;
+
+}
+
+.delete-prompt input {
+
+    width: 98%;
+    border-radius: 4px;
+    height: 34px;
+    padding: 5px;
+}
+
+
+.btn {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: row-reverse;
+}
+
+/* ================================================ NÚT ĐỔI MẬT KHẨU =============================================== */
+
+
+.change-password-button {
+    background-color: #ecbc2c;
+    color: #000;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.profile-container button:hover .change-password-button:hover {
+    background-color: #ff7875;
+}
+
+/* ======================================================= form xác nhận đổi mật khẩu ============================== */
+.change-password-form form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.form-button {
+    display: flex;
+    gap: 20px;
+    float: inline-end;
+    flex-direction: row-reverse;
+}
+
+.change-password-form-checkin {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 13px;
+}
+
+.change-password-form {
+    margin-bottom: 10px;
+}
+
+.change-password-form-input {
+    width: 80%;
+}
+
+.change-password-form-checkin input {
+    border: 1px solid #dee2e6;
+    padding: 5px;
+    border: 1px solid #fffefe;
+    border-radius: 4px;
+    outline: none;
+    transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
+    width: 500px;
+}

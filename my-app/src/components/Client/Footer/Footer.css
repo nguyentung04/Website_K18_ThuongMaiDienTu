@@ -1,0 +1,122 @@
+.footer {
+  background-color: #d4a3731a;
+  /* Màu nền của footer */
+  padding: 20px 0;
+  /* Khoảng cách bên trong */
+  text-align: center;
+  /* Căn giữa văn bản */
+  color: #000000;
+  /* Màu chữ */
+  margin-top: 90px;
+  /* Chỉ áp dụng bóng phía trên */
+  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.08);
+
+}
+
+
+
+
+
+
+.footer-copy {
+  margin-top: 10px;
+  /* Khoảng cách trên của phần copy */
+}
+
+
+/* ============================================================================= */
+
+.footer-links>.content>.section>ul>li {
+  display: flex;
+}
+
+.footer-links>.content>.section>ul>ul {
+  display: flex;
+}
+.footer-links>.content>.section>hr {
+
+  border: 1px solid #0000007d;
+}
+
+.footer-links>.content>.section>ul>li>a:hover {
+  color: #b88f26;
+}
+
+/*  */
+.content {
+  display: flex;
+  justify-content: center;
+  /* Căn giữa các liên kết */
+  margin-bottom: 10px;
+  /* Khoảng cách dưới của các liên kết */
+}
+
+.footer-links>a,.footer-links>
+span {
+  color: #000000;
+  /* Màu chữ của các liên kết */
+  text-decoration: none;
+  /* Loại bỏ gạch chân khỏi liên kết */
+  margin: 0 15px;
+  /* Khoảng cách giữa các liên kết */
+}
+
+.section span {
+  font-size: 16px;
+  color: #b88f26;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin: 20px 0;
+  display: block;
+}
+
+.section {
+  margin-right: 24px;
+}
+
+
+
+/* Style này áp dụng cho tất cả các thẻ <a> bên trong các mục danh sách <li>
+   trong danh sách không có thứ tự <ul>, nằm trong một dropdown-section,
+   và dropdown-section này nằm trong dropdown-content */
+.footer-links>.content>.section>ul>li>a {
+  position: relative;
+  /* Đảm bảo phần tử được định vị tương đối với chính nó, cho phép pseudo-element (::before) được định vị đúng */
+
+  font-size: 18px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+/* Loại bỏ các dấu chấm tròn mặc định của danh sách không có thứ tự <ul> */
+.footer-links>.content>.section>ul {
+  list-style: none;
+  /* Ẩn các dấu chấm mặc định của danh sách */
+}
+
+/* Tạo hiệu ứng đường kẻ ngang (ban đầu vô hình) trước thẻ <a>.
+     Nó hoạt động như một hiệu ứng gạch chân hoạt hình cho các liên kết. */
+.footer-links>.content>.section>ul>li>a::before {
+  content: "";
+  /* Tạo một pseudo-element rỗng trước thẻ <a> */
+  height: 4px;
+  /* Định nghĩa chiều cao của đường kẻ (gạch chân) */
+  width: 0%;
+  /* Ban đầu, chiều rộng của đường kẻ là 0%, nên nó vô hình */
+  background: #b88f26;
+  /* Màu sắc của đường kẻ (màu vàng) */
+  position: absolute;
+  /* Định vị pseudo-element tương đối với thẻ <a> */
+  bottom: 0px;
+  /* Đặt pseudo-element ở dưới cùng của thẻ <a> */
+  transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  /* Thêm hiệu ứng chuyển mượt mà khi chiều rộng thay đổi */
+  left: 0px;
+  /* Căn đường kẻ về phía bên trái của thẻ <a> */
+}
+
+/* Khi hover, chiều rộng của đường kẻ được thay đổi thành 100%, làm cho nó hiện ra */
+.footer-links>.content>.section>ul>li:hover>a::before {
+  width: 100%;
+  /* Mở rộng đường kẻ ra toàn bộ chiều rộng của thẻ <a> khi hover */
+}

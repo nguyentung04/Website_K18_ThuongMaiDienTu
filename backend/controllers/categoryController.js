@@ -66,29 +66,43 @@ exports.deleteCategory = (req, res) => {
 
 exports.updateCategory = (req, res) => {
   const categoryId = req.params.id;
-  const { name } = req.body;
+  const { name, logo } = req.body; // Nhận dữ liệu từ body
 
-  // Prepare the SQL query
+  // Log dữ liệu nhận được để kiểm tra
+  console.log("Received data:", req.body);
+
+  // Kiểm tra nếu không có tên hoặc ID danh mục
+  if (!name || !categoryId) {
+    return res.status(400).json({ error: "Tên danh mục và ID là bắt buộc." });
+  }
+
+  // Nếu không có logo, gán giá trị null
+  const logoValue = logo || null;
+
+  // Chuẩn bị câu truy vấn SQL
   const query = `
-    UPDATE categories SET name=?
+    UPDATE categories SET name=?, logo=? 
     WHERE id = ?;
   `;
-  const values = [name, categoryId];
+  const values = [name, logoValue, categoryId];
 
-  // Execute the query
+  // Thực hiện câu truy vấn
   connection.query(query, values, (err, results) => {
     if (err) {
-      return res.status(500).json({ error: err.message });
+      console.error("Database query error:", err); // Log lỗi ra console
+      return res.status(500).json({ error: "Database query failed", details: err.message });
     }
     if (results.affectedRows === 0) {
-      return res.status(404).json({ message: "category not found" });
+      return res.status(404).json({ message: "Category not found" });
     }
-    res.status(200).json({ message: "category updated successfully" });
+    res.status(200).json({ message: "Category updated successfully" });
   });
 };
 
+
+
 exports.postCategory = (req, res) => {
-  const { name } = req.body;
+  const { name, logo } = req.body; // Thêm trường logo
 
   // Validate input
   if (!name) {
@@ -97,10 +111,10 @@ exports.postCategory = (req, res) => {
 
   // Prepare the SQL query
   const query = `
-    INSERT INTO categories (name)
-    VALUES (?);
+    INSERT INTO categories (name, logo)
+    VALUES (?, ?);
   `;
-  const values = [name || ""]; // Use empty string if description is not provided
+  const values = [name || "", logo || ""]; // Sử dụng chuỗi rỗng nếu không có logo
 
   // Execute the query
   connection.query(query, values, (err, results) => {

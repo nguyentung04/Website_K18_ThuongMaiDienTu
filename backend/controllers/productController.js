@@ -1,13 +1,22 @@
 const connection = require('../config/database');
 
 exports.getAllProducts = (req, res) => {
-  connection.query("SELECT * FROM products", (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.status(200).json(results);
-  });
+  connection.query(`
+    SELECT 
+      DATE_FORMAT(created_at, '%Y-%m') AS month, 
+      COUNT(*) AS totalProducts
+    FROM products
+    GROUP BY month
+    ORDER BY month DESC;`, (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.status(200).json(results);
+    });
 };
+
+
+
 //sanpham noi bat
 exports.featuredProducts = (req, res) => {
   connection.query(
@@ -66,7 +75,7 @@ exports.GetOneProduct = (req, res) => {
   const productId = req.params.id;
   // Thực hiện truy vấn SQL với giá trị ID
   connection.query(
-   `SELECT 
+    `SELECT 
     *
 FROM 
     products
@@ -86,10 +95,9 @@ WHERE
 };
 
 
-
 // admin
 exports.getAllProducts = (req, res) => {
-  connection.query(`SELECT products.id,products.name,products.image,products.description,products.status,products.price, categories.name AS category
+  connection.query(`SELECT products.id, products.name, products.image, products.description, products.price, products.discountPrice, products.status, categories.name AS category
 FROM products
 INNER JOIN categories ON products.category_id = categories.id
 WHERE 1;
@@ -120,12 +128,10 @@ exports.getProductById = (req, res) => {
 
 exports.updateProduct = (req, res) => {
   const productId = req.params.id;
-  const { name, price, sell_price, description, image, status, category_id } =
-    req.body;
+  const { name, price, discountPrice, description, image, status, category_id } = req.body;
 
-  // Log the incoming data for debugging
   console.log("Updating product with ID:", productId);
-  console.log("Product Data:", { name, price, description, image, status, category_id });
+  console.log("Product Data:", { name, price, discountPrice, description, image, status, category_id });
 
   const query = `
     UPDATE products 
@@ -133,6 +139,7 @@ exports.updateProduct = (req, res) => {
       name = ?, 
       image = ?, 
       price = ?,  
+      discountPrice = ?,
       description = ?, 
       status = ?, 
       category_id = ? 
@@ -143,15 +150,12 @@ exports.updateProduct = (req, res) => {
     name,
     image,
     price,
+    discountPrice,
     description,
     status,
     category_id,
     productId,
   ];
-
-  // Log the SQL query and values
-  console.log("SQL Query:", query);
-  console.log("Values:", values);
 
   connection.query(query, values, (err, results) => {
     if (err) {
@@ -164,6 +168,7 @@ exports.updateProduct = (req, res) => {
     res.status(200).json({ message: "Product updated successfully" });
   });
 };
+
 exports.postProduct = async (req, res, next) => {
   try {
     console.log("Request Body:", req.body);
@@ -171,6 +176,7 @@ exports.postProduct = async (req, res, next) => {
     const {
       name,
       price,
+      discountPrice,
       image,
       description,
       status,
@@ -181,13 +187,14 @@ exports.postProduct = async (req, res, next) => {
     const categoryId = parseInt(category_id, 10);
 
     const query = `
-      INSERT INTO products (name, image, price, description, status, category_id) 
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO products (name, image, price, discountPrice, description, status, category_id) 
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
       name,
       image,
       price,
+      discountPrice,
       description,
       status,
       categoryId
@@ -209,6 +216,7 @@ exports.postProduct = async (req, res, next) => {
   }
 };
 
+
 exports.deleteProduct = (req, res) => {
   const productId = req.params.id;
 
@@ -220,7 +228,7 @@ exports.deleteProduct = (req, res) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
-// Check if any rows were affected (i.e., if the product was deleted)
+    // Check if any rows were affected (i.e., if the product was deleted)
     if (results.affectedRows === 0) {
       return res.status(404).json({ message: "Product not found" });
     }

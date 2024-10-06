@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -34,14 +31,20 @@ const ProductsTable = () => {
   const toast = useToast();
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     const getProducts = async () => {
+      setLoading(true);
       try {
         const data = await fetchProducts();
+        console.log(data); // Kiểm tra log dữ liệu trả về từ API
         if (data) {
           setProducts(data);
         }
       } catch (error) {
+        setError("Failed to fetch products.");
         toast({
           title: "Error fetching products",
           description: "Failed to fetch product list.",
@@ -51,15 +54,18 @@ const ProductsTable = () => {
         });
         console.error("Failed to fetch products:", error);
       }
+      setLoading(false);
     };
     getProducts();
   }, [toast]);
+
+
 
   const onClose = () => setIsOpen(false);
 
   const handleDeleteClick = (product) => {
     setSelectedProduct(product);
-    setIsOpen(true); // Open the confirmation dialog
+    setIsOpen(true);
   };
 
   const handleConfirmDelete = async () => {
@@ -90,6 +96,20 @@ const ProductsTable = () => {
     setIsOpen(false); // Close the dialog
   };
 
+  // Hàm tính toán giá sau khi trừ giá khuyến mãi
+  const calculateDiscountedPrice = (price, discountPercentage) => {
+    if (discountPercentage && discountPercentage > 0 && discountPercentage <= 100) {
+      const discountedPrice = price - (price * (discountPercentage / 100));
+      return discountedPrice;
+    }
+    return price; // Nếu không có khuyến mãi, trả về giá gốc
+  };
+
+  // Hàm format giá trị VNĐ
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+  };
+
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
       <Flex mb={5} justify="space-between" align="center">
@@ -114,7 +134,9 @@ const ProductsTable = () => {
             <Th>Ảnh</Th>
             <Th>Tên sản phẩm</Th>
             <Th>Loại sản phẩm</Th>
-            <Th>Giá</Th>
+            <Th>Giá (VNĐ)</Th>
+            <Th>Khuyến mãi (%)</Th>
+            <Th>Giá sau khuyến mãi</Th>
             <Th>Trạng thái</Th>
             <Th>Hoạt động</Th>
           </Tr>
@@ -127,11 +149,11 @@ const ProductsTable = () => {
               <Td>
                 <Box display="flex" alignItems="center" justifyContent="center">
                   <Img
-                    src={`http://localhost:3000/uploads/products/${product.image}`} // Sửa đường dẫn cho phù hợp với cấu hình server
+                    src={`http://localhost:3000/uploads/products/${product.image}`}
                     boxSize="100px"
                     objectFit="cover"
                     borderRadius={"22px"}
-                    alt={product.name} // Cải thiện khả năng tiếp cận và kiểm tra
+                    alt={product.name}
                   />
                 </Box>
               </Td>
@@ -146,7 +168,14 @@ const ProductsTable = () => {
                 <Text>{product.category}</Text>
               </Td>
               <Td>
-                <Text>{product.price}</Text>
+                <Text>{formatCurrency(product.price)}</Text>
+              </Td>
+              <Td>
+                <Text>{Math.round(product.discountPrice)}%</Text>
+              </Td>
+
+              <Td>
+                <Text>{formatCurrency(calculateDiscountedPrice(product.price, product.discountPrice))}</Text>
               </Td>
               <Td>
                 <Text>{product.status}</Text>
@@ -201,4 +230,3 @@ const ProductsTable = () => {
 };
 
 export default ProductsTable;
-

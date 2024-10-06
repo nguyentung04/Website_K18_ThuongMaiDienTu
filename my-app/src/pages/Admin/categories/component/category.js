@@ -18,6 +18,7 @@ import {
   AlertDialogBody,
   AlertDialogFooter,
   useToast,
+  Img, // Thêm Img để hiển thị logo
 } from "@chakra-ui/react";
 import { fetchCategories, deleteCategory } from "../../../../service/api/Category";
 import { Link } from "react-router-dom";
@@ -48,8 +49,8 @@ const CategoryPage = () => {
           prevData.filter((category) => category.id !== selectedCategory.id)
         );
         toast({
-          title: "Category deleted.",
-          description: "Category has been deleted successfully.",
+          title: "Thông báo",
+          description: "Đã xóa 1 danh mục!!!",
           status: "success",
           duration: 5000,
           isClosable: true,
@@ -78,7 +79,7 @@ const CategoryPage = () => {
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md">
       <Flex mb={5} justify="space-between" align="center">
-        <Text fontSize="2xl" fontWeight="bold"></Text>
+        <Text fontSize="2xl" fontWeight="bold">Danh sách danh mục</Text>
         <Link to="admin/categories/add">
           <Button
             bg="#1ba43b"
@@ -93,22 +94,32 @@ const CategoryPage = () => {
       <Table variant="simple">
         <Thead>
           <Tr>
-          <Th>stt</Th>
+            <Th>STT</Th>
             <Th display="none">ID</Th>
-            <Th>Category</Th>
+            <Th>Logo</Th> {/* Cột logo mới */}
+            <Th>Tên danh mục</Th>
             <Th>Actions</Th>
           </Tr>
         </Thead>
         <Tbody>
           {categories.map((category, index) => (
             <Tr key={category.id} _hover={{ bg: hoverBgColor }}>
-              <Td  fontWeight="bold">{index + 1}</Td>
+              <Td fontWeight="bold">{index + 1}</Td>
               <Td display="none">{category.id}</Td>
+              <Td>
+                <Img
+                  src={`http://localhost:3000/uploads/categories/${category.logo}`} // Đường dẫn đến logo
+                  boxSize="50px" // Kích thước của logo
+                  objectFit="cover"
+                  borderRadius="full" // Làm tròn nếu muốn
+                  alt={category.name}
+                />
+              </Td>
               <Td>{category.name}</Td>
               <Td>
                 <Link to={`admin/Category/edit/${category.id}`}>
                   <Button colorScheme="blue" size="sm" mr={2}>
-                  Sửa
+                    Sửa
                   </Button>
                 </Link>
                 <Button
@@ -116,7 +127,7 @@ const CategoryPage = () => {
                   size="sm"
                   onClick={() => handleDeleteClick(category)}
                 >
-                      Xóa
+                  Xóa
                 </Button>
               </Td>
             </Tr>
@@ -131,16 +142,16 @@ const CategoryPage = () => {
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
-            Xác nhận xóa
+              Xác nhận xóa
             </AlertDialogHeader>
 
             <AlertDialogBody>
-            Bạn có chắc chắn muốn xóa người dùng này không?
+              Bạn có chắc chắn muốn xóa danh mục này không?
             </AlertDialogBody>
 
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose} colorScheme="blue">
-              Hủy
+                Hủy
               </Button>
               <Button colorScheme="red" onClick={handleConfirmDelete} ml={3}>
                 Xóa

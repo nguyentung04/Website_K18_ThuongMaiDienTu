@@ -3,6 +3,11 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "../pages/Admin/Dashboard";
 import ProductsRoutes from "../pages/Admin/products/router";
 import UserRoutes from "../pages/Admin/user/router";
+
+
+import ProductdetailRoutes from "../pages/Admin/productdetail/router";
+import DistrictsRoutes from "../pages/Admin/districts/router";
+import CitiesRoutes from "../pages/Admin/cities/router";
 import OrdersRoutes from "../pages/Admin/orders/router";
 import CategoryRoutes from "../pages/Admin/categories/router";
 import CommentsRoutes from "../pages/Admin/comments/router";
@@ -23,6 +28,10 @@ const AdminRoutes = () => {
       <Route path="category/*" element={<CategoryRoutes />} />
       <Route path="products/*" element={<ProductsRoutes />} />
       <Route path="user/*" element={<UserRoutes />} />
+      <Route path="productdetail/*" element={<ProductdetailRoutes />} />
+      
+      <Route path="districts/*" element={<DistrictsRoutes />} />
+      <Route path="cities/*" element={<CitiesRoutes />} />
       <Route path="orders/*" element={<OrdersRoutes />} />
       <Route path="comments/*" element={<CommentsRoutes />} />
       <Route path="/" element={<Navigate to="dashboard" />} /> {/* Điều hướng về dashboard */}

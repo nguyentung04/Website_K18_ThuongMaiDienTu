@@ -615,7 +615,7 @@ form>.button_order {
 
 
 
-form .custom-input {
+.products form .custom-input {
   border: 1px solid #b29c6e;
   padding: 10px;
   border-radius: 4px;
@@ -623,13 +623,13 @@ form .custom-input {
   transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }
 
-form .custom-input:hover {
+.products form .custom-input:hover {
   border-color: #b29c6e;
   box-shadow: 0 0 8px rgba(178, 156, 110, 0.5);
  color: #b29c6e;
 }
 
-form .custom-input:focus {
+.products form .custom-input:focus {
   border-color: #b29c6e;
   box-shadow: 0 0 8px rgba(178, 156, 110, 0.5);
   border: 2px solid #b29c6e;

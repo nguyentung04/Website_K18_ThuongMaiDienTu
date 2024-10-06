@@ -49,6 +49,7 @@ const CheckoutForm = () => {
 
   const handleProvinceChange = async (e) => {
     const selectedProvince = e.target.value;
+    // Cập nhật dữ liệu của form, đồng thời reset thành phố khi thay đổi tỉnh
     setFormData({
       ...formData,
       province: selectedProvince,
@@ -63,31 +64,39 @@ const CheckoutForm = () => {
     }
   };
 
+  // Hàm xử lý khi người dùng thay đổi thành phố
   const handleCityChange = (e) => {
     const selectedCity = e.target.value;
+    // Cập nhật thành phố trong dữ liệu của form
     setFormData({
       ...formData,
       city: selectedCity,
     });
   };
 
+  // Hàm xử lý các thay đổi khác của form (tên, email, địa chỉ, v.v.)
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // Cập nhật trường tương ứng trong form dựa vào thuộc tính 'name' của input
     setFormData({
       ...formData,
       [name]: value,
     });
   };
 
+  // Hàm kiểm tra tính hợp lệ của form trước khi submit
   const validateForm = () => {
     const newErrors = {};
+
+    // Kiểm tra từng trường dữ liệu, nếu trống thì thêm thông báo lỗi tương ứng
     if (!formData.name) newErrors.name = "Tên khách hàng là bắt buộc";
     if (!formData.email) newErrors.email = "Địa chỉ email là bắt buộc";
     if (!formData.phone) newErrors.phone = "Số điện thoại là bắt buộc";
     if (!formData.province) newErrors.province = "Tỉnh là bắt buộc";
     if (!formData.city) newErrors.city = "Thành phố là bắt buộc";
     if (!formData.address) newErrors.address = "Địa chỉ nhận hàng là bắt buộc";
-    if (!formData.paymentMethod) newErrors.paymentMethod = "Chọn phương thức thanh toán";
+    if (!formData.paymentMethod)
+      newErrors.paymentMethod = "Chọn phương thức thanh toán";
 
     setErrors(newErrors);
     return !Object.values(newErrors).length; 
@@ -171,7 +180,7 @@ const CheckoutForm = () => {
   return (
     <div className="checkout-form">
       <h2>Thông tin người mua hàng</h2>
-      
+
       <Box flex={7}>
         <form onSubmit={handleSubmit}>
           <FormControl mb={3} isInvalid={errors.name}>

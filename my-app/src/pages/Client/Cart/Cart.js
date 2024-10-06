@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { DeleteIcon } from "../../../components/icon/icon";
 import { NavLink } from "react-router-dom";
+import CartProvider from "../../../components/Client/componentss/Cart_Context";
 
 const BASE_URL = "http://localhost:3000"; // Cập nhật đúng URL của server
 
@@ -164,87 +165,97 @@ const Cart = () => {
       <Box background="#e4cc972e" mb="40px" p="20px" borderRadius="6px">
         {cart.map((item, index) => (
           <Box key={item.id}>
-            <button
-              className="remove-button"
-              onClick={() => removeFromCart(item.id)}
-            >
-              <DeleteIcon />
-            </button>
-            <Flex>
-              <Img
-                src={`${BASE_URL}/uploads/products/${item.image}`}
-                alt={item.name}
-                maxWidth="114px"
-              />
-              <Box
-                width="78%"
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "space-around",
-                  alignItems: "Center",
-                }}
-              >
+            {" "}
+            <CartProvider>
+              <Flex>
+                <Img
+                  style={{ mixBlendMode: "multiply" }}
+                  src={`${BASE_URL}/uploads/products/${item.image}`}
+                  alt={item.name}
+                  maxWidth="114px"
+                />
                 <Box
+                  width="78%"
                   style={{
-                    width: "300px",
-                    display: "-webkit-box",
-                    WebkitBoxOrient: "vertical" /* Chuyển sang camelCase */,
-                    WebkitLineClamp: 2 /* Chuyển sang camelCase */,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                    alignItems: "Center",
                   }}
                 >
-                  <Heading as="h5" size="sm" color="#666" mb={2}>
-                    {item.name}
-                  </Heading>
-                </Box>
-                <Text
-                  fontWeight="bold"
-                  className={fadePrice === item.id ? "fade" : "show"}
-               >
-                <span> Giá: </span>
-                 
-                  {item.discountPrice
-                    ? formatPrice(item.discountPrice)
-                    : formatPrice(item.price)}
-                </Text>
-                <Flex align="center" gap={1}>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => decreaseQuantity(item.id)}
-                    width="33px"
-                    height="35px"
+                  <Box
+                    style={{
+                      width: "300px",
+                      display: "-webkit-box",
+                      WebkitBoxOrient: "vertical" /* Chuyển sang camelCase */,
+                      WebkitLineClamp: 2 /* Chuyển sang camelCase */,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
                   >
-                    -
-                  </Button>
-                  <Input
-                    px={2}
-                    value={item.quantity}
-                    onChange={(e) => handleQuantityChange(e, item.id)}
-                    textAlign="center"
-                    width="60px"
-                    background="#ffffff"
-                    height="35px"
-                  />
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => increaseQuantity(item.id)}
-                  >
-                    +
-                  </Button>
-                </Flex>
-                <Text
-                  fontWeight="bold"
-                  className={fadePrice === item.id ? "fade" : "show"}
-                >
-                <span> Tổng giá: </span> {formatPrice(getProductTotal(item))}
-                </Text>
-              </Box>
-            </Flex>
+                    <Heading as="h5" size="sm" color="#666" mb={2}>
+                      {item.name}
+                    </Heading>
+                  </Box>
+                  <Flex fontWeight="bold">
+                    <span> Giá: </span>{" "}
+                    <Text fontWeight="bold" style={{ marginLeft: "5px" }}>
+                      {item.discountPrice
+                        ? formatPrice(item.discountPrice)
+                        : formatPrice(item.price)}
+                    </Text>{" "}
+                  </Flex>
 
+                  <Flex align="center" gap={1}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => decreaseQuantity(item.id)}
+                      width="33px"
+                      height="35px"
+                    >
+                      -
+                    </Button>
+                    <Input
+                      px={2}
+                      value={item.quantity}
+                      onChange={(e) => handleQuantityChange(e, item.id)}
+                      textAlign="center"
+                      width="60px"
+                      background="#ffffff"
+                      height="35px"
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => increaseQuantity(item.id)}
+                    >
+                      +
+                    </Button>
+                  </Flex>
+                  <Flex fontWeight="bold">
+                    <span>
+                      {" "}
+                      Tổng giá: <br></br>
+                    </span>
+                    <Text
+                      fontWeight="bold"
+                      className={fadePrice === item.id ? "fade" : "show"}
+                      style={{ marginLeft: "5px" }}
+                    >
+                      {formatPrice(getProductTotal(item))}
+                    </Text>
+                  </Flex>
+                  <button
+                    className="remove-button"
+                    onClick={() => removeFromCart(item.id)}
+                  >
+                    <DeleteIcon />
+                    <deleteIcon />
+                  </button>
+                </Box>
+              </Flex>
+            </CartProvider>
             <Divider borderColor="#666" />
           </Box>
         ))}

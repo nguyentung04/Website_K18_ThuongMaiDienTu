@@ -96,10 +96,15 @@ const AuthorsTable = () => {
         return { bg: "red.500", color: "white" };
       case "users":
         return { bg: "gray.500", color: "white" };
+      case "đang hoạt động":
+        return { bg: "green.500", color: "white" };
+      case "ngưng hoạt động":
+        return { bg: "gray.500", color: "white" };
       default:
         return { bg: "gray.500", color: "white" };
     }
   };
+
 
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
@@ -126,11 +131,12 @@ const AuthorsTable = () => {
             <Th>Tài khoản</Th>
             <Th>Số điện thoại</Th>
             <Th>Phân quyền</Th>
+            <Th>Trạng thái</Th>
             <Th>Hoạt động</Th>
           </Tr>
         </Thead>
         <Tbody>
-          {data.map((item,index) => (
+          {data.map((item, index) => (
             <Tr key={item.id} _hover={{ bg: hoverBgColor }}>
               <Td fontWeight="bold">{index + 1}</Td>
               <Td display="none">
@@ -142,7 +148,6 @@ const AuthorsTable = () => {
               </Td>
               <Td>
                 <Box display="flex" alignItems="center">
-                 
                   <Box>
                     <Text fontWeight="bold">{item.name}</Text>
                     <Text fontSize="sm" color="gray.500">
@@ -151,11 +156,9 @@ const AuthorsTable = () => {
                   </Box>
                 </Box>
               </Td>
-
               <Td>
                 <Text fontWeight="bold">{item.username}</Text>
-                <Text fontSize="sm" color="gray.500">
-                </Text>
+                <Text fontSize="sm" color="gray.500"></Text>
               </Td>
               <Td>
                 <Box display="flex" alignItems="center">
@@ -165,14 +168,18 @@ const AuthorsTable = () => {
                 </Box>
               </Td>
               <Td>
-                <Badge
-                  bg={statusBadgeColor(item.role).bg}
-                  color={statusBadgeColor(item.role).color}
-                >
+                <Badge bg={statusBadgeColor(item.role).bg} color={statusBadgeColor(item.role).color}>
                   {item.role}
                 </Badge>
               </Td>
-
+              <Td>
+                <Badge
+                  bg={statusBadgeColor(item.status === 1 ? "đang hoạt động" : "ngưng hoạt động").bg}
+                  color={statusBadgeColor(item.status === 1 ? "đang hoạt động" : "ngưng hoạt động").color}
+                >
+                  {item.status === 1 ? "đang hoạt động" : "ngưng hoạt động"}
+                </Badge>
+              </Td>
               <Td>
                 <Link to={`user/edit/${item.id}`}>
                   <Button colorScheme="blue" size="sm" mr={2}>

@@ -28,6 +28,7 @@ const EditProduct = () => {
   const [imageFile, setImageFile] = useState(null);
   const [categories, setCategories] = useState([]);
   const [description, setDescription] = useState("");
+  const [discountPrice, setDiscountPrice] = useState("");
   const [errors, setErrors] = useState({});
   const toast = useToast();
   const navigate = useNavigate();
@@ -45,6 +46,7 @@ const EditProduct = () => {
           setDescription(data.description || "");
           setStatus(data.status || "");
           setImage(data.image || "");
+          setDiscountPrice(data.discountPrice || "");
         }
       } catch (error) {
         toast({
@@ -82,15 +84,20 @@ const EditProduct = () => {
 
   const validateForm = () => {
     const newErrors = {};
-
+  
     if (!name) newErrors.name = "Tên sản phẩm là bắt buộc.";
     if (!category) newErrors.category = "Loại sản phẩm là bắt buộc.";
-    if (!price || isNaN(price))
+    if (!price || isNaN(price)) {
       newErrors.price = "Giá là bắt buộc và phải là số.";
+    } else if (price <= 0) {
+      newErrors.price = "Giá phải lớn hơn 0.";
+    }
     if (!image) newErrors.image = "Ảnh sản phẩm là bắt buộc.";
-
+    if (description.length < 10) newErrors.description = "Mô tả phải ít nhất 10 ký tự.";
+    if (!discountPrice) newErrors.discountPrice = "% giảm giá bắt buộc phải nhập!!!"
     return newErrors;
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -138,14 +145,15 @@ const EditProduct = () => {
       description,
       image: imageUrl,
       status,
+      discountPrice,
       category_id: category,
     };
 
     try {
       await updateProduct(id, productData);
       toast({
-        title: "Product updated.",
-        description: "Product details have been updated successfully.",
+        title: "Thông báo",
+        description: "Cập nhật sản phẩm thành công!!!",
         status: "success",
         duration: 5000,
         isClosable: true,
@@ -202,6 +210,16 @@ const EditProduct = () => {
             onChange={(e) => setPrice(e.target.value)}
           />
           {errors.price && <FormErrorMessage>{errors.price}</FormErrorMessage>}
+        </FormControl>
+
+        <FormControl id="discountPrice" mb={4} isInvalid={errors.discountPrice}>
+          <FormLabel>Giá</FormLabel>
+          <Input
+            type="number"
+            value={discountPrice}
+            onChange={(e) => setDiscountPrice(e.target.value)}
+          />
+          {errors.discountPrice && <FormErrorMessage>{errors.discountPrice}</FormErrorMessage>}
         </FormControl>
 
         <FormControl id="description" mb={4} isInvalid={errors.description}>

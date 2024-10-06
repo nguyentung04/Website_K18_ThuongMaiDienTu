@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import SuccessModal from '../../../components/Modals/SuccessModal';
+import ErrorModal from '../../../components/Modals/ErrorModal';
 import './SignIn.css';
 
 const SignIn = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
@@ -27,16 +32,26 @@ const SignIn = () => {
     .then(data => {
       if (data.token) {
         localStorage.setItem('token', data.token);
-        localStorage.setItem('username', username); // Lưu tên đăng nhập vào localStorage
-        alert('Đăng nhập thành công!');
-        navigate('/');
+        localStorage.setItem('username', username);
+        setShowSuccessModal(true); // Hiển thị modal thành công
+        setTimeout(() => {
+          navigate('/'); // Chuyển hướng sau 2-3 giây
+        }, 2000);
       } else {
         setError(data.message || 'Đăng nhập thất bại');
+        setShowErrorModal(true); // Hiển thị modal thất bại
+        setTimeout(() => {
+          setShowErrorModal(false); // Đóng modal sau 2-3 giây
+        }, 2000);
       }
     })
     .catch(error => {
       console.error('Error:', error);
       setError('Có lỗi xảy ra');
+      setShowErrorModal(true); // Hiển thị modal thất bại
+      setTimeout(() => {
+        setShowErrorModal(false); // Đóng modal sau 2-3 giây
+      }, 2000);
     });
   };
 
@@ -82,6 +97,23 @@ const SignIn = () => {
           </button>
         </div>
       </section>
+
+      {showSuccessModal && (
+        <SuccessModal
+          message="Đăng nhập thành công!"
+          onClose={() => {
+            setShowSuccessModal(false);
+            navigate('/');
+          }}
+        />
+      )}
+
+      {showErrorModal && (
+        <ErrorModal
+          message={error}
+          onClose={() => setShowErrorModal(false)}
+        />
+      )}
     </div>
   );
 };

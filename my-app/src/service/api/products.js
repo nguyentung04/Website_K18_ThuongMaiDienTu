@@ -14,6 +14,8 @@ export const fetchProducts = async () => {
   }
 };
 
+
+
 export const fetchProductById = async (id) => {
   try {
     const response = await axios.get(`${BASE_URL}/products/${id}`);

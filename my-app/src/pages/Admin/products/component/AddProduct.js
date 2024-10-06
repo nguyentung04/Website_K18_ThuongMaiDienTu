@@ -18,6 +18,7 @@ const AddProduct = () => {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
+  const [discountPrice, setDiscountPrice] = useState(""); // Thêm trạng thái cho giá giảm
   const [status, setStatus] = useState("");
   const [description, setDescription] = useState("");
   const [imageFile, setImageFile] = useState(null);
@@ -55,6 +56,9 @@ const AddProduct = () => {
     if (!category) newErrors.category = "Loại sản phẩm là bắt buộc.";
     if (!price || isNaN(price) || parseFloat(price) <= 0)
       newErrors.price = "Giá là bắt buộc và phải là số lớn hơn 0.";
+    if (discountPrice && (isNaN(discountPrice) || parseFloat(discountPrice) < 0 || parseFloat(discountPrice) >= parseFloat(price))) {
+      newErrors.discountPrice = "Giá giảm phải là số và nhỏ hơn giá gốc.";
+    }
     if (!description) newErrors.description = "Mô tả là bắt buộc.";
     if (!status) newErrors.status = "Trạng thái là bắt buộc.";
     if (!imageFile) newErrors.image = "Ảnh sản phẩm là bắt buộc.";
@@ -93,7 +97,7 @@ const AddProduct = () => {
       toast({
         title: "Lỗi tải hình ảnh lên",
         description: "Không tải được hình ảnh.",
-        status: "lỗi",
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -103,6 +107,7 @@ const AddProduct = () => {
     const productData = {
       name,
       price,
+      discountPrice: discountPrice ? parseFloat(discountPrice) : 0, // Gán giá giảm
       description,
       image: imageUrl,
       status,
@@ -112,8 +117,8 @@ const AddProduct = () => {
     try {
       await addProduct(productData);
       toast({
-        title: "Product added.",
-        description: "Product has been added successfully.",
+        title: "Sản phẩm đã được thêm.",
+        description: "Sản phẩm đã được thêm thành công.",
         status: "success",
         duration: 5000,
         isClosable: true,
@@ -122,8 +127,8 @@ const AddProduct = () => {
     } catch (error) {
       console.error("Add product error:", error);
       toast({
-        title: "Error adding product.",
-        description: "Failed to add product. Please try again.",
+        title: "Lỗi thêm sản phẩm.",
+        description: "Không thể thêm sản phẩm. Vui lòng thử lại.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -170,6 +175,18 @@ const AddProduct = () => {
             onChange={(e) => setPrice(e.target.value)}
           />
           {errors.price && <FormErrorMessage>{errors.price}</FormErrorMessage>}
+        </FormControl>
+
+        <FormControl id="discountPrice" mb={4} isInvalid={errors.discountPrice}>
+          <FormLabel>Giá giảm (%)</FormLabel>
+          <Input
+            type="number"
+            min="0"
+            max="100"
+            value={discountPrice}
+            onChange={(e) => setDiscountPrice(e.target.value)}
+          />
+          {errors.discountPrice && <FormErrorMessage>{errors.discountPrice}</FormErrorMessage>}
         </FormControl>
 
         <FormControl id="description" mb={4} isInvalid={errors.description}>

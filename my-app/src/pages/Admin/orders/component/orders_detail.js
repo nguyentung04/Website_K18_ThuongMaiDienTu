@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {
   Box,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
   Text,
   Spinner,
   Button,
   useColorModeValue,
   useToast,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import { fetchOrderDetailById, updateOrderDetailStatus } from "../../../../service/api/order_detail"; 
@@ -24,7 +20,6 @@ const OrderDetailTable = () => {
   const [error, setError] = useState(null); 
   const toast = useToast();
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
-  const headerBgColor = useColorModeValue("gray.200", "gray.800");
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -125,65 +120,62 @@ const OrderDetailTable = () => {
       <Text fontSize="2xl" fontWeight="bold" mb={4}>
         Chi tiết đơn hàng #{orderId}
       </Text>
-      <Table variant="simple">
-        <Thead bg={headerBgColor}>
-          <Tr>
-            <Th>Order ID</Th> {/* Updated header */}
-            <Th>Tên khách hàng</Th>
-            <Th>Số điện thoại</Th>
-            <Th>Địa chỉ</Th>
-            <Th>Phương thức thanh toán</Th>
-            <Th>Thời gian</Th>
-            <Th>Item ID</Th> {/* Updated header */}
-            <Th>Giá</Th>
-            <Th>Số lượng</Th>
-            <Th>Tổng</Th>
-            <Th>Trạng thái</Th>
-            <Th>Hành động</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {orderDetails.map((item) => {
-            console.log("Rendering Item:", item); // Debugging log
-            return (
-              <Tr key={item.id} _hover={{ bg: hoverBgColor }}>
-                <Td>{item.order_id}</Td>
-                <Td>{item.name}</Td>
-                <Td>{item.phone}</Td>
-                <Td>{item.address}</Td>
-                <Td>{item.paymentMethod}</Td>
-                <Td>{item.date}</Td>
-                <Td>{item.id}</Td>
-                <Td>{item.price}</Td>
-                <Td>{item.quantity}</Td>
-                <Td>{item.total}</Td>
-                <Td>{item.statuss}</Td> {/* Updated property name */}
-                <Td>
-                  {item.statuss === "Chờ xác nhận" && (
-                    <Button
-                      colorScheme="green"
-                      size="sm"
-                      margin="10px"
-                      onClick={() => handleApprove(item.order_id)}
-                    >
-                      Duyệt
-                    </Button>
-                  )}
-                  {item.status !== "Đã hủy" && (
-                    <Button
-                      colorScheme="red"
-                      size="sm"
-                      onClick={() => handleDelete(item.order_id)}
-                    >
-                      Hủy đơn hàng
-                    </Button>
-                  )}
-                </Td>
-              </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
+      {orderDetails.map((item) => (
+        <Box key={item.id} mb={4} p={4} borderWidth="1px" borderRadius="lg" _hover={{ bg: hoverBgColor }}>
+          <Grid templateColumns="repeat(3, 1fr)" gap={4}>
+            <GridItem colSpan={1}>
+              <Text><strong>Tên khách hàng:</strong> {item.name}</Text>
+            </GridItem>
+            <GridItem colSpan={1}>
+              <Text><strong>Số điện thoại:</strong> {item.phone}</Text>
+            </GridItem>
+            <GridItem colSpan={1}>
+              <Text><strong>Địa chỉ:</strong> {item.address}</Text>
+            </GridItem>
+            <GridItem colSpan={1}>
+              <Text><strong>Phương thức thanh toán:</strong> {item.paymentMethod}</Text>
+            </GridItem>
+            <GridItem colSpan={1}>
+              <Text><strong>Thời gian:</strong> {item.date}</Text>
+            </GridItem>
+            <GridItem colSpan={1}>
+              <Text><strong>Giá:</strong> {item.price}</Text>
+            </GridItem>
+            <GridItem colSpan={1}>
+              <Text><strong>Số lượng:</strong> {item.quantity}</Text>
+            </GridItem>
+            <GridItem colSpan={1}>
+              <Text><strong>Tổng:</strong> {item.total}</Text>
+            </GridItem>
+            <GridItem colSpan={1}>
+              <Text><strong>Trạng thái:</strong> {item.statuss}</Text>
+            </GridItem>
+            <GridItem colSpan={1}>
+              <Box>
+                {item.statuss === "Chờ xác nhận" && (
+                  <Button
+                    colorScheme="green"
+                    size="sm"
+                    margin="10px"
+                    onClick={() => handleApprove(item.order_id)}
+                  >
+                    Duyệt
+                  </Button>
+                )}
+                {item.status !== "Đã hủy" && (
+                  <Button
+                    colorScheme="red"
+                    size="sm"
+                    onClick={() => handleDelete(item.order_id)}
+                  >
+                    Hủy đơn hàng
+                  </Button>
+                )}
+              </Box>
+            </GridItem>
+          </Grid>
+        </Box>
+      ))}
     </Box>
   );
 };

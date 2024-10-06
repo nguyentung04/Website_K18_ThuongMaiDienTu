@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -93,7 +90,9 @@ const ProductsTable = () => {
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
       <Flex mb={5} justify="space-between" align="center">
-        <Text fontSize="2xl" fontWeight="bold">Danh sách sản phẩm</Text>
+        <Text fontSize="2xl" fontWeight="bold">
+          Danh sách sản phẩm
+        </Text>
         <Link to="admin/products/add">
           <Button
             bg="#1ba43b"
@@ -201,4 +200,3 @@ const ProductsTable = () => {
 };
 
 export default ProductsTable;
-

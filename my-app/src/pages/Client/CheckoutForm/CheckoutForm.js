@@ -26,147 +26,159 @@ const CheckoutForm = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
   const toast = useToast(); // Chakra-UI toast
 
-  const provinces = [
-    {
-      name: "Hà Nội",
-      cities: ["Quận Ba Đình", "Quận Hoàn Kiếm", "Quận Tây Hồ"],
-    },
-    {
-      name: "TP Hồ Chí Minh",
-      cities: ["Quận 1", "Quận 2", "Quận 3"],
-    },
-    {
-      name: "Đà Nẵng",
-      cities: ["Quận Hải Châu", "Quận Thanh Khê", "Quận Ngũ Hành Sơn"],
-    },
-  ];
-
+  // Hàm xử lý khi người dùng thay đổi tỉnh/thành phố
   const handleProvinceChange = (e) => {
     const selectedProvince = e.target.value;
+    // Cập nhật dữ liệu của form, đồng thời reset thành phố khi thay đổi tỉnh
     setFormData({
       ...formData,
       province: selectedProvince,
-      city: "", // Reset city when province changes
+      city: "", // Reset thành phố khi tỉnh thay đổi
     });
   };
 
+  // Hàm xử lý khi người dùng thay đổi thành phố
   const handleCityChange = (e) => {
     const selectedCity = e.target.value;
+    // Cập nhật thành phố trong dữ liệu của form
     setFormData({
       ...formData,
       city: selectedCity,
     });
   };
 
+  // Hàm xử lý các thay đổi khác của form (tên, email, địa chỉ, v.v.)
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // Cập nhật trường tương ứng trong form dựa vào thuộc tính 'name' của input
     setFormData({
       ...formData,
       [name]: value,
     });
   };
 
+  // Hàm kiểm tra tính hợp lệ của form trước khi submit
   const validateForm = () => {
     const newErrors = {};
+
+    // Kiểm tra từng trường dữ liệu, nếu trống thì thêm thông báo lỗi tương ứng
     if (!formData.name) newErrors.name = "Tên khách hàng là bắt buộc";
     if (!formData.email) newErrors.email = "Địa chỉ email là bắt buộc";
     if (!formData.phone) newErrors.phone = "Số điện thoại là bắt buộc";
     if (!formData.province) newErrors.province = "Tỉnh là bắt buộc";
     if (!formData.city) newErrors.city = "Thành phố là bắt buộc";
     if (!formData.address) newErrors.address = "Địa chỉ nhận hàng là bắt buộc";
-    if (!formData.paymentMethod) newErrors.paymentMethod = "Chọn phương thức thanh toán";
+    if (!formData.paymentMethod)
+      newErrors.paymentMethod = "Chọn phương thức thanh toán";
 
     setErrors(newErrors);
-    return !Object.values(newErrors).length; // Return true if no errors
+    // Trả về true nếu không có lỗi nào, ngược lại là false
+    return !Object.values(newErrors).length;
   };
-// Hàm xử lý khi người dùng nhấn nút gửi đơn hàng
-const handleSubmit = async (e) => {
-  e.preventDefault(); // Ngăn không cho trang reload khi submit form
 
-  // Kiểm tra tính hợp lệ của biểu mẫu
-  if (!validateForm()) {
-    return; // Nếu biểu mẫu không hợp lệ, dừng xử lý
-  }
+  // Hàm xử lý khi người dùng submit form
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  // Lấy giỏ hàng từ localStorage
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    // Nếu form không hợp lệ, dừng việc submit
+    if (!validateForm()) return;
 
-  // Kiểm tra nếu giỏ hàng trống
-  if (cart.length === 0) {
-    alert("Giỏ hàng trống. Không thể đặt hàng."); // Thông báo nếu giỏ hàng trống
-    return;
-  }
+    // Lấy thông tin giỏ hàng từ localStorage
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  // Tạo danh sách các mặt hàng trong đơn hàng
-  const orderItems = cart.map((item) => ({
-    product_id: item.id, // ID sản phẩm
-    quantity: item.quantity, // Số lượng sản phẩm
-    price: parseFloat(item.price.replace(/[^0-9.-]+/g, "")), // Chuyển đổi giá sản phẩm thành dạng số
-    total: parseFloat(item.price.replace(/[^0-9.-]+/g, "")) * item.quantity, // Tính tổng giá trị sản phẩm theo số lượng
-  }));
-
-  try {
-    // Gửi yêu cầu POST tới API để đặt hàng
-    const response = await fetch("http://localhost:3000/api/orders", {
-      method: "POST", // Phương thức gửi yêu cầu
-      headers: {
-        "Content-Type": "application/json", // Định dạng dữ liệu gửi là JSON
-      },
-      body: JSON.stringify({
-        ...formData, // Thông tin người dùng từ form
-        order_detail: orderItems, // Chi tiết đơn hàng
-      }),
-    });
-
-    // Chuyển đổi kết quả phản hồi thành JSON
-    const data = await response.json();
-
-    // Kiểm tra nếu đơn hàng được đặt thành công
-    if (data.message === "Đặt hàng thành công!") {
-      localStorage.removeItem("cart"); // Xóa giỏ hàng khỏi localStorage sau khi đặt hàng thành công
-      toast({
-        title: "Đặt hàng thành công", // Tiêu đề thông báo
-        description: "Đơn hàng của bạn đã được gửi.", // Nội dung thông báo
-        status: "success", // Trạng thái thành công
-        duration: 5000, // Thời gian hiển thị thông báo
-        isClosable: true, // Cho phép đóng thông báo
-      });
-
-      // Reset lại dữ liệu biểu mẫu
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        province: "",
-        city: "",
-        address: "",
-        note: "",
-        paymentMethod: "COD", // Thiết lập phương thức thanh toán mặc định là "COD"
-      });
-    } else {
-      throw new Error("Có lỗi xảy ra. Vui lòng thử lại."); // Nếu có lỗi, ném ra ngoại lệ
+    // Kiểm tra nếu giỏ hàng rỗng, hiển thị thông báo
+    if (cart.length === 0) {
+      alert("Giỏ hàng trống. Không thể đặt hàng.");
+      return;
     }
-  } catch (error) {
-    console.error("Lỗi khi gửi đơn hàng:", error); // Ghi log lỗi ra console
-    toast({
-      title: "Lỗi", // Tiêu đề thông báo lỗi
-      description: error.message, // Nội dung thông báo lỗi
-      status: "error", // Trạng thái lỗi
-      duration: 5000, // Thời gian hiển thị thông báo
-      isClosable: true, // Cho phép đóng thông báo
-    });
-  }
-};
 
+    // Tạo danh sách sản phẩm trong đơn hàng dựa vào giỏ hàng
+    const orderItems = cart.map((item) => ({
+      product_id: item.id,
+      quantity: item.quantity,
+      // Xử lý giá để chuyển đổi thành số và tính tổng tiền cho mỗi sản phẩm
+      price: parseFloat(item.price.replace(/[^0-9.-]+/g, "")),
+      total: parseFloat(item.price.replace(/[^0-9.-]+/g, "")) * item.quantity,
+    }));
+
+    try {
+      // Gửi yêu cầu tạo đơn hàng lên server qua API
+      const response = await fetch("http://localhost:3000/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData, // Gửi dữ liệu form kèm theo
+          order_detail: orderItems, // Gửi chi tiết đơn hàng
+        }),
+      });
+
+      // Xử lý kết quả trả về từ server
+      const data = await response.json();
+
+      // Nếu đơn hàng thành công
+      if (data.message === "Đặt hàng thành công!") {
+        localStorage.removeItem("cart"); // Xóa giỏ hàng sau khi đặt hàng thành công
+        toast({
+          title: "Đặt hàng thành công",
+          description: "Đơn hàng của bạn đã được gửi.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        // Reset lại form sau khi đặt hàng
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          province: "",
+          city: "",
+          address: "",
+          note: "",
+          paymentMethod: "COD",
+        });
+      } else {
+        throw new Error("Có lỗi xảy ra. Vui lòng thử lại.");
+      }
+    } catch (error) {
+      // Nếu có lỗi trong quá trình đặt hàng, hiển thị thông báo lỗi
+      toast({
+        title: "Lỗi",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+  const provinces = [
+    {
+      name: "Hà Nội",
+      cities: [
+        "Quận Ba Đình",
+        "Quận Hoàn Kiếm",
+        "Quận Đống Đa",
+        "Quận Cầu Giấy",
+      ],
+    },
+    {
+      name: "Hồ Chí Minh",
+      cities: ["Quận 1", "Quận 3", "Quận 5", "Quận Bình Thạnh"],
+    },
+    {
+      name: "Đà Nẵng",
+      cities: ["Hải Châu", "Cẩm Lệ", "Sơn Trà", "Ngũ Hành Sơn"],
+    },
+    // Add more provinces and cities here
+  ];
 
   return (
     <div className="checkout-form">
       <h2>Thông tin người mua hàng</h2>
-      
+
       <Box flex={7}>
         <form onSubmit={handleSubmit}>
           <FormControl mb={3} isInvalid={errors.name}>
@@ -174,6 +186,7 @@ const handleSubmit = async (e) => {
             <Input
               className="custom-input"
               id="name"
+              name="name"
               placeholder="Nhập tên khách hàng"
               value={formData.name}
               onChange={handleChange}
@@ -187,6 +200,7 @@ const handleSubmit = async (e) => {
               <Input
                 className="custom-input"
                 id="email"
+                name="email"
                 placeholder="Địa chỉ email"
                 value={formData.email}
                 onChange={handleChange}
@@ -202,6 +216,7 @@ const handleSubmit = async (e) => {
                 className="custom-input"
                 type="number"
                 id="phone"
+                name="phone"
                 placeholder="Số điện thoại"
                 value={formData.phone}
                 onChange={handleChange}
@@ -218,11 +233,16 @@ const handleSubmit = async (e) => {
               <Select
                 className="custom-input"
                 id="province"
+                name="province"
                 value={formData.province}
-                onChange={handleChange}
+                onChange={handleProvinceChange}
               >
                 <option value="">Chọn Tỉnh</option>
-                {/* Map provinces here */}
+                {provinces.map((province) => (
+                  <option key={province.name} value={province.name}>
+                    {province.name}
+                  </option>
+                ))}
               </Select>
               {errors.province && (
                 <FormErrorMessage>{errors.province}</FormErrorMessage>
@@ -234,11 +254,20 @@ const handleSubmit = async (e) => {
               <Select
                 className="custom-input"
                 id="city"
+                name="city"
                 value={formData.city}
-                onChange={handleChange}
+                onChange={handleCityChange}
                 disabled={!formData.province}
               >
                 <option value="">Chọn Thành phố</option>
+                {formData.province &&
+                  provinces
+                    .find((province) => province.name === formData.province)
+                    .cities.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
               </Select>
               {errors.city && (
                 <FormErrorMessage>{errors.city}</FormErrorMessage>
@@ -251,6 +280,7 @@ const handleSubmit = async (e) => {
             <Input
               className="custom-input"
               id="address"
+              name="address"
               placeholder="Nhập địa chỉ nhận hàng"
               value={formData.address}
               onChange={handleChange}
@@ -265,6 +295,7 @@ const handleSubmit = async (e) => {
             <Textarea
               className="custom-input"
               id="note"
+              name="note"
               rows={3}
               placeholder="Nhập ghi chú"
               value={formData.note}
@@ -279,6 +310,7 @@ const handleSubmit = async (e) => {
             <Select
               className="custom-input"
               id="paymentMethod"
+              name="paymentMethod"
               value={formData.paymentMethod}
               onChange={handleChange}
             >
@@ -289,6 +321,7 @@ const handleSubmit = async (e) => {
               <FormErrorMessage>{errors.paymentMethod}</FormErrorMessage>
             )}
           </FormControl>
+
           <Button type="submit" className="button_order">
             Đặt hàng
           </Button>

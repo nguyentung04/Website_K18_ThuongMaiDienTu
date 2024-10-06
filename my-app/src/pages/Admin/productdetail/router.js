@@ -1,22 +1,22 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./index";
-import ProductsTable from "./component/Products";
+import ProductsTable from "./component/Product_detail";
 import AddProducts from "./component/AddProduct";
 import EditProducts from "./component/EditProduct";
 
-const ProductsRoutes = () => {
+const ProductsDetailRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<ProductsTable />} />
-        <Route path="admin/products/add" element={<AddProducts />} />
-        <Route path="admin/products/edit/:id" element={<EditProducts />} />
+        <Route path="admin/productsdetail/add" element={<AddProducts />} />
+        <Route path="admin/productsdetail/edit/:id" element={<EditProducts />} />
         
       </Route>
-      <Route path="/*" element={<Navigate to="/products" />} />
+      <Route path="/*" element={<Navigate to="/productdetail" />} />
     </Routes>
   );
 };
 
-export default ProductsRoutes;
+export default ProductsDetailRoutes;

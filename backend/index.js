@@ -7,6 +7,10 @@ const Routes = require("./routes/Routes");
 const commentsRoutes = require("./routes/commentsRoutes");
 const comment_detailRoutes = require("./routes/comment_detailRoute");
 
+const product_detailRoutes = require("./routes/product_detail/index");
+const citieslRoutes = require("./routes/cities/citiesRoutes");
+const districtsController = require("./routes/districts/index");
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -53,6 +57,9 @@ app.post("/api/upload/:entity", upload.single("file"), (req, res) => {
 app.use('/api', Routes);
 app.use('/api', commentsRoutes);
 app.use('/api', comment_detailRoutes);
+app.use('/api', product_detailRoutes);
+app.use('/api', citieslRoutes);
+app.use('/api', districtsController);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

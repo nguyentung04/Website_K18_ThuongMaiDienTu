@@ -1,16 +1,18 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import { CgChevronDown } from "react-icons/cg";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { FaShoppingCart } from "react-icons/fa";
+import { CartContext } from "../componentss/Cart_Context";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const username = localStorage.getItem("username");
   const isLoggedIn = !!username;
+  const { getTotalUniqueItems } = useContext(CartContext);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -637,7 +639,7 @@ const Navbar = () => {
           <div className="navbar-auth">
             <button type="button" class="btn  position-relative">
               <Link to="/cart" className="cart-link">
-                <button style={{ marginTop: "4px", marginRight: "13px" }}>
+                <button style={{ marginTop: "-4px", marginRight: "11px" }}>
                   <FaShoppingCart
                     size={25}
                     color="white"
@@ -645,21 +647,16 @@ const Navbar = () => {
                   />
                 </button>
                 <span class="position-absolute top-0  translate-middle badge rounded-pill bg-danger">
-                  99+
-                  <span class="visually-hidden">unread messages</span>
+                  {getTotalUniqueItems() > 0 && ( // Only render the badge if there are items
+                    <span className="position-absolute top-0 translate-middle badge rounded-pill bg-danger">
+                      {getTotalUniqueItems()}
+                    </span>
+                  )}
                 </span>
               </Link>
             </button>
             {isLoggedIn ? (
               <>
-                {/* <Link to="/orderhistory" className="order-history-link">
-              Đơn hàng
-            </Link>
-            <span className="navbar-username">Xin chào | {username}</span>
-            <button className="logout-button" onClick={handleLogout}>
-              Đăng xuất
-            </button> */}
-
                 <nav className=" navbar-expand-lg">
                   <div className="container-fluid">
                     <button
@@ -739,7 +736,7 @@ const Navbar = () => {
                                 >
                                   <path d="M40 48C26.7 48 16 58.7 16 72l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24L40 48zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L192 64zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-288 0zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-288 0zM16 232l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24l-48 0c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24l-48 0z" />
                                 </svg>
-                               Lịch sử đơn hàng
+                                Lịch sử đơn hàng
                               </a>
                             </li>
                             <li>

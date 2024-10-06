@@ -2,6 +2,7 @@ import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../components/Client/Navbar/Navbar";
 import Footer from "../components/Client/Footer/Footer";
+import CartProvider from "../components/Client/componentss/Cart_Context";
 
 const ClientLayout = () => {
   const location = useLocation();
@@ -16,8 +17,11 @@ const ClientLayout = () => {
 
   return (
     <>
-      <Navbar />
-      <main >
+      {" "}
+      <CartProvider>
+        <Navbar />
+      </CartProvider>
+      <main>
         <Outlet /> {/* Outlet sẽ hiển thị các trang con */}
       </main>
       {!shouldHideFooter && <Footer />}

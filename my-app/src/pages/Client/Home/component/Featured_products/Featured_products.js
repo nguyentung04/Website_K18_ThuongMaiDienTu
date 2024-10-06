@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaShoppingCart } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { HeartIcon } from "../../../../../components/icon/icon";
 import { Autoplay } from "swiper/modules";
-import OrderModal from "../../../../../components/Client/orderModel/orderModel"; // Import the new modal component
+import OrderModal from "../../../../../components/Client/orderModel/orderModel";
 
 import "./Featured_products.css";
 
@@ -15,6 +14,7 @@ const FeaturedProducts = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [likedProducts, setLikedProducts] = useState([]);
+  const [likeCounts, setLikeCounts] = useState({});
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -37,23 +37,50 @@ const FeaturedProducts = () => {
           `${BASE_URL}/api/products_noibat`
         );
         setFeaturedProducts(featuredResponse.data);
+
+        // Restore liked products from local storage
+        const savedLikedProducts = JSON.parse(localStorage.getItem("likedProducts")) || [];
+        setLikedProducts(savedLikedProducts);
+
+        // Initialize like counts for products
+        const initialLikeCounts = {};
+        featuredResponse.data.forEach((product) => {
+          initialLikeCounts[product.id] = product.like_count || 0;
+        });
+        setLikeCounts(initialLikeCounts);
       } catch (error) {
         console.error("Error fetching data from API", error);
+        setErrors({ fetch: "Unable to load products. Please try again later." });
       } finally {
         setLoading(false);
       }
     };
     fetchProducts();
   }, []);
- // ========================================= thả tim sản phẩm ===============================================
-  const toggleLike = (productId) => {
-    if (likedProducts.includes(productId)) {
-      setLikedProducts(likedProducts.filter((id) => id !== productId));
-    } else {
-      setLikedProducts([...likedProducts, productId]);
+
+  const toggleLike = async (productId) => {
+    const userId = JSON.parse(localStorage.getItem('userData')).id;
+    try {
+      const response = await axios.post(`${BASE_URL}/api/product/${productId}/like`, { userId });
+
+      setLikedProducts((prevLiked) => {
+        const updatedLiked = prevLiked.includes(productId)
+          ? prevLiked.filter((id) => id !== productId)
+          : [...prevLiked, productId];
+
+        localStorage.setItem("likedProducts", JSON.stringify(updatedLiked));
+        return updatedLiked;
+      });
+
+      setLikeCounts((prevCounts) => ({
+        ...prevCounts,
+        [productId]: response.data.likeCount,
+      }));
+    } catch (error) {
+      console.error("Error updating likes:", error);
     }
   };
-  // ============================================= gọi đến model ======================================================
+
   const handleOpenModal = (product) => {
     setSelectedProduct(product);
     setIsOpen(true);
@@ -61,9 +88,35 @@ const FeaturedProducts = () => {
 
   const handleSubmitModel = (e) => {
     e.preventDefault();
-    // Form validation and submit logic
+    const newErrors = {};
+
+    if (!formData.name) newErrors.name = "Name is required";
+    if (!formData.email) newErrors.email = "Email is required";
+
+    if (Object.keys(newErrors).length) {
+      setErrors(newErrors);
+      return;
+    }
+
+    console.log("Submitting data:", formData);
+    handleCloseModal();
   };
-  const handleCloseModal = () => setIsOpen(false);
+
+  const handleCloseModal = () => {
+    setIsOpen(false);
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      province: "",
+      city: "",
+      address: "",
+      note: "",
+      paymentMethod: "COD",
+    });
+    setErrors({});
+  };
+
   const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
   const increaseQuantity = () => setQuantity(quantity + 1);
 
@@ -72,12 +125,12 @@ const FeaturedProducts = () => {
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
-
   const handleAddToCartAndOpenModal = (e, product) => {
-    e.stopPropagation(); // Prevent the event from triggering the product link
-    addToCart(product); // Call the function to add the product to the cart
-    handleOpenModal(product); // Open the modal with the product details
+    e.stopPropagation();
+    addToCart(product);
+    handleOpenModal(product);
   };
+
   const addToCart = (product) => {
     if (product) {
       const details = {
@@ -88,23 +141,22 @@ const FeaturedProducts = () => {
         image: product.image,
         quantity: quantity,
       };
-  
+
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  
       const existingProductIndex = cart.findIndex(
         (item) => item.id === product.id
       );
-  
+
       if (existingProductIndex !== -1) {
         cart[existingProductIndex].quantity += quantity;
       } else {
         cart.push(details);
       }
-  
+
       localStorage.setItem("cart", JSON.stringify(cart));
     }
   };
-// ===============================================================================================================
+
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -157,10 +209,10 @@ const FeaturedProducts = () => {
                               : "white"
                           }
                         />
+                        <span>{likeCounts[product.id] || 0}</span>
                       </button>
                       <button
                         className="add-to-cart-icon"
-                     
                         onClick={(e) => handleAddToCartAndOpenModal(e, product)}
                       >
                         <FaShoppingCart

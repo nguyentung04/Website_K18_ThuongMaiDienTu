@@ -17,6 +17,8 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
+    localStorage.removeItem("userData");
+    localStorage.removeItem("likedProducts");
     navigate("/signin");
   };
   /** ======================== đổi màu chữ sao khi click ( navbar ) ===================== */

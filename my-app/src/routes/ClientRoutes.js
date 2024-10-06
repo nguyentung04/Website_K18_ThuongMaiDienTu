@@ -17,6 +17,10 @@ import OrderDetail from "../pages/Client/OrderDetail/OrderDetail";
 import ClientLayout from "../layout/Clientlayout";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import OrderModal from "../components/Client/orderModel/orderModel.js";
+
+
+
 
 const ClientRoutes = () => {
   return (
@@ -34,6 +38,7 @@ const ClientRoutes = () => {
         <Route path="/formcheckout" element={<CheckoutForm />} />
         <Route path="/orderhistory" element={<OrderHistory />} />
         <Route path="/orders/:id" element={<OrderDetail />} />
+        <Route path="/ordermodel" element={<OrderModal />} />
       </Route>
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />

@@ -613,14 +613,10 @@ textarea:focus {
 }
 
 .carousel-wrapper {
-    display: flex;
-    transition: transform 0.5s ease; /* Để có hiệu ứng cuộn mượt mà */
-}
-.home-banchay {
-  margin: 21px 0;
+  display: flex;
 }
 
-.product-details .carousel1-item {
+.product-details .carousel-item {
   min-width: 25%;
   /* Hiển thị 4 sản phẩm cùng lúc */
   box-sizing: border-box;
@@ -629,15 +625,10 @@ textarea:focus {
 
 }
 
-.carousel1-item img {
+.carousel-item img {
   width: 100%;
   height: auto;
 }
-.carouse1l-item {
-  min-width: 200px; /* Hoặc kích thước cụ thể hơn tùy vào thiết kế */
-  margin-right: 10px; /* Khoảng cách giữa các sản phẩm */
-}
-
 
 .carousel-button {
   position: absolute;

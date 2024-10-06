@@ -54,7 +54,14 @@ exports.login = (req, res) => {
           expiresIn: "1h",
         });
 
-        res.status(200).json({ token });
+        // Loại bỏ thông tin nhạy cảm như mật khẩu trước khi gửi phản hồi
+        const { password, ...userData } = user;
+
+        // Trả về token và toàn bộ thông tin người dùng (trừ mật khẩu)
+        res.status(200).json({
+          token,
+          user: userData,
+        });
       });
     }
   );

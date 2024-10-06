@@ -1,4 +1,4 @@
-.FeaturedProducts h2 {
+.best_selling_products h2 {
   width: 100%;
   text-align: center;
   margin: 0;
@@ -10,12 +10,11 @@
   align-items: center;
   justify-content: center;
   line-height: 0;
-  margin-top: 40px;
 }
 
 
 
-.FeaturedProducts h2:after {
+.best_selling_products h2:after {
   margin-left: 10px;
   content: ' ';
   width: 70px;
@@ -25,7 +24,7 @@
   background-color: #000;
 }
 
-.FeaturedProducts h2:before {
+.best_selling_products h2:before {
   margin-right: 10px;
   content: ' ';
   width: 70px;
@@ -40,7 +39,7 @@
 
 
 /* =========================================================== sản phẩm ============================ */
-.FeaturedProducts .swiper-wrappe {
+.best_selling_products .swiper-wrappe {
   position: relative;
   width: 100%;
   height: 100%;
@@ -52,7 +51,7 @@
 }
 
 
-.FeaturedProducts .product-list {
+.best_selling_products .product-list {
 
   gap: 6px;
   display: flex;
@@ -60,7 +59,7 @@
   /* 4-column layout */
 }
 
-.FeaturedProducts .swiper-slide {
+.best_selling_products .swiper-slide {
   flex-shrink: 0;
   width: 100%;
   /* height: 100%; */
@@ -72,14 +71,14 @@
   transition: transform 0.6s ease-in-out
 }
 
-.FeaturedProducts .product-box {
+.best_selling_products .product-box {
   position: relative;
   height: 100% !important;
   background-color: #bcbab636;
   border-radius: 6px;
 }
 
-.FeaturedProducts .plain {
+.best_selling_products .plain {
   mix-blend-mode: multiply;
   transition: transform .2s;
   color: currentColor;
@@ -91,13 +90,13 @@
   color: currentColor;
 }
 
-.FeaturedProducts .product-item {
+.best_selling_products .product-item {
   padding: 30px 20px 20px;
 }
 
 
 
-.FeaturedProducts .product-item img {
+.best_selling_products .product-item img {
   width: 272px;
   height: auto;
   display: block;
@@ -108,11 +107,11 @@
 }
 
 
-.FeaturedProducts .product-box .product-info {
+.best_selling_products .product-box .product-info {
   padding: 20px;
 }
 
-.FeaturedProducts .plain:hover img {
+.best_selling_products .plain:hover img {
   transform: scale(1.05);
   /* Slight zoom effect */
   /* pointer-events: none; */
@@ -122,18 +121,17 @@
 
 
 
-.FeaturedProducts .product-list .bg-gray {
+.best_selling_products .product-list .bg-gray {
   width: 100%;
   height: 100%;
 }
 
 
-.FeaturedProducts .product-list {
+.best_selling_products .product-list {
   padding: 20px;
 }
 
-.FeaturedProducts .product-price,
-.product-title,
+.best_selling_products .product-price,.product-title,
 .product-discount-price {
   font-size: 1.1rem;
   color: #666;
@@ -141,26 +139,28 @@
   font-weight: 700;
 }
 
-.FeaturedProducts .line-through {
+.best_selling_products .line-through {
   text-decoration: line-through;
   color: gray;
 }
 
-.FeaturedProducts .product-price .product-discount-price {
+.best_selling_products .product-price{
   font-weight: bold;
   color: #a60101;
 }
-
+.itproduct__discount{
+  display: flex;
+}
 /* ===================================================================================================== */
 
 
-.FeaturedProducts .swiper-android>.swiper-slide,
-.FeaturedProducts .swiper-wrapper {
+.best_selling_products .swiper-android>.swiper-slide,
+.best_selling_products .swiper-wrapper {
   transform: translate3d(0px, 0, 0);
   display: flex;
 }
 
-.FeaturedProducts {
+.best_selling_products {
   /* overflow: hidden;
   position: relative; */
   /* Relative positioning for container */
@@ -168,7 +168,7 @@
 }
 
 
-.FeaturedProducts .main-slider {
+.best_selling_products .main-slider {
   overflow: hidden;
 
   right: 0;
@@ -183,7 +183,7 @@
   margin-top: 40px;
 }
 
-.FeaturedProducts .swiper-slide img {
+.best_selling_products .swiper-slide img {
   padding: 30px 20px 20px;
   width: 100%;
   /* Ensure images in slider take full width of the slide */
@@ -191,59 +191,7 @@
   /* Maintain aspect ratio */
 }
 
-.FeaturedProducts .products_blocks_wrapper {
+.best_selling_products .products_blocks_wrapper {
   display: flex;
   justify-content: space-between;
 }
-
-/* ================================model======================================= */
-
-.FeaturedProducts .model form .button_order:hover {
-  display: block;
-  width: 100%;
-  padding: 11px;
-  margin-bottom: 10px;
-  font-size: 18px;
-  cursor: pointer;
-  color: #b29c6e;
-  background-color: #fff;
-  border: 1px solid #b29c6e;
-  font-weight: 500;
-  font-size: 18px;
-}
-
-.FeaturedProducts .button_order {
-  display: block;
-  width: 100%;
-  padding: 11px;
-  margin-bottom: 10px;
-  font-size: 18px;
-  cursor: pointer;
-  color: #fff;
-  background-color: #b29c6e;
-  border: 1px solid #b29c6e;
-  font-weight: 500;
-  font-size: 18px;
-  border-radius: 6px;
-}
-
-.FeaturedProducts form .custom-input {
-  border: 1px solid #b29c6e;
-  padding: 10px;
-  border-radius: 4px;
-  outline: none;
-  transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
-}
-
-.FeaturedProducts form .custom-input:hover {
-  border-color: #b29c6e;
-  box-shadow: 0 0 8px rgba(178, 156, 110, 0.5);
-  color: #b29c6e;
-}
-
-.FeaturedProducts form .custom-input:focus {
-  border-color: #b29c6e;
-  box-shadow: 0 0 8px rgba(178, 156, 110, 0.5);
-  border: 2px solid #b29c6e;
-}
-

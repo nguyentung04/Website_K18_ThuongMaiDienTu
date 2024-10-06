@@ -127,3 +127,46 @@ exports.postCategory = (req, res) => {
     });
   });
 };
+
+exports.GetAllProductOfCategories = (req, res) => {
+  // Lấy giá trị ID từ URL params
+  const productId = req.params.id;
+  // Thực hiện truy vấn SQL với giá trị ID
+  connection.query(
+    `SELECT 
+    c.id AS category_id,
+    c.name AS category_name,
+    c.logo,
+    p.*,
+    pd.machineType,
+     pd.identification,
+      pd.thickness,
+       pd.wireMaterial,
+        pd.antiWater,
+         pd.gender,
+          pd.coler,
+           pd.product_id 
+           
+FROM 
+    categories c 
+LEFT JOIN 
+    products p ON p.category_id = c.id
+LEFT JOIN 
+    product_detail pd ON p.id = pd.product_id
+WHERE 
+    c.id = ?
+LIMIT 20;
+`,
+    [productId], // Truyền giá trị ID vào câu lệnh SQL
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      if (results.length === 0) {
+        return res.status(404).json({ message: "Sản phẩm không tồn tại" });
+      }
+      res.status(200).json(results); // Trả về tất cả sản phẩm
+
+    }
+  );
+};

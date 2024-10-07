@@ -952,7 +952,6 @@ const addToCart = (product, quantity = 1) => {
         </div>
       </section>
 
-
     </div>
   );
 };

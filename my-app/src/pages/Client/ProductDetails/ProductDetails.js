@@ -100,10 +100,8 @@ const ProductDetails = () => {
 
   // ================== Comments / Reviews =================
 
-  // Hàm kiểm tra nếu người dùng đã đăng nhập
-  const isLoggedIn = () => {
-    return !!localStorage.getItem("token"); // Kiểm tra token có tồn tại trong localStorage hay không
-  };
+  const loggedInUser = JSON.parse(localStorage.getItem("user"));
+  // "user" là đối tượng lưu trong localStorage chứa thông tin người dùng đăng nhập, bao gồm tên
 
   const [userRating, setUserRating] = useState(0); // Trạng thái đánh giá sao
   const [comment, setComment] = useState(""); // Trạng thái nội dung đánh giá
@@ -113,9 +111,11 @@ const ProductDetails = () => {
 
   const [replyContent, setReplyContent] = useState(""); // Biến trạng thái để lưu nội dung của phản hồi, mặc định là chuỗi rỗng. `setReplyContent` dùng để cập nhật giá trị của `replyContent`.
 
-  const [showReplies, setShowReplies] = useState({}); //Trạng thái theo dõi những câu trả lời nào được mở rộng
+  const [replyPhone, setReplyPhone] = useState("");
+  // Biến trạng thái để lưu số điện thoại của người trả lời, mặc định là chuỗi rỗng. `setReplyPhone` dùng để cập nhật giá trị của `replyPhone`.
 
-  const [loggedIn, setLoggedIn] = useState(false); // Trạng thái đăng nhập
+  const [showReplies, setShowReplies] = useState({}); //Trạng thái theo dõi những câu trả lời nào được mở rộng
+  const [isLoggedIn, setIsLoggedIn] = useState(false); //Giả sử trạng thái đăng nhập được xử lý ở nơi khác
   // ==============================  model =========================
   const [selectedProvince, setSelectedProvince] = useState("");
   /**
@@ -160,10 +160,10 @@ const ProductDetails = () => {
   const handleSubmit = (e) => {
     e.preventDefault(); // Ngăn trang web tải lại
 
-    const loggedInUser = localStorage.getItem("username"); // Lấy tên đăng nhập từ localStorage
+    const loggedInUser = JSON.parse(localStorage.getItem("user"));
 
     const review = {
-      name: loggedInUser || "Anonymous", // Sử dụng tên đăng nhập hoặc "Anonymous" nếu chưa đăng nhập
+      name: loggedInUser ? loggedInUser.name : "Anonymous", // Sử dụng tên người dùng hoặc "Anonymous" nếu chưa đăng nhập
       rating: userRating, // Đánh giá của người dùng
       comment, // Nhận xét của người đánh giá
       likes: 0, // Số lượt thích, khởi tạo là 0
@@ -178,130 +178,71 @@ const ProductDetails = () => {
 
   // ================== Xử lý chức năng trả lời =================
 
-  // Hàm hủy bỏ biểu mẫu trả lời
-  const cancelReply = (formKey) => {
-    // Cập nhật trạng thái hiển thị của biểu mẫu trả lời
-    setShowReplyForm((prev) => ({
-      ...prev,
-      [formKey]: false, // Ẩn biểu mẫu trả lời tương ứng với formKey
-    }));
-    // Xóa các trường biểu mẫu nếu cần (comment để nhắc bạn có thể thêm xử lý này nếu cần)
+// Hàm hủy bỏ biểu mẫu trả lời
+const cancelReply = (formKey) => {
+  // Cập nhật trạng thái hiển thị của biểu mẫu trả lời
+  setShowReplyForm((prev) => ({
+    ...prev,
+    [formKey]: false, // Ẩn biểu mẫu trả lời tương ứng với formKey
+  }));
+  // Xóa các trường biểu mẫu nếu cần (comment để nhắc bạn có thể thêm xử lý này nếu cần)
+};
+
+// Hàm xử lý khi nội dung trả lời thay đổi
+const handleReplyContentChange = (e) => setReplyContent(e.target.value); // Cập nhật nội dung trả lời dựa vào giá trị input
+
+// Hàm xử lý khi người dùng nhấn vào nút "like"
+const handleLikeClick = (index) => {
+  const updatedReviews = [...reviews]; // Tạo bản sao của mảng đánh giá hiện tại
+  updatedReviews[index].likes = (updatedReviews[index].likes || 0) + 1; // Tăng số lượng "like" cho đánh giá tương ứng
+  setReviews(updatedReviews); // Cập nhật lại trạng thái đánh giá
+};
+
+// Hàm hiển thị hoặc ẩn biểu mẫu trả lời
+const toggleReplyForm = (reviewIndex, replyIndex = null) => {
+  // Tạo formKey để xác định chính xác biểu mẫu trả lời
+  const formKey = replyIndex !== null ? `${reviewIndex}-${replyIndex}` : reviewIndex;
+
+  setShowReplyForm((prev) => ({
+    ...prev,
+    [formKey]: !prev[formKey], // Đảo ngược trạng thái hiển thị của biểu mẫu (hiện hoặc ẩn)
+  }));
+};
+
+// Hàm xử lý khi người dùng gửi trả lời
+const handleReplySubmit = (reviewIndex, replyIndex = null, e) => {
+  e.preventDefault(); // Ngăn không cho trang reload khi form được submit
+
+  if (!replyContent) { // Kiểm tra nếu nội dung trả lời trống
+    alert("Vui lòng điền đầy đủ thông tin!"); // Hiển thị cảnh báo nếu không có nội dung
+    return;
+  }
+
+  // Tạo đối tượng trả lời mới
+  const newReply = {
+    name: "Người dùng", // Tên người dùng (có thể lấy từ hệ thống đăng nhập)
+    content: replyContent, // Nội dung trả lời
+    time: new Date().toLocaleString(), // Thời gian hiện tại
+    replies: [], // Mảng chứa các trả lời của câu trả lời này (nếu có)
   };
 
-  // Hàm xử lý khi nội dung trả lời thay đổi
-  const handleReplyContentChange = (e) => setReplyContent(e.target.value); // Cập nhật nội dung trả lời dựa vào giá trị input
+  const updatedReviews = [...reviews]; // Tạo bản sao của mảng đánh giá
+  let targetReplies =
+    replyIndex !== null
+      ? updatedReviews[reviewIndex].replies[replyIndex].replies
+      : updatedReviews[reviewIndex].replies; // Xác định vị trí của trả lời trong mảng
 
-  // Hàm xử lý khi người dùng nhấn vào nút "like"
-  const handleLikeClick = (index) => {
-    const loggedInUser = localStorage.getItem("username") || "Anonymous";
+  targetReplies.push(newReply); // Thêm trả lời mới vào mảng
+  setReviews(updatedReviews); // Cập nhật lại trạng thái đánh giá
+  setReplyContent(""); // Xóa nội dung trả lời sau khi gửi
 
-    // Tạo một key duy nhất cho bình luận cha để lưu trong localStorage
-    const likeKey = `review-${index}-liked-by-${loggedInUser}`;
+  // Ẩn biểu mẫu trả lời sau khi gửi thành công
+  setShowReplyForm((prev) => ({
+    ...prev,
+    [`${reviewIndex}-${replyIndex}`]: false,
+  }));
+};
 
-    // Kiểm tra xem người dùng đã like bình luận này chưa
-    if (localStorage.getItem(likeKey)) {
-      alert("Bạn đã thích bình luận này rồi!");
-      return;
-    }
-
-    const updatedReviews = [...reviews];
-    updatedReviews[index].likes = (updatedReviews[index].likes || 0) + 1;
-
-    setReviews(updatedReviews);
-
-    // Lưu trạng thái "like" của người dùng vào localStorage
-    localStorage.setItem(likeKey, true);
-  };
-
-  const handleReplyLikeClick = (reviewIndex, replyIndex) => {
-    const loggedInUser = localStorage.getItem("username") || "Anonymous";
-
-    // Tạo một key duy nhất cho phản hồi để lưu trong localStorage
-    const likeKey = `review-${reviewIndex}-reply-${replyIndex}-liked-by-${loggedInUser}`;
-
-    // Kiểm tra xem người dùng đã like phản hồi này chưa
-    if (localStorage.getItem(likeKey)) {
-      alert("Bạn đã thích phản hồi này rồi!");
-      return;
-    }
-
-    const updatedReviews = [...reviews];
-    updatedReviews[reviewIndex].replies[replyIndex].likes =
-      (updatedReviews[reviewIndex].replies[replyIndex].likes || 0) + 1;
-
-    setReviews(updatedReviews);
-
-    // Lưu trạng thái "like" của người dùng vào localStorage
-    localStorage.setItem(likeKey, true);
-  };
-
-  const [replyTo, setReplyTo] = useState(""); // Lưu tên người cần phản hồi
-
-  // Hàm hiển thị hoặc ẩn biểu mẫu trả lời
-  const toggleReplyForm = (reviewIndex, replyIndex = null) => {
-    // Lưu tên của người cần phản hồi
-    const replyingTo =
-      replyIndex !== null
-        ? reviews[reviewIndex].replies[replyIndex].name
-        : reviews[reviewIndex].name;
-
-    setReplyTo(replyingTo); // Cập nhật tên người cần trả lời
-
-    // Tạo formKey để xác định chính xác biểu mẫu trả lời
-    const formKey =
-      replyIndex !== null ? `${reviewIndex}-${replyIndex}` : reviewIndex;
-
-    setShowReplyForm((prev) => ({
-      ...prev,
-      [formKey]: !prev[formKey], // Đảo ngược trạng thái hiển thị của biểu mẫu (hiện hoặc ẩn)
-    }));
-  };
-  const handleReplySubmit = (reviewIndex, replyIndex = null, e) => {
-    e.preventDefault(); // Ngăn không cho trang reload khi form được submit
-  
-    if (!replyContent) {
-      alert("Vui lòng điền đầy đủ thông tin!");
-      return;
-    }
-  
-    // Tạo đối tượng trả lời mới
-    const newReply = {
-      name: "Người dùng", // Tên người dùng (có thể thay đổi theo hệ thống đăng nhập)
-      content: replyContent,
-      likes: 0, // Số lượt thích, khởi tạo là 0
-      time: new Date().toLocaleString(),
-      replies: [], // Phản hồi mới chưa có phản hồi con
-    };
-  
-    // Sao chép mảng reviews hiện tại để giữ tính bất biến
-    const updatedReviews = [...reviews];
-  
-    // Xác định vị trí của phản hồi cần được trả lời
-    if (replyIndex !== null) {
-      // Bình luận cấp 2 (trong replies của reply cấp 1)
-      updatedReviews[reviewIndex].replies[replyIndex].replies = [
-        ...updatedReviews[reviewIndex].replies[replyIndex].replies,
-        newReply,
-      ];
-    } else {
-      // Bình luận cấp 1
-      updatedReviews[reviewIndex].replies = [
-        ...updatedReviews[reviewIndex].replies,
-        newReply,
-      ];
-    }
-  
-    // Cập nhật lại state với phản hồi mới
-    setReviews(updatedReviews);
-    setReplyContent(""); // Reset nội dung sau khi gửi
-  
-    // Ẩn form trả lời
-    setShowReplyForm((prev) => ({
-      ...prev,
-      [`${reviewIndex}-${replyIndex}`]: false,
-    }));
-  };
-  
   // ================== Chức năng cuộn =================
   const scrollToProductInfo = () => {
     productInfoRef.current.scrollIntoView({ behavior: "smooth" });
@@ -336,7 +277,6 @@ const ProductDetails = () => {
         // Đặt trạng thái loading thành false khi hoàn tất việc lấy dữ liệu
         setLoading(false);
       }
-      setLoggedIn(isLoggedIn()); // Cập nhật trạng thái đăng nhập khi component được render
     };
 
     // Gọi hàm fetchProduct để lấy dữ liệu sản phẩm
@@ -904,49 +844,44 @@ const ProductDetails = () => {
           <h3 className="comment_title">ĐÁNH GIÁ</h3>
           <div className="comment-box">
             {/* Review Submission Form */}
-            {loggedIn ? (
-              // Nếu đã đăng nhập thì cho phép bình luận
-              <div>
-                <p>
-                  Bình luận bởi:{" "}
-                  <strong>{localStorage.getItem("username")}</strong>
-                </p>{" "}
-                {/* Hiển thị tên người dùng */}
-                <form onSubmit={handleSubmit} className="comment-form">
-                  {/* Star Rating Input */}
-                  <div className="comment-rating">
-                    {[...Array(5)].map((star, index) => (
-                      <FontAwesomeIcon
-                        key={index}
-                        icon={index < userRating ? faStarSolid : faStarRegular}
-                        style={{ color: "#d0b349", cursor: "pointer" }}
-                        onClick={() => handleUserRatingClick(index)}
-                      />
-                    ))}
-                  </div>
-                  {/* Comment Textarea */}
-                  <div className="form-floating comment-content">
-                    <textarea
-                      className="form-control"
-                      placeholder="Nhập nội dung"
-                      id="comment"
-                      name="comment"
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                      style={{ height: "100px" }}
-                      required
-                    />
-                    <label htmlFor="comment">Nhập nội dung</label>
-                  </div>
-                  {/* Submit Button */}
-                  <div className="comment-submit">
-                    <button type="submit" className="submit_button">
-                      Gửi đánh giá
-                    </button>
-                  </div>
-                </form>
+            {/* {isLoggedIn ? ( */}
+            {/* // Nếu đã đăng nhập thì cho phép bình luận */}
+            <form onSubmit={handleSubmit} className="comment-form">
+              {/* Star Rating Input */}
+              <div className="comment-rating">
+                {[...Array(5)].map((star, index) => (
+                  <FontAwesomeIcon
+                    key={index}
+                    icon={index < userRating ? faStarSolid : faStarRegular}
+                    style={{ color: "#d0b349", cursor: "pointer" }}
+                    onClick={() => handleUserRatingClick(index)}
+                  />
+                ))}
               </div>
-            ) : (
+              {/* Name and Phone Inputs */}
+
+              {/* Comment Textarea */}
+              <div className="form-floating comment-content">
+                <textarea
+                  className="form-control"
+                  placeholder="Nhập nội dung"
+                  id="comment"
+                  name="comment"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  style={{ height: "100px" }}
+                  required
+                />
+                <label htmlFor="comment">Nhập nội dung</label>
+              </div>
+              {/* Submit Button */}
+              <div className="comment-submit">
+                <button type="submit" className="submit_button">
+                  Gửi đánh giá
+                </button>
+              </div>
+            </form>
+            {/* ) : (
               // Nếu chưa đăng nhập thì hiển thị thông báo yêu cầu đăng nhập
               <p>
                 Vui lòng{" "}
@@ -955,17 +890,15 @@ const ProductDetails = () => {
                 </a>{" "}
                 để bình luận.
               </p>
-            )}
+            )} */}
 
             <hr />
 
             {/* List of Reviews */}
-
             <div className="reviews-list">
               {reviews.map((review, index) => (
                 <div key={index} className="review">
-                  {/* Hiển thị tên người dùng từ dữ liệu đánh giá */}
-                  <h6>{review.name}</h6>
+                  <h3>{review.name}</h3>
                   <div className="review-rating">
                     {[...Array(5)].map((star, i) => (
                       <FontAwesomeIcon
@@ -992,7 +925,6 @@ const ProductDetails = () => {
                     <span>| {review.time}</span>
                   </div>
 
-                  {/* Hiển thị form trả lời cấp 1 */}
                   {showReplyForm[index] && (
                     <form
                       onSubmit={(e) => handleReplySubmit(index, null, e)}
@@ -1003,7 +935,7 @@ const ProductDetails = () => {
                           className="form-group"
                           value={replyContent}
                           onChange={handleReplyContentChange}
-                          placeholder={`Trả lời ${replyTo}`} // Gọi tên người cần trả lời
+                          placeholder="Nội dung trả lời"
                           required
                         />
                       </div>
@@ -1022,89 +954,84 @@ const ProductDetails = () => {
                     </form>
                   )}
 
-                  {/* Nút thu gọn/mở rộng phần replies */}
-                  <button
-                    onClick={() => toggleReplies(index)}
-                    className="toggle-replies-button"
-                  >
-                    {showReplies[index]
-                      ? "Thu gọn phản hồi"
-                      : `Hiển thị ${review.replies.length} phản hồi`}
-                  </button>
+                  {review.replies && review.replies.length > 0 && (
+                    <div>
+                      {showReplies[index] && (
+                        <div className="replies-list">
+                          {review.replies.map((reply, replyIndex) => (
+                            <div key={replyIndex} className="reply">
+                              <h6>{reply.name}</h6>
+                              <p>{reply.content}</p>
+                              <div className="review-actions">
+                                <button
+                                  onClick={() => handleLikeClick(replyIndex)}
+                                  className="like-button"
+                                >
+                                  <FontAwesomeIcon icon={faThumbsUp} />{" "}
+                                  {reply.likes || 0}
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    toggleReplyForm(index, replyIndex)
+                                  }
+                                  className="reply-button"
+                                >
+                                  Trả lời
+                                </button>
+                                <span>| {reply.time}</span>
+                              </div>
 
-                  {/* Hiển thị các phản hồi cấp 2 khi mở rộng */}
-                  {showReplies[index] &&
-                    review.replies &&
-                    review.replies.length > 0 && (
-                      <div className="replies-list">
-                        {review.replies.map((reply, replyIndex) => (
-                          <div key={replyIndex} className="reply">
-                            <h6>{reply.name}</h6>
-                            <p>{reply.content}</p>
-                            <div className="review-actions">
-                              <button
-                                onClick={() =>
-                                  handleReplyLikeClick(index, replyIndex)
-                                } // Chỉ like bình luận con
-                                className="like-button"
-                              >
-                                <FontAwesomeIcon icon={faThumbsUp} />{" "}
-                                {reply.likes || 0}{" "}
-                                {/* Hiển thị lượt like riêng cho bình luận con */}
-                              </button>
-                              <button
-                                onClick={() =>
-                                  toggleReplyForm(index, replyIndex)
-                                }
-                                className="reply-button"
-                              >
-                                Trả lời
-                              </button>
-                              <span>| {reply.time}</span>
+                              {showReplyForm[`${index}-${replyIndex}`] && (
+                                <form
+                                  onSubmit={(e) =>
+                                    handleReplySubmit(index, replyIndex, e)
+                                  }
+                                  className="reply-form"
+                                >
+                                  <div className="form-floating reply-content">
+                                    <textarea
+                                      className="form-group"
+                                      value={replyContent}
+                                      onChange={handleReplyContentChange}
+                                      placeholder="Nội dung trả lời"
+                                      required
+                                    />
+                                  </div>
+                                  <div className="button-reply">
+                                    <button
+                                      type="button"
+                                      className="cancel-reply-button"
+                                      onClick={() =>
+                                        cancelReply(`${index}-${replyIndex}`)
+                                      }
+                                    >
+                                      Hủy
+                                    </button>
+                                    <button
+                                      type="submit"
+                                      className="submit-reply-button"
+                                    >
+                                      Gửi
+                                    </button>
+                                  </div>
+                                </form>
+                              )}
                             </div>
+                          ))}
+                        </div>
+                      )}
 
-                            {/* Hiển thị form trả lời cấp 2 */}
-                            {showReplyForm[`${index}-${replyIndex}`] && (
-                              <form
-                                onSubmit={(e) =>
-                                  handleReplySubmit(index, replyIndex, e)
-                                }
-                                className="reply-form"
-                              >
-                                <div className="form-floating reply-content">
-                                  <textarea
-                                    className="form-group"
-                                    value={replyContent}
-                                    onChange={handleReplyContentChange}
-                                    placeholder={`Trả lời ${reply.name}`} // Hiển thị tên người cần trả lời
-                                    required
-                                  />
-                                </div>
-                                <div className="button-reply">
-                                  <button
-                                    type="button"
-                                    className="cancel-reply-button"
-                                    onClick={() =>
-                                      cancelReply(`${index}-${replyIndex}`)
-                                    }
-                                  >
-                                    Hủy
-                                  </button>
-                                  <button
-                                    type="submit"
-                                    className="submit-reply-button"
-                                  >
-                                    Gửi
-                                  </button>
-                                </div>
-                              </form>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                  <hr></hr>
+                      {/* Nút thu gọn/mở rộng phần replies */}
+                      <button
+                        onClick={() => toggleReplies(index)}
+                        className="toggle-replies-button"
+                      >
+                        {showReplies[index]
+                          ? "Thu gọn phản hồi"
+                          : `Hiển thị ${review.replies.length} phản hồi`}
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

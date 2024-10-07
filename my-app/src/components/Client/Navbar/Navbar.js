@@ -52,6 +52,18 @@ const Navbar = () => {
             <img src="" alt="Logo" className="logo-image" />
           </Link>
           <div className="navbar-links">
+
+            
+          <Link
+              to="/"
+              className={`nav-link-trend ${
+                activeLink === "/" ? "active-link" : ""
+              }`}
+              onClick={() => handleLinkClick("/")}
+            >
+              Trang chủ
+            </Link>
+            
             <Link
               to="/about"
               className={`nav-link-introduce ${
@@ -62,15 +74,6 @@ const Navbar = () => {
               Giới thiệu
             </Link>
 
-            <Link
-              to="/trend"
-              className={`nav-link-trend ${
-                activeLink === "/trend" ? "active-link" : ""
-              }`}
-              onClick={() => handleLinkClick("/trend")}
-            >
-              Xu hướng
-            </Link>
             <div className="dropdown">
               <Link
                 to="/products"
@@ -639,7 +642,7 @@ const Navbar = () => {
           <div className="navbar-auth">
             <button type="button" class="btn  position-relative">
               <Link to="/cart" className="cart-link">
-                <button style={{ marginTop: "-4px", marginRight: "11px" }}>
+                <button style={{ marginTop: "4px", marginRight: "13px" }}>
                   <FaShoppingCart
                     size={25}
                     color="white"

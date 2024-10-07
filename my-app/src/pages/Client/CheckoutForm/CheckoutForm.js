@@ -178,7 +178,6 @@ const CheckoutForm = () => {
   return (
     <div className="checkout-form">
       <h2>Thông tin người mua hàng</h2>
-
       <Box flex={7}>
         <form onSubmit={handleSubmit}>
           <FormControl mb={3} isInvalid={errors.name}>
@@ -321,7 +320,6 @@ const CheckoutForm = () => {
               <FormErrorMessage>{errors.paymentMethod}</FormErrorMessage>
             )}
           </FormControl>
-
           <Button type="submit" className="button_order">
             Đặt hàng
           </Button>

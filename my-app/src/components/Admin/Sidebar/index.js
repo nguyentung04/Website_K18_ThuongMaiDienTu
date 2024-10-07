@@ -63,7 +63,7 @@ const Sidebar = () => {
                 {user.name}
               </Text>
               <Text fontSize="sm" color="gray.500">
-                {user.email}
+                {user.email }
               </Text>
             </Box>
             <NavLink to="/admin/dashboard">
@@ -84,12 +84,7 @@ const Sidebar = () => {
                   borderRadius="15px"
                   w="100%"
                   height="50px"
-                  leftIcon={
-                    <HomeIcon
-                      boxSize={5}
-                      color={isActive ? activeColor : linkColor}
-                    />
-                  }
+                  leftIcon={<HomeIcon boxSize={5} color={isActive ? activeColor : linkColor} />}
                 >
                   Tổng kết
                 </Button>
@@ -113,12 +108,7 @@ const Sidebar = () => {
                   borderRadius="15px"
                   w="100%"
                   height="50px"
-                  leftIcon={
-                    <CategoryIcon
-                      boxSize={5}
-                      color={isActive ? activeColor : linkColor}
-                    />
-                  }
+                  leftIcon={<CategoryIcon boxSize={5} color={isActive ? activeColor : linkColor} />}
                 >
                   Danh mục
                 </Button>
@@ -142,12 +132,7 @@ const Sidebar = () => {
                   borderRadius="15px"
                   w="100%"
                   height="50px"
-                  leftIcon={
-                    <BagIcon
-                      boxSize={5}
-                      color={isActive ? activeColor : linkColor}
-                    />
-                  }
+                  leftIcon={<BagIcon boxSize={5} color={isActive ? activeColor : linkColor} />}
                 >
                   Sản phẩm
                 </Button>
@@ -261,12 +246,7 @@ const Sidebar = () => {
                   borderRadius="15px"
                   w="100%"
                   height="50px"
-                  leftIcon={
-                    <CustomIcon
-                      boxSize={5}
-                      color={isActive ? activeColor : linkColor}
-                    />
-                  }
+                  leftIcon={<CustomIcon boxSize={5} color={isActive ? activeColor : linkColor} />}
                 >
                   Bình luận
                 </Button>
@@ -290,12 +270,7 @@ const Sidebar = () => {
                   borderRadius="15px"
                   w="100%"
                   height="50px"
-                  leftIcon={
-                    <ProfileIcon
-                      boxSize={5}
-                      color={isActive ? activeColor : linkColor}
-                    />
-                  }
+                  leftIcon={<ProfileIcon boxSize={5} color={isActive ? activeColor : linkColor} />}
                 >
                   Người dùng
                 </Button>
@@ -319,12 +294,7 @@ const Sidebar = () => {
                   borderRadius="15px"
                   w="100%"
                   height="50px"
-                  leftIcon={
-                    <InvoiceIcon
-                      boxSize={5}
-                      color={isActive ? activeColor : linkColor}
-                    />
-                  }
+                  leftIcon={<InvoiceIcon boxSize={5} color={isActive ? activeColor : linkColor} />}
                 >
                   Đơn hàng
                 </Button>

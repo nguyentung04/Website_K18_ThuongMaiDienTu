@@ -104,11 +104,7 @@ WHERE 1;
 exports.getProductById = (req, res) => {
   const productId = req.params.id;
   connection.query(
-    `SELECT pr.*, prd.*, ct.*, ct.name AS category
-FROM products pr
-INNER JOIN product_detail prd ON pr.id = prd.product_id
-INNER JOIN categories ct ON pr.category_id = ct.id
- WHERE pr.id = ?`,
+    "SELECT * FROM products WHERE id = ?",
     [productId],
     (err, results) => {
       if (err) {

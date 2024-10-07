@@ -10,14 +10,13 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  fetchCategoriesById,
-  updateCategory,
-} from "../../../../service/api/Category";
+import { fetchCategoriesById, updateCategory } from "../../../../service/api/Category";
+import axios from "axios";
 
 const EditCategory = () => {
   const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [currentLogo, setCurrentLogo] = useState(""); // Lưu đường dẫn logo hiện tại
   const [errors, setErrors] = useState({});
   const toast = useToast();
   const { id } = useParams();
@@ -35,12 +34,12 @@ const EditCategory = () => {
         const data = await fetchCategoriesById(id);
         if (data) {
           setName(data.name || "");
-          setDescription(data.description || "");
+          setCurrentLogo(data.logo || ""); // Lưu đường dẫn logo hiện tại
         }
       } catch (error) {
         toast({
-          title: "Error fetching category.",
-          description: "Failed to fetch category details.",
+          title: "Lỗi",
+          description: "Không thể cập nhật!!!",
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -61,13 +60,45 @@ const EditCategory = () => {
 
     const categoryData = { name };
 
+    // Handle image upload if an image file is provided
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append("file", imageFile);
+
+      try {
+        const response = await axios.post(
+          `http://localhost:3000/api/upload/categories`, // URL upload logo
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        categoryData.logo = response.data.filePath; // Set logo path to category data
+      } catch (error) {
+        toast({
+          title: "Image Upload Error",
+          description: "Failed to upload logo.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
+      }
+    } else {
+      // Nếu không có hình ảnh mới, giữ nguyên logo cũ
+      categoryData.logo = currentLogo; // Sử dụng logo hiện tại
+    }
+
     try {
+      console.log("Updating category with data:", categoryData); // Log data sent to API
       await updateCategory(id, categoryData);
       toast({
-        title: "Category updated.",
-        description: "Category details have been updated successfully.",
+        title: "Thông báo",
+        description: "Cập nhật thành công!!!",
         status: "success",
-        duration: 5000,
+        duration: 3000,
         isClosable: true,
       });
       navigate("/admin/Category");
@@ -83,6 +114,10 @@ const EditCategory = () => {
     }
   };
 
+  const handleImageChange = (e) => {
+    setImageFile(e.target.files[0]);
+  };
+
   const handleCancel = () => {
     navigate("/admin/Category");
   };
@@ -96,7 +131,10 @@ const EditCategory = () => {
           <Input value={name} onChange={(e) => setName(e.target.value)} />
           {errors.name && <FormErrorMessage>{errors.name}</FormErrorMessage>}
         </FormControl>
-       
+        <FormControl id="logo" mb={4}>
+          <FormLabel>Logo (Không bắt buộc)</FormLabel>
+          <Input type="file" accept="image/*" onChange={handleImageChange} />
+        </FormControl>
         <Button colorScheme="teal" mr="10px" type="submit">
           Đồng ý
         </Button>

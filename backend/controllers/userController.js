@@ -3,14 +3,24 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 // Example function to get all users
+// exports.getAllUsers = (req, res) => {
+//   connection.query("SELECT * FROM users", (err, results) => {
+//     if (err) {
+//       return res.status(500).json({ error: err.message });
+//     }
+//     res.status(200).json(results);
+//   });
+// };
 exports.getAllUsers = (req, res) => {
-  connection.query("SELECT * FROM users", (err, results) => {
+  connection.query("SELECT id, name, username, email, phone, role, status FROM users", (err, results) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
     res.status(200).json(results);
   });
 };
+
+
 
 //login
 
@@ -44,7 +54,14 @@ exports.login = (req, res) => {
           expiresIn: "1h",
         });
 
-        res.status(200).json({ token });
+        // Loại bỏ thông tin nhạy cảm như mật khẩu trước khi gửi phản hồi
+        const { password, ...userData } = user;
+
+        // Trả về token và toàn bộ thông tin người dùng (trừ mật khẩu)
+        res.status(200).json({
+          token,
+          user: userData,
+        });
       });
     }
   );
@@ -93,7 +110,7 @@ exports.loginAdmin = (req, res) => {
 
 
 exports.register = (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, name, phone, email, password } = req.body;
 
   // Kiểm tra xem tên đăng nhập đã tồn tại chưa
   connection.query(
@@ -130,20 +147,17 @@ exports.register = (req, res) => {
             }
 
             connection.query(
-              "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
-              [username, email, hashedPassword],
+              "INSERT INTO users (username, name, phone, email, password, status) VALUES (?, ?, ?, ?, ?, '1')",
+              [username, name, phone, email, hashedPassword],
               (err, results) => {
                 if (err) {
-                  return res
-                    .status(500)
-                    .json({
-                      message: "Lỗi khi lưu người dùng vào cơ sở dữ liệu",
-                    });
-                }
-
+                  console.error("Lỗi khi lưu người dùng:", err); // Ghi lại thông tin lỗi
+                  return res.status(500).json({ message: "Lỗi khi lưu người dùng vào cơ sở dữ liệu" });
+              }
                 res.status(200).json({ message: "Đăng ký thành công!" });
               }
             );
+            console.log({ username, name, phone, email, hashedPassword });          
           });
         }
       );
@@ -205,18 +219,38 @@ exports.deleteUser = (req, res) => {
   });
 };
 
+// exports.updateUser = (req, res) => {
+//   const userId = req.params.id;
+//   const { name, phone, password, email, image, username, role } = req.body;
+
+//   // Prepare the SQL query
+//   const query = `
+//     UPDATE Users SET name=?, image=?, phone=?, password=?, email=?, username=?, role=? 
+//     WHERE id = ?;
+//   `;
+//   const values = [name, image, phone, password, email, username, role, userId];
+
+//   // Execute the query
+//   connection.query(query, values, (err, results) => {
+//     if (err) {
+//       return res.status(500).json({ error: err.message });
+//     }
+//     if (results.affectedRows === 0) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+//     res.status(200).json({ message: "User updated successfully" });
+//   });
+// };
 exports.updateUser = (req, res) => {
   const userId = req.params.id;
-  const { name, phone, password, email, image, username, role } = req.body;
+  const { name,image, phone, password, email, username, role, status } = req.body;
 
-  // Prepare the SQL query
   const query = `
-    UPDATE Users SET name=?, image=?, phone=?, password=?, email=?, username=?, role=? 
+    UPDATE users SET name=?, image=?, phone=?, password=?, email=?, username=?, role=?, status=? 
     WHERE id = ?;
   `;
-  const values = [name, image, phone, password, email, username, role, userId];
+  const values = [name, image, phone, password, email, username, role, status, userId];
 
-  // Execute the query
   connection.query(query, values, (err, results) => {
     if (err) {
       return res.status(500).json({ error: err.message });
@@ -227,6 +261,7 @@ exports.updateUser = (req, res) => {
     res.status(200).json({ message: "User updated successfully" });
   });
 };
+
 
 exports.postUsers = async (req, res, next) => {
   try {

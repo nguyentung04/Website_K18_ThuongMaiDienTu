@@ -24,9 +24,14 @@ router.get("/products_banchay", productController.bestSellProducts);
 router.get("/products_noibat", productController.featuredProducts);
 router.get("/products_khuyenmai", productController.sellProducts);
 router.get("/products/:id", productController.GetOneProduct);
+router.get("/product/likes", productController.getAllProductLikes);
+ router.post('/product/:id/like', productController.toggleProductLike);
 
 //categoris
 router.get("/categories", categoryController.getAllcategoris);
+router.get("/product/categories/:id", categoryController.GetAllProductOfCategories);
+
+
 
 //orders
 router.get("/orders", orderController.getAllOrders);

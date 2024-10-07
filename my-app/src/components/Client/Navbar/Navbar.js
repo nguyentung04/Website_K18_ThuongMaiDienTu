@@ -17,6 +17,8 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
+    localStorage.removeItem("userData");
+    localStorage.removeItem("likedProducts");
     navigate("/signin");
   };
   /** ======================== đổi màu chữ sao khi click ( navbar ) ===================== */
@@ -642,7 +644,7 @@ const Navbar = () => {
           <div className="navbar-auth">
             <button type="button" class="btn  position-relative">
               <Link to="/cart" className="cart-link">
-                <button style={{ marginTop: "4px", marginRight: "13px" }}>
+                <button style={{ marginTop: "-4px", marginRight: "11px" }}>
                   <FaShoppingCart
                     size={25}
                     color="white"

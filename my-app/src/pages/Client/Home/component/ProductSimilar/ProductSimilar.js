@@ -6,12 +6,12 @@ import { HeartIcon } from "../../../../../components/icon/icon";
 import { Autoplay } from "swiper/modules";
 import OrderModal from "../../../../../components/Client/orderModel/orderModel";
 
-import "./best_selling_products.css";
+import "./product_similar.css";
 
 const BASE_URL = "http://localhost:3000";
 
-const BestSellingProducts = () => {
-  const [featuredProducts, setBestSellingProducts] = useState([]);
+const ProductSimilar = ({ categoryId }) => {
+  const [similarProducts, setSimilarProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [likedProducts, setLikedProducts] = useState([]);
   const [likeCounts, setLikeCounts] = useState({});
@@ -31,30 +31,25 @@ const BestSellingProducts = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchSimilarProducts = async () => {
+      if (!categoryId) {
+        console.error("Category ID is undefined or null");
+        return;
+      }
+
       try {
-        const featuredResponse = await axios.get(`${BASE_URL}/api/products_khuyenmai`);
-        setBestSellingProducts(featuredResponse.data);
-
-        // Restore liked products from local storage
-        const savedLikedProducts = JSON.parse(localStorage.getItem("likedProducts")) || [];
-        setLikedProducts(savedLikedProducts);
-
-        // Initialize like counts for products
-        const initialLikeCounts = {};
-        featuredResponse.data.forEach((product) => {
-          initialLikeCounts[product.id] = product.like_count || 0;
-        });
-        setLikeCounts(initialLikeCounts);
+        const response = await axios.get(`${BASE_URL}/api/product/categories/${categoryId}`);
+        setSimilarProducts(response.data);
       } catch (error) {
-        console.error("Error fetching data from API", error);
-        setErrors({ fetch: "Unable to load products. Please try again later." });
+        console.error("Error fetching similar products:", error);
+        setErrors({ fetch: "Unable to load similar products. Please try again later." });
       } finally {
         setLoading(false);
       }
     };
-    fetchProducts();
-  }, []);
+
+    fetchSimilarProducts();
+  }, [categoryId]);
 
   const toggleLike = async (productId) => {
     const userId = JSON.parse(localStorage.getItem('userData')).id;
@@ -141,9 +136,7 @@ const BestSellingProducts = () => {
       };
 
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const existingProductIndex = cart.findIndex(
-        (item) => item.id === product.id
-      );
+      const existingProductIndex = cart.findIndex((item) => item.id === product.id);
 
       if (existingProductIndex !== -1) {
         cart[existingProductIndex].quantity += quantity;
@@ -166,10 +159,10 @@ const BestSellingProducts = () => {
     <div className="best_selling_products">
       <div className="row align-items-center">
         <div className="col fix-title uppercase">
-          <h2>Sản phẩm khuyến mãi</h2>
+          <h2>Sản phẩm tương tự</h2>
         </div>
       </div>
-      <div className="products_blocks_wrapper">
+      <div className="products-blocks-wrapper">
         <Swiper
           spaceBetween={1}
           loop={true}
@@ -182,82 +175,48 @@ const BestSellingProducts = () => {
           {loading ? (
             <SwiperSlide>Loading...</SwiperSlide>
           ) : (
-            featuredProducts.map((product, index) => (
-              <SwiperSlide key={index} style={{ display: "flex" }}>
-                <div
-                  className="swiper-wrappe"
-                  style={{
+            similarProducts.map((product, index) => (
+              <SwiperSlide key={index}>
+                <div className="swiper-wrapper"
+                   style={{
                     display: "flex",
                     width: "312px",
                     marginBottom: "4px",
                   }}
-                  key={product.id}
                 >
-                  <div className="swiper-slide swiper-slide-active">
-                    <div className="product-box h-100 bg-gray relative">
-                      <button
-                        className="like-icon"
-                        onClick={() => toggleLike(product.id)}
-                      >
-                        <HeartIcon
-                          size="24px"
-                          color={
-                            likedProducts.includes(product.id)
-                              ? "#b29c6e"
-                              : "white"
-                          }
-                        />
-                        <span>{likeCounts[product.id] || 0}</span>
-                      </button>
-                      <button
-                        className="add-to-cart-icon"
-                        onClick={(e) => handleAddToCartAndOpenModal(e, product)}
-                      >
-                        <FaShoppingCart
-                          size="25"
-                          style={{
-                            color: "white",
-                            stroke: "#b29c6e",
-                            strokeWidth: 42,
-                          }}
-                        />
-                      </button>
-                      <div className="product-box">
-                        <a href={`/product/${product.id}`} className="plain">
-                          <div className="product-image">
-                            <img
-                              src={`${BASE_URL}/uploads/products/${product.image}`}
-                              alt={product.name}
-                            />
-                          </div>
-                          <div className="product-info">
-                            <p className="product-title">{product.name}</p>
-                            <div className="product-price">
-                              {product.discountPrice ? (
-                                <>
-                                  <div className="itproduct__discount">
-                                    <p
-                                      style={{
-                                        textDecoration: "line-through",
-                                        color: "gray",
-                                      }}
-                                    >
-                                      {formatPrice(product.price)}{" "}
-                                    </p>{" "}
-                                    <span style={{ marginLeft: "8px" }}>
-                                      -{Math.round(((product.price - product.discountPrice) / product.price) * 100)}%
-                                    </span>
-                                  </div>
-                                  <p>{formatPrice(product.discountPrice)}</p>
-                                </>
-                              ) : (
-                                <p>{formatPrice(product.price)}</p>
-                              )}
-                            </div>
-                          </div>
-                        </a>
+                  <div className="product-box h-100 bg-gray relative">
+                    {/* <button className="like-icon" onClick={() => toggleLike(product.id)}>
+                      <HeartIcon size="24px" color={likedProducts.includes(product.id) ? "#b29c6e" : "white"} />
+                      <span>{likeCounts[product.id] || 0}</span>
+                    </button> */}
+                    <button className="add-to-cart-icon" onClick={(e) => handleAddToCartAndOpenModal(e, product)}>
+                      <FaShoppingCart size="25" style={{ color: "white", stroke: "#b29c6e", strokeWidth: 42 }} />
+                    </button>
+                    <a href={`/product/${product.id}`} className="plain">
+                      <div className="product-image">
+                        <img src={`${BASE_URL}/uploads/products/${product.image}`} alt={product.name} />
                       </div>
-                    </div>
+                      <div className="product-info">
+                        <p className="product-title">{product.name}</p>
+                        <div className="product-price">
+                          {product.discountPrice ? (
+                            <>
+                              <div className="itproduct__discount">
+                                <p style={{ textDecoration: "line-through", color: "gray" }}>
+                                  {formatPrice(product.price)}{" "}
+                                </p>
+                                <span style={{ marginLeft: "8px" }}>
+                                  -{Math.round(((product.price - product.discountPrice) / product.price) * 100)}%
+                                </span>
+                              </div>
+                              <p>{formatPrice(product.discountPrice)}</p>
+                            </>
+                          ) : (
+                            <p>{formatPrice(product.price)}</p>
+                          )}
+                        </div>
+                      </div>
+                    </a>
                   </div>
                 </div>
               </SwiperSlide>
@@ -282,4 +241,4 @@ const BestSellingProducts = () => {
   );
 };
 
-export default BestSellingProducts;
+export default ProductSimilar;

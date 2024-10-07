@@ -6,6 +6,11 @@ const fs = require("fs");
 const Routes = require("./routes/Routes");
 const commentsRoutes = require("./routes/commentsRoutes");
 const comment_detailRoutes = require("./routes/comment_detailRoute");
+const cityRoutes = require("./routes/city")
+
+const product_detailRoutes = require("./routes/product_detail/index");
+const citieslRoutes = require("./routes/cities/citiesRoutes");
+const districtsController = require("./routes/districts/index");
 
 const product_detailRoutes = require("./routes/product_detail/index");
 const citieslRoutes = require("./routes/cities/citiesRoutes");

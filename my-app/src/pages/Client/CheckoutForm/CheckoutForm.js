@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./CheckoutForm.css";
 import {
   Box,
@@ -12,6 +13,7 @@ import {
   Textarea,
   useToast,
 } from "@chakra-ui/react";
+import { fetchCities, fetchDistrictsByCity } from '../../../service/api/city';
 
 const CheckoutForm = () => {
   const [formData, setFormData] = useState({
@@ -25,18 +27,41 @@ const CheckoutForm = () => {
     paymentMethod: "COD",
   });
 
-  const [errors, setErrors] = useState({});
-  const toast = useToast(); // Chakra-UI toast
+  const navigate = useNavigate();
 
-  // Hàm xử lý khi người dùng thay đổi tỉnh/thành phố
-  const handleProvinceChange = (e) => {
+  const [errors, setErrors] = useState({});
+  const [cities, setCities] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const toast = useToast();
+
+  useEffect(() => {
+    const fetchCityData = async () => {
+      try {
+        const citiesData = await fetchCities();
+        setCities(citiesData);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách tỉnh/thành phố:", error);
+      }
+    };
+
+    fetchCityData();
+  }, []);
+
+  const handleProvinceChange = async (e) => {
     const selectedProvince = e.target.value;
     // Cập nhật dữ liệu của form, đồng thời reset thành phố khi thay đổi tỉnh
     setFormData({
       ...formData,
       province: selectedProvince,
-      city: "", // Reset thành phố khi tỉnh thay đổi
+      city: "",
     });
+
+    try {
+      const districtsData = await fetchDistrictsByCity(selectedProvince);
+      setDistricts(districtsData);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách quận/huyện:", error);
+    }
   };
 
   // Hàm xử lý khi người dùng thay đổi thành phố
@@ -74,54 +99,47 @@ const CheckoutForm = () => {
       newErrors.paymentMethod = "Chọn phương thức thanh toán";
 
     setErrors(newErrors);
-    // Trả về true nếu không có lỗi nào, ngược lại là false
-    return !Object.values(newErrors).length;
+    return !Object.values(newErrors).length; 
   };
 
-  // Hàm xử lý khi người dùng submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Nếu form không hợp lệ, dừng việc submit
-    if (!validateForm()) return;
-
-    // Lấy thông tin giỏ hàng từ localStorage
+    
+    if (!validateForm()) {
+      return; // Nếu biểu mẫu không hợp lệ, dừng xử lý
+    }
+  
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    // Kiểm tra nếu giỏ hàng rỗng, hiển thị thông báo
     if (cart.length === 0) {
       alert("Giỏ hàng trống. Không thể đặt hàng.");
       return;
     }
-
-    // Tạo danh sách sản phẩm trong đơn hàng dựa vào giỏ hàng
+  
     const orderItems = cart.map((item) => ({
       product_id: item.id,
       quantity: item.quantity,
-      // Xử lý giá để chuyển đổi thành số và tính tổng tiền cho mỗi sản phẩm
-      price: parseFloat(item.price.replace(/[^0-9.-]+/g, "")),
-      total: parseFloat(item.price.replace(/[^0-9.-]+/g, "")) * item.quantity,
+      price: parseFloat(String(item.price).replace(/[^0-9.-]+/g, "")),
+      total: parseFloat(String(item.price).replace(/[^0-9.-]+/g, "")) * item.quantity,
     }));
-
+  
     try {
-      // Gửi yêu cầu tạo đơn hàng lên server qua API
       const response = await fetch("http://localhost:3000/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...formData, // Gửi dữ liệu form kèm theo
-          order_detail: orderItems, // Gửi chi tiết đơn hàng
+          ...formData,
+          id_cities: formData.province, 
+          id_districts: formData.city,
+          order_detail: orderItems,
         }),
       });
-
-      // Xử lý kết quả trả về từ server
+  
       const data = await response.json();
-
-      // Nếu đơn hàng thành công
+  
       if (data.message === "Đặt hàng thành công!") {
-        localStorage.removeItem("cart"); // Xóa giỏ hàng sau khi đặt hàng thành công
+        localStorage.removeItem("cart");
         toast({
           title: "Đặt hàng thành công",
           description: "Đơn hàng của bạn đã được gửi.",
@@ -129,7 +147,9 @@ const CheckoutForm = () => {
           duration: 5000,
           isClosable: true,
         });
-        // Reset lại form sau khi đặt hàng
+  
+        navigate("/products");
+  
         setFormData({
           name: "",
           email: "",
@@ -144,7 +164,7 @@ const CheckoutForm = () => {
         throw new Error("Có lỗi xảy ra. Vui lòng thử lại.");
       }
     } catch (error) {
-      // Nếu có lỗi trong quá trình đặt hàng, hiển thị thông báo lỗi
+      console.error("Lỗi khi gửi đơn hàng:", error);
       toast({
         title: "Lỗi",
         description: error.message,
@@ -154,26 +174,8 @@ const CheckoutForm = () => {
       });
     }
   };
-  const provinces = [
-    {
-      name: "Hà Nội",
-      cities: [
-        "Quận Ba Đình",
-        "Quận Hoàn Kiếm",
-        "Quận Đống Đa",
-        "Quận Cầu Giấy",
-      ],
-    },
-    {
-      name: "Hồ Chí Minh",
-      cities: ["Quận 1", "Quận 3", "Quận 5", "Quận Bình Thạnh"],
-    },
-    {
-      name: "Đà Nẵng",
-      cities: ["Hải Châu", "Cẩm Lệ", "Sơn Trà", "Ngũ Hành Sơn"],
-    },
-    // Add more provinces and cities here
-  ];
+  
+  
 
   return (
     <div className="checkout-form">
@@ -190,93 +192,76 @@ const CheckoutForm = () => {
               value={formData.name}
               onChange={handleChange}
             />
-            {errors.name && <FormErrorMessage>{errors.name}</FormErrorMessage>}
+            <FormErrorMessage>{errors.name}</FormErrorMessage>
           </FormControl>
 
-          <Flex mb={3} gap={4}>
-            <FormControl flex={1} isInvalid={errors.email}>
-              <FormLabel htmlFor="email">Địa chỉ email</FormLabel>
-              <Input
-                className="custom-input"
-                id="email"
-                name="email"
-                placeholder="Địa chỉ email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-              {errors.email && (
-                <FormErrorMessage>{errors.email}</FormErrorMessage>
-              )}
-            </FormControl>
+          <FormControl mb={3} isInvalid={errors.email}>
+            <FormLabel htmlFor="email">Email</FormLabel>
+            <Input
+              className="custom-input"
+              id="email"
+              name="email"
+              placeholder="Nhập địa chỉ email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+            <FormErrorMessage>{errors.email}</FormErrorMessage>
+          </FormControl>
 
-            <FormControl flex={1} isInvalid={errors.phone}>
-              <FormLabel htmlFor="phone">Số điện thoại</FormLabel>
-              <Input
-                className="custom-input"
-                type="number"
-                id="phone"
-                name="phone"
-                placeholder="Số điện thoại"
-                value={formData.phone}
-                onChange={handleChange}
-              />
-              {errors.phone && (
-                <FormErrorMessage>{errors.phone}</FormErrorMessage>
-              )}
-            </FormControl>
-          </Flex>
+          <FormControl mb={3} isInvalid={errors.phone}>
+            <FormLabel htmlFor="phone">Số điện thoại</FormLabel>
+            <Input
+              className="custom-input"
+              id="phone"
+              name="phone"
+              placeholder="Nhập số điện thoại"
+              value={formData.phone}
+              onChange={handleChange}
+            />
+            <FormErrorMessage>{errors.phone}</FormErrorMessage>
+          </FormControl>
 
-          <Flex mb={3} gap={4}>
-            <FormControl flex={1} isInvalid={errors.province}>
-              <FormLabel htmlFor="province">Tỉnh</FormLabel>
-              <Select
-                className="custom-input"
-                id="province"
-                name="province"
-                value={formData.province}
-                onChange={handleProvinceChange}
-              >
-                <option value="">Chọn Tỉnh</option>
-                {provinces.map((province) => (
-                  <option key={province.name} value={province.name}>
-                    {province.name}
-                  </option>
-                ))}
-              </Select>
-              {errors.province && (
-                <FormErrorMessage>{errors.province}</FormErrorMessage>
-              )}
-            </FormControl>
+          <FormControl mb={3} isInvalid={errors.province}>
+            <FormLabel htmlFor="province">Tỉnh/Thành phố</FormLabel>
+            <Select
+              className="custom-input"
+              id="province"
+              name="province"
+              placeholder="Chọn tỉnh/thành phố"
+              value={formData.province}
+              onChange={handleProvinceChange}
+            >
+              {cities.map((city) => (
+                <option key={city.id} value={city.id}>
+                  {city.name}
+                </option>
+              ))}
+            </Select>
+            <FormErrorMessage>{errors.province}</FormErrorMessage>
+          </FormControl>
 
-            <FormControl flex={1} isInvalid={errors.city}>
-              <FormLabel htmlFor="city">Thành phố</FormLabel>
-              <Select
-                className="custom-input"
-                id="city"
-                name="city"
-                value={formData.city}
-                onChange={handleCityChange}
-                disabled={!formData.province}
-              >
-                <option value="">Chọn Thành phố</option>
-                {formData.province &&
-                  provinces
-                    .find((province) => province.name === formData.province)
-                    .cities.map((city) => (
-                      <option key={city} value={city}>
-                        {city}
-                      </option>
-                    ))}
-              </Select>
-              {errors.city && (
-                <FormErrorMessage>{errors.city}</FormErrorMessage>
-              )}
-            </FormControl>
-          </Flex>
+          <FormControl mb={3} isInvalid={errors.city}>
+            <FormLabel htmlFor="city">Quận/Huyện</FormLabel>
+            <Select
+              className="custom-input"
+              id="city"
+              name="city"
+              placeholder="Chọn quận/huyện"
+              value={formData.city}
+              onChange={handleCityChange}
+            >
+              {districts.map((district) => (
+                <option key={district.id} value={district.id}>
+                  {district.name}
+                </option>
+              ))}
+            </Select>
+            <FormErrorMessage>{errors.city}</FormErrorMessage>
+          </FormControl>
 
           <FormControl mb={3} isInvalid={errors.address}>
-            <FormLabel htmlFor="address">Địa chỉ nhận hàng</FormLabel>
-            <Input
+            <FormLabel htmlFor="address">Địa chỉ cụ thể</FormLabel>
+            <Textarea
               className="custom-input"
               id="address"
               name="address"
@@ -284,43 +269,26 @@ const CheckoutForm = () => {
               value={formData.address}
               onChange={handleChange}
             />
-            {errors.address && (
-              <FormErrorMessage>{errors.address}</FormErrorMessage>
-            )}
-          </FormControl>
-
-          <FormControl mb={3}>
-            <FormLabel htmlFor="note">Ghi chú</FormLabel>
-            <Textarea
-              className="custom-input"
-              id="note"
-              name="note"
-              rows={3}
-              placeholder="Nhập ghi chú"
-              value={formData.note}
-              onChange={handleChange}
-            />
+            <FormErrorMessage>{errors.address}</FormErrorMessage>
           </FormControl>
 
           <FormControl mb={3} isInvalid={errors.paymentMethod}>
-            <FormLabel htmlFor="paymentMethod">
-              Phương thức thanh toán
-            </FormLabel>
+            <FormLabel htmlFor="paymentMethod">Phương thức thanh toán</FormLabel>
             <Select
               className="custom-input"
               id="paymentMethod"
               name="paymentMethod"
+              placeholder="Chọn phương thức thanh toán"
               value={formData.paymentMethod}
               onChange={handleChange}
             >
-              <option value="COD">Thanh toán khi giao hàng (COD)</option>
-              <option value="bankTransfer">Chuyển khoản</option>
+              <option value="COD">Thanh toán khi nhận hàng</option>
+              <option value="Bank Transfer">Chuyển khoản ngân hàng</option>
             </Select>
-            {errors.paymentMethod && (
-              <FormErrorMessage>{errors.paymentMethod}</FormErrorMessage>
-            )}
+            <FormErrorMessage>{errors.paymentMethod}</FormErrorMessage>
           </FormControl>
-          <Button type="submit" className="button_order">
+
+          <Button type="submit" colorScheme="teal">
             Đặt hàng
           </Button>
         </form>

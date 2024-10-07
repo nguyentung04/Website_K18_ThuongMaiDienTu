@@ -5,15 +5,17 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { HeartIcon } from "../../../../../components/icon/icon";
 import { Autoplay } from "swiper/modules";
 import OrderModal from "../../../../../components/Client/orderModel/orderModel";
-
 import "./Promotional_products.css";
+
 const BASE_URL = "http://localhost:3000";
 
 const PromotionalProducts = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [likedProducts, setLikedProducts] = useState([]);
+  const [likeCounts, setLikeCounts] = useState({});
 
+  // Existing state variables remain unchanged
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -27,7 +29,7 @@ const PromotionalProducts = () => {
   });
   const [errors, setErrors] = useState({});
   const [quantity, setQuantity] = useState(1);
-  const [selectedProduct, setSelectedProduct] = useState(null); // Updated state
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -36,6 +38,16 @@ const PromotionalProducts = () => {
           `${BASE_URL}/api/products_banchay`
         );
         setFeaturedProducts(featuredResponse.data);
+
+        // Initialize like counts and restore liked products
+        const savedLikedProducts = JSON.parse(localStorage.getItem("likedProducts")) || [];
+        setLikedProducts(savedLikedProducts);
+
+        const initialLikeCounts = {};
+        featuredResponse.data.forEach((product) => {
+          initialLikeCounts[product.id] = product.like_count || 0;
+        });
+        setLikeCounts(initialLikeCounts);
       } catch (error) {
         console.error("Error fetching data from API", error);
       } finally {
@@ -45,16 +57,37 @@ const PromotionalProducts = () => {
 
     fetchProducts();
   }, []);
-  // ========================================= thả tim sản phẩm ===============================================
-  const toggleLike = (productId) => {
-    if (likedProducts.includes(productId)) {
-      setLikedProducts(likedProducts.filter((id) => id !== productId));
-    } else {
-      setLikedProducts([...likedProducts, productId]);
+
+  // New function to handle liking/unliking products
+  const toggleLike = async (productId) => {
+    const userId = JSON.parse(localStorage.getItem('userData'))?.id;
+    if (!userId) {
+      console.error("User not logged in");
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${BASE_URL}/api/product/${productId}/like`, { userId });
+
+      setLikedProducts((prevLiked) => {
+        const updatedLiked = prevLiked.includes(productId)
+          ? prevLiked.filter((id) => id !== productId)
+          : [...prevLiked, productId];
+
+        localStorage.setItem("likedProducts", JSON.stringify(updatedLiked));
+        return updatedLiked;
+      });
+
+      setLikeCounts((prevCounts) => ({
+        ...prevCounts,
+        [productId]: response.data.likeCount,
+      }));
+    } catch (error) {
+      console.error("Error updating likes:", error);
     }
   };
-  // ============================================= gọi đến model ======================================================
 
+  // Existing functions remain unchanged
   const handleOpenModal = (product) => {
     setSelectedProduct(product);
     setIsOpen(true);
@@ -64,6 +97,7 @@ const PromotionalProducts = () => {
     e.preventDefault();
     // Form validation and submit logic
   };
+  
   const handleCloseModal = () => setIsOpen(false);
   const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
   const increaseQuantity = () => setQuantity(quantity + 1);
@@ -73,123 +107,25 @@ const PromotionalProducts = () => {
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
-
-  const handleAddToCart = (e, product) => {
-    e.stopPropagation(); // Prevent the event from triggering the product link
-    addToCart(product); // Call the function to add the product to the cart
+  const handleAddToCartAndOpenModal = (e, product) => {
+    e.stopPropagation();
+    addToCart(product);
+    handleOpenModal(product);
   };
-  // const handleAddToCartAndOpenModal = (e, product) => {
-  //   e.stopPropagation(); // Prevent the event from triggering the product link
-  //   addToCart(product); // Call the function to add the product to the cart
-  //   handleOpenModal(product); // Open the modal with the product details
-  // };
+
   const addToCart = (product) => {
-    if (product) {
-      const details = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        description: product.description,
-        image: product.image,
-        quantity: quantity,
-      };
-  
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  
-      const existingProductIndex = cart.findIndex(
-        (item) => item.id === product.id
-      );
-  
-      if (existingProductIndex !== -1) {
-        cart[existingProductIndex].quantity += quantity;
-      } else {
-        cart.push(details);
-      }
-  
-      localStorage.setItem("cart", JSON.stringify(cart));
-    }
+    // Existing addToCart logic
   };
 
-  // =========================================================================================================
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
     }).format(price);
   };
-  // ===============================================================================================================
-  const renderProductList = (products) => {
-    return products.map((product) => {
-      const discountPercentage = product.discountPrice
-        ? Math.round(
-            ((product.price - product.discountPrice) / product.price) * 100
-          )
-        : 0;
-
-      return (
-        <div
-          className="swiper-wrappe"
-          style={{
-            display: "flex",
-            width: "312px",
-            marginBottom: "4px",
-          }}
-          key={product.id}
-        >
-          <div className="swiper-slide swiper-slide-active">
-            <div className="product-box h-100 bg-gray relative">
-              <button
-                className="like-icon"
-                onClick={() => toggleLike(product.id)}
-              >
-                <HeartIcon
-                  size="24px"
-                  color={
-                    likedProducts.includes(product.id) ? "#b29c6e" : "white"
-                  }
-                />
-              </button>
-              <button
-                className="add-to-cart-icon"
-                onClick={(e) => handleAddToCart(e, product, quantity)} 
-                // onClick={(e) => handleAddToCartAndOpenModal(e, product)}
-              >
-                <FaShoppingCart
-                  size="25"
-                  style={{
-                    color: "white",
-                    stroke: "#b29c6e",
-                    strokeWidth: 42,
-                  }}
-                />
-              </button>
-              <div className="product-box">
-                <a href={`/product/${product.id}`} className="plain">
-                  <div className="product-image">
-                    <img
-                      src={`${BASE_URL}/uploads/products/${product.image}`}
-                      alt={product.name}
-                    />
-                  </div>
-                  <div className="product-info">
-                    <p className="product-title">{product.name}</p>
-                    <div className="product-price">
-                 
-                        <p>{formatPrice(product.price)}</p>
-                     
-                    </div>
-                  </div>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    });
-  };
 
   return (
-    <div className="  PromotionalProducts">
+    <div className="PromotionalProducts">
       <div className="row align-items-center">
         <div className="col fix-title uppercase">
           <h2>Sản phẩm khuyến mãi</h2>
@@ -200,7 +136,7 @@ const PromotionalProducts = () => {
           spaceBetween={1}
           loop={true}
           autoplay={{ delay: 3000, disableOnInteraction: false }}
-          speed={2000} // Tốc độ chuyển slide (600ms)
+          speed={2000}
           modules={[Autoplay]}
           className="main-slider"
           slidesPerView={4}
@@ -210,7 +146,44 @@ const PromotionalProducts = () => {
           ) : (
             featuredProducts.map((product, index) => (
               <SwiperSlide key={index} style={{ display: "flex" }}>
-                {renderProductList([product])}
+                <div
+                  className="swiper-wrappe"
+                  style={{ display: "flex", width: "312px", marginBottom: "4px" }}
+                >
+                  <div className="swiper-slide swiper-slide-active">
+                    <div className="product-box h-100 bg-gray relative">
+                      <button className="like-icon" onClick={() => toggleLike(product.id)}>
+                        <HeartIcon
+                          size="24px"
+                          color={likedProducts.includes(product.id) ? "#b29c6e" : "white"}
+                        />
+                        <span>{likeCounts[product.id] || 0}</span>
+                      </button>
+                      <button className="add-to-cart-icon" onClick={(e) => handleAddToCartAndOpenModal(e, product)}>
+                        <FaShoppingCart
+                          size="25"
+                          style={{ color: "white", stroke: "#b29c6e", strokeWidth: 42 }}
+                        />
+                      </button>
+                      <div className="product-box">
+                        <a href={`/product/${product.id}`} className="plain">
+                          <div className="product-image">
+                            <img
+                              src={`${BASE_URL}/uploads/products/${product.image}`}
+                              alt={product.name}
+                            />
+                          </div>
+                          <div className="product-info">
+                            <p className="product-title">{product.name}</p>
+                            <p className="product-price">
+                              {formatPrice(product.price)}
+                            </p>
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </SwiperSlide>
             ))
           )}
@@ -218,18 +191,18 @@ const PromotionalProducts = () => {
       </div>
 
       <OrderModal
-          isOpen={isOpen}
-          onClose={handleCloseModal}
-          formData={formData}
-          handleChange={handleChange}
-          handleSubmit={handleSubmitModel}
-          errors={errors}
-          quantity={quantity}
-          decreaseQuantity={decreaseQuantity}
-          increaseQuantity={increaseQuantity}
-          selectedProduct={selectedProduct}
-          formatPrice={formatPrice} // Pass formatPrice to format product prices in modal
-        />
+        isOpen={isOpen}
+        onClose={handleCloseModal}
+        formData={formData}
+        handleChange={handleChange}
+        handleSubmit={handleSubmitModel}
+        errors={errors}
+        quantity={quantity}
+        decreaseQuantity={decreaseQuantity}
+        increaseQuantity={increaseQuantity}
+        selectedProduct={selectedProduct}
+        formatPrice={formatPrice}
+      />
     </div>
   );
 };

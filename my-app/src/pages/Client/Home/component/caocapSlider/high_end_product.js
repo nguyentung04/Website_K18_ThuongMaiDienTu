@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaShoppingCart } from "react-icons/fa";
@@ -13,9 +12,9 @@ const BASE_URL = "http://localhost:3000";
 const CustomSlider = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [likedProducts, setLikedProducts] = useState([]);
+  const [likedProducts, setLikedProducts] = useState([]); // Lưu danh sách sản phẩm đã thích
+  const [likeCount, setLikeCount] = useState({}); // Lưu số lượt thích cho mỗi sản phẩm
   const [selectedButton, setSelectedButton] = useState("Tất cả");
-
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -29,13 +28,20 @@ const CustomSlider = () => {
   });
   const [errors, setErrors] = useState({});
   const [quantity, setQuantity] = useState(1);
-  const [selectedProduct, setSelectedProduct] = useState(null); // Updated state
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const featuredResponse = await axios.get(`${BASE_URL}/api/products`);
         setFeaturedProducts(featuredResponse.data);
+
+        // Khởi tạo số lượt thích cho mỗi sản phẩm
+        const initialLikeCount = {};
+        featuredResponse.data.forEach(product => {
+          initialLikeCount[product.id] = 0; // Mặc định là 0 lượt thích
+        });
+        setLikeCount(initialLikeCount);
       } catch (error) {
         console.error("Error fetching data from API", error);
       } finally {
@@ -45,35 +51,25 @@ const CustomSlider = () => {
 
     fetchProducts();
   }, []);
-  // ================================================= gọi đến Model ==================================
+
   const handleOpenModal = (product) => {
     setSelectedProduct(product);
     setIsOpen(true);
   };
 
-  const handleSubmitModel = (e) => {
-    e.preventDefault();
-    // Form validation and submit logic
-  };
   const handleCloseModal = () => setIsOpen(false);
-  const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
-  const increaseQuantity = () => setQuantity(quantity + 1);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
-
-  const handleAddToCart = (e, product) => {
-    e.stopPropagation(); // Prevent the event from triggering the product link
-    addToCart(product); // Call the function to add the product to the cart
+  const handleAddToCartAndOpenModal = (e, product) => {
+    e.stopPropagation();
+    addToCart(product);
+    handleOpenModal(product);
   };
-  // const handleAddToCartAndOpenModal = (e, product) => {
-  //   e.stopPropagation(); // Prevent the event from triggering the product link
-  //   addToCart(product); // Call the function to add the product to the cart
-  //   handleOpenModal(product); // Open the modal with the product details
-  // };
+
   const addToCart = (product) => {
     if (product) {
       const details = {
@@ -84,22 +80,20 @@ const CustomSlider = () => {
         image: product.image,
         quantity: quantity,
       };
-  
+
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  
-      const existingProductIndex = cart.findIndex(
-        (item) => item.id === product.id
-      );
-  
+      const existingProductIndex = cart.findIndex((item) => item.id === product.id);
+
       if (existingProductIndex !== -1) {
         cart[existingProductIndex].quantity += quantity;
       } else {
         cart.push(details);
       }
-  
+
       localStorage.setItem("cart", JSON.stringify(cart));
     }
   };
+
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -107,60 +101,29 @@ const CustomSlider = () => {
     }).format(price);
   };
 
-  // ========================================= thả tim sản phẩm ===============================================
-  const toggleLike = (productId) => {
-    if (likedProducts.includes(productId)) {
-      setLikedProducts(likedProducts.filter((id) => id !== productId));
-    } else {
-      setLikedProducts([...likedProducts, productId]);
+  const toggleLike = async (productId) => {
+    const userId = JSON.parse(localStorage.getItem('user')).id; // Lấy userId từ localStorage
+    try {
+      const response = await axios.post(`http://localhost:3000/api/product/${productId}/like`, { userId });
+      // Xử lý phản hồi
+    } catch (error) {
+      console.error("Lỗi khi cập nhật lượt thích:", error);
     }
   };
+  
 
-  // ===============================================================================================================
   const renderProductList = (products) => {
     return products.map((product) => (
-      <div
-        className="swiper-wrappe"
-        style={{
-          display: "flex",
-          width: " 312px",
-          marginBottom: "4px",
-        }}
-        key={product.id}
-      >
+      <div className="swiper-wrappe" style={{ display: "flex", width: "312px", marginBottom: "4px" }} key={product.id}>
         <div className="swiper-slide swiper-slide-active">
           <div className="product-box h-100 bg-gray relative">
-            <button
-              className="like-icon"
-              onClick={() => toggleLike(product.id)}
-            >
-              <HeartIcon
-                size="24px"
-                color={likedProducts.includes(product.id) ? "#b29c6e" : "white"}
-              />
-            </button>
-            <button
-              className="add-to-cart-icon"
-              onClick={(e) => handleAddToCart(e, product, quantity)} 
-              // onClick={(e) => handleAddToCartAndOpenModal(e, product)}
-            >
-              <FaShoppingCart
-            
-                size="25"
-                style={{
-                  color: "white",
-                  stroke: "#b29c6e",
-                  strokeWidth: 42,
-                }}
-              />
+            <button className="add-to-cart-icon" onClick={(e) => handleAddToCartAndOpenModal(e, product)}>
+              <FaShoppingCart size="25" style={{ color: "white", stroke: "#b29c6e", strokeWidth: 42 }} />
             </button>
             <div className="product-box">
               <a href={`/product/${product.id}`} className="plain">
                 <div className="product-image">
-                  <img
-                    src={`${BASE_URL}/uploads/products/${product.image}`}
-                    alt={product.name}
-                  />
+                  <img src={`${BASE_URL}/uploads/products/${product.image}`} alt={product.name} />
                 </div>
                 <div className="product-info">
                   <p className="product-title">{product.name}</p>
@@ -173,55 +136,44 @@ const CustomSlider = () => {
       </div>
     ));
   };
+
   const handleButtonClick = (buttonName) => {
-    setSelectedButton(buttonName); // Update the selected button when clicked
+    setSelectedButton(buttonName);
+  };
+
+  const handleSubmitModel = (e) => {
+    e.preventDefault();
+    // Logic xử lý form gửi đi
+    console.log("Form data submitted:", formData);
+    handleCloseModal();
   };
 
   return (
     <div className="custom-slider-container">
       <div className="products_blocks_wrapper">
         <div className="left-content">
-          <img
-            src="https://www.watchstore.vn/images/block/compress/banner-dong-ho-cao-cap_1714020205.webp"
-            alt="Luxury Watch"
-          />
+          <img src="https://www.watchstore.vn/images/block/compress/banner-dong-ho-cao-cap_1714020205.webp" alt="Luxury Watch" />
         </div>
         <Swiper
           modules={[Autoplay]}
           spaceBetween={10}
           loop={true}
-          autoplay={{
-            delay: 2500, // Điều chỉnh thời gian chờ giữa các lần tự động chuyển slide
-            disableOnInteraction: false,
-          }}
-          speed={3000} // Tốc độ chuyển slide (600ms)
+          autoplay={{ delay: 2500, disableOnInteraction: false }}
+          speed={3000}
           className="main-slider"
           slidesPerView={3}
         >
-   <div className="button-brand">
-            {/* Add border change based on selectedButton */}
-            <button
-              onClick={() => handleButtonClick("Tất cả")}
-              className={selectedButton === "Tất cả" ? "active-button" : ""}
-            >
+          <div className="button-brand">
+            <button onClick={() => handleButtonClick("Tất cả")} className={selectedButton === "Tất cả" ? "active-button" : ""}>
               Tất cả
             </button>
-            <button
-              onClick={() => handleButtonClick("Giới hạn")}
-              className={selectedButton === "Giới hạn" ? "active-button" : ""}
-            >
+            <button onClick={() => handleButtonClick("Giới hạn")} className={selectedButton === "Giới hạn" ? "active-button" : ""}>
               Giới hạn
             </button>
-            <button
-              onClick={() => handleButtonClick("Nam")}
-              className={selectedButton === "Nam" ? "active-button" : ""}
-            >
+            <button onClick={() => handleButtonClick("Nam")} className={selectedButton === "Nam" ? "active-button" : ""}>
               Nam
             </button>
-            <button
-              onClick={() => handleButtonClick("Nữ")}
-              className={selectedButton === "Nữ" ? "active-button" : ""}
-            >
+            <button onClick={() => handleButtonClick("Nữ")} className={selectedButton === "Nữ" ? "active-button" : ""}>
               Nữ
             </button>
           </div>
@@ -244,8 +196,8 @@ const CustomSlider = () => {
         handleSubmit={handleSubmitModel}
         errors={errors}
         quantity={quantity}
-        decreaseQuantity={decreaseQuantity}
-        increaseQuantity={increaseQuantity}
+        decreaseQuantity={() => setQuantity(quantity > 1 ? quantity - 1 : 1)}
+        increaseQuantity={() => setQuantity(quantity + 1)}
         selectedProduct={selectedProduct}
         formatPrice={formatPrice}
       />

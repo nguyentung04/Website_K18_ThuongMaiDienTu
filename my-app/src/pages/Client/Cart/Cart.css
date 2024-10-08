@@ -1,0 +1,169 @@
+.empty-cart{
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  flex-wrap: nowrap;
+  width: 1200px;
+}
+.empty-cart-content{
+  margin-top: 40px;
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.empty-cart-content span{
+  font-weight: 500;
+  margin-bottom: 30px;
+}
+
+/* ==================================================== cảd buton =================================== */
+.card-button{
+  display: flex;
+  gap: 20px;
+}
+/* =============================================================================================== */
+.cart {
+  padding: 20px;
+  max-width: 1300px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+.cart-item-image {
+  width: 100px;
+  height: auto;
+  border-radius: 8px;
+}
+
+.cart-item-info {
+  flex-grow: 1; /* Allows the product info to take up remaining space */
+  margin-left: 20px;
+}
+
+
+.remove-button {
+  float: right;
+  /* background-color: #dc3545; */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  position: absolute;
+  margin-left: 1175px;
+  margin-top: -10px;
+}
+
+.remove-button svg{
+  font-size: 34px;
+}
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-direction: row;
+}
+
+.quantity-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: -8px auto;
+}
+
+.quantity {
+  margin: 0 10px;
+  font-size: 16px;
+}
+
+.checkout-button {
+  background-color: #b29c6e;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  /* margin-top: 20px; */
+  font-size: 19px;
+  font-weight: bold;
+  width: 100%;
+}
+
+.cart-item-info>hr {
+  margin: 20px 0;
+  border: 0;
+  border-top: 1px solid #ccc;
+}
+
+.order-summary {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 2px solid #007bff;
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.order-summary h2 {
+  margin-bottom: 20px;
+  font-size: 1.5em;
+}
+
+.order-summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 1em;
+}
+
+.order-summary-total {
+  font-weight: bold;
+  font-size: 1.2em;
+  color: #007bff;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+/* ================================================================ */
+.fade {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+ .show {
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+}
+
+/* =============================================== hr ==================================== */
+.fade-divider {
+  opacity: 0;
+  transition: border-color 1s ease;
+}
+
+.cart >.highlight {
+  opacity: 1;
+  border-color: #1ba43b; /* Màu gạch ngang tô sáng */
+  border-width: 3px; /* Độ dày của gạch ngang */
+}

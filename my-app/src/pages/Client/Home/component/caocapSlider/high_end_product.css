@@ -1,0 +1,215 @@
+.custom-slider-container {
+  overflow: hidden;
+  position: relative;
+  /* Relative positioning for container */
+  width: 1200px;
+}
+
+.custom-slider-container .left-content {
+  flex: 1;
+  /* Take up the full height and dynamic width */
+  background: url('https://cdn.luxshopping.vn/Thumnails/Uploads/Images/example-secondary-image.jpg') no-repeat center center;
+  background-size: cover;
+  /* Cover the entire div */
+  position: relative;
+  /* Position absolutely to overlap */
+  width: 100%;
+  /* Full width to allow overlap */
+  height: 100%;
+  /* Full height of the container */
+
+  max-width: 410px;
+}
+
+.custom-slider-container .main-slider {
+  overflow: hidden;
+  position: absolute;
+  /* Absolute position for the slider */
+  right: 0;
+  /* Align to the right side */
+  width: 65%;
+  /* Slider takes up 75% of the container width */
+  display: flex;
+  gap: 20px;
+  flex-direction: column-reverse;
+  z-index: 10;
+  /* Ensure slider is above the image */
+
+  margin-top: 13px;
+}
+
+.custom-slider-container .swiper-slide img {
+  padding: 30px 20px 20px;
+  width: 100%;
+  /* Ensure images in slider take full width of the slide */
+  height: auto;
+  /* Maintain aspect ratio */
+}
+
+.products_blocks_wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* =========================================================== sản phẩm ============================ */
+.kombinere-produkter {
+  position: relative;
+  width: 312px;
+  height: 522.93px;
+  z-index: 1;
+  display: flex;
+  transition-property: transform;
+  transition-timing-function: var(--swiper-wrapper-transition-timing-function, initial);
+  box-sizing: content-box;
+}
+
+
+.custom-slider-container .product-list {
+
+  gap: 6px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+
+
+
+}
+
+.custom-slider-container .swiper-wrappe .swiper-slider {
+  flex-shrink: 0;
+  width: 100%;
+  height: 93%;
+  position: relative;
+  transition-property: transform;
+  display: block;
+  width: 285px;
+  margin-right: 4px;
+  display: flex;
+  transition: transform 0.5s ease-in-out
+}
+
+.custom-slider-container .swiper-wrappe .product-box {
+  position: relative;
+  height: 100% !important;
+  background-color: #ffffff;
+  border-radius: 6px;
+  border: 2px solid #ccb494fa;
+}
+
+.custom-slider-container .swiper-wrappe .plain {
+  mix-blend-mode: multiply;
+  transition: transform .2s;
+  color: currentColor;
+  -webkit-transition: color .3s, opacity .3s, -webkit-transform .3s;
+  transition: color .3s, opacity .3s, -webkit-transform .3s;
+  -o-transition: color .3s, opacity .3s, transform .3s;
+  transition: color .3s, opacity .3s, transform .3s;
+  transition: color .3s, opacity .3s, transform .3s, -webkit-transform .3s;
+  color: currentColor;
+}
+
+.custom-slider-container .product-item {
+  padding: 30px 20px 20px;
+}
+
+
+
+.custom-slider-container .product-item img {
+  width: 272px;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  height: 332px;
+  padding: 30px 20px 20px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+
+.custom-slider-container .product-box .product-info {
+  padding: 20px;
+}
+
+.custom-slider-container .plain:hover img {
+  transform: scale(1.05);
+  /* Slight zoom effect */
+  /* pointer-events: none; */
+  /* Vô hiệu hóa hover của thẻ con khi thẻ cha được hover */
+}
+
+.custom-slider-container .product-info .product-title,
+.custom-slider-container .product-info .product-sku {
+  font-size: 14px;
+  margin-bottom: 8px;
+  line-height: 23px;
+  color: var(--black);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-family: 'SVN-Humanst 521 BT', Arial, sans-serif;
+}
+
+
+
+.custom-slider-container .product-list {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+}
+
+
+
+
+.custom-slider-container .product-info .product-price,
+.product-name {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0.5rem 0;
+  font-weight: 700;
+}
+
+.custom-slider-container .line-through {
+  text-decoration: line-through;
+  color: gray;
+}
+
+.custom-slider-container .product-discount-price {
+  font-weight: bold;
+  color: #a60101;
+}
+
+
+.custom-slider-container .swiper-android>.swiper-slide,
+.custom-slider-container .swiper-wrapper {
+  transform: translate3d(0px, 0, 0);
+  display: flex;
+}
+
+/* ========================================================================================================================== */
+.button-brand {
+
+  display: flex;
+  gap: 20px;
+  flex-wrap: nowrap;
+}
+.button-brand button {
+  background-color: #f5e9dc;
+  width: 78px;
+  height: 36px;
+  border-radius: 4px;
+  color: black;
+  font-weight: 500;
+
+}
+.button-brand button {
+  border: 2px solid transparent;
+
+  cursor: pointer;
+}
+
+.button-brand button.active-button {
+  background: #ffffff;
+  border: 3px solid #b29c6e; /* Change to your desired border color */
+  color: #b29c6e ;
+}

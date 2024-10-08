@@ -1,0 +1,104 @@
+
+  /* ============================================================================================ */
+  .order-detail-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #cccccc00;
+    border-radius: 8px;
+    background-color: #d4a3731a;
+}
+
+.order-detail-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.order-detail-container .info-section {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.order-detail-container .product-info {
+    margin: 20px 0;
+}
+
+.order-detail-container .product-card {
+    display: flex;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #fff;
+}
+
+.order-detail-container .product-card img {
+    width: 100px;
+    height: auto;
+    margin-right: 20px;
+}
+
+.order-detail-container .product-details {
+    flex-grow: 1;
+}
+.order-detail-container .order-info {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+  }
+.order-summary {
+    text-align: right;
+    margin-top: 20px;
+    
+}
+
+.error-message {
+    color: red;
+    text-align: center;
+}
+/* =========================================================================================== */
+.info-section div {display: flex;
+    margin-bottom: 5px;
+}
+.info-section-name{
+    color: #666;
+
+    font-weight: 500;
+    margin-right: 50px;
+}
+.info-section-address{
+    color: #666;
+    font-weight: 500;
+    margin-right: 47px;
+}
+.info-section-address-content{
+    display: inline-block;
+    width: 596px;
+}
+.info-section-time{
+    color: #666;
+    font-weight: 500;
+    margin-right: 30px;
+}
+
+.info-section-paymentMethod{
+    width: 363.26px;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.order-detail-container .order-info span{
+    font-size: 21px;
+    color: black;
+    display: flex;
+    gap: 5px;
+    justify-items: center;
+    align-items: center;
+}

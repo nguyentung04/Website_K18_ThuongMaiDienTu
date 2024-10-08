@@ -9,7 +9,6 @@ router.get("/product_not_in_the_table", product_detailController.getAllProduct_n
 router.get("/product_detail/:id", product_detailController.getProductDetailById);
 router.post('/product_detail', product_detailController.postProductDetail);
 router.put("/product_detail/:id", product_detailController.updateProductDetail);
-// router.delete("/product_detail/:id", product_detailController.product_detail);
 
 
 module.exports = router;

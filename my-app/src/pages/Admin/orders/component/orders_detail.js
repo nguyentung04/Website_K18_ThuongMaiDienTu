@@ -10,14 +10,17 @@ import {
   GridItem,
 } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
-import { fetchOrderDetailById, updateOrderDetailStatus } from "../../../../service/api/order_detail"; 
-import { deleteOrder } from '../../../../service/api/orders';
+import {
+  fetchOrderDetailById,
+  updateOrderDetailStatus,
+} from "../../../../service/api/order_detail";
+import { deleteOrder } from "../../../../service/api/orders";
 
 const OrderDetailTable = () => {
-  const { orderId } = useParams(); 
+  const { orderId } = useParams();
   const [orderDetails, setOrderDetails] = useState([]);
-  const [loading, setLoading] = useState(true); 
-  const [error, setError] = useState(null); 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const toast = useToast();
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
 
@@ -65,7 +68,9 @@ const OrderDetailTable = () => {
   };
 
   const handleDelete = async (itemId) => {
-    const confirmDelete = window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này không?");
+    const confirmDelete = window.confirm(
+      "Bạn có chắc chắn muốn hủy đơn hàng này không?"
+    );
     if (confirmDelete) {
       try {
         console.log(`Cancelling order ID: ${itemId}`);
@@ -121,59 +126,86 @@ const OrderDetailTable = () => {
         Chi tiết đơn hàng #{orderId}
       </Text>
       {orderDetails.map((item) => (
-        <Box key={item.id} mb={4} p={4} borderWidth="1px" borderRadius="lg" _hover={{ bg: hoverBgColor }}>
-          <Grid templateColumns="repeat(3, 1fr)" gap={4}>
-            <GridItem colSpan={1}>
-              <Text><strong>Tên khách hàng:</strong> {item.name}</Text>
-            </GridItem>
-            <GridItem colSpan={1}>
-              <Text><strong>Số điện thoại:</strong> {item.phone}</Text>
-            </GridItem>
-            <GridItem colSpan={1}>
-              <Text><strong>Địa chỉ:</strong> {item.address}</Text>
-            </GridItem>
-            <GridItem colSpan={1}>
-              <Text><strong>Phương thức thanh toán:</strong> {item.paymentMethod}</Text>
-            </GridItem>
-            <GridItem colSpan={1}>
-              <Text><strong>Thời gian:</strong> {item.date}</Text>
-            </GridItem>
-            <GridItem colSpan={1}>
-              <Text><strong>Giá:</strong> {item.price}</Text>
-            </GridItem>
-            <GridItem colSpan={1}>
-              <Text><strong>Số lượng:</strong> {item.quantity}</Text>
-            </GridItem>
-            <GridItem colSpan={1}>
-              <Text><strong>Tổng:</strong> {item.total}</Text>
-            </GridItem>
-            <GridItem colSpan={1}>
-              <Text><strong>Trạng thái:</strong> {item.statuss}</Text>
-            </GridItem>
-            <GridItem colSpan={1}>
-              <Box>
-                {item.statuss === "Chờ xác nhận" && (
-                  <Button
-                    colorScheme="green"
-                    size="sm"
-                    margin="10px"
-                    onClick={() => handleApprove(item.order_id)}
-                  >
-                    Duyệt
-                  </Button>
-                )}
-                {item.status !== "Đã hủy" && (
-                  <Button
-                    colorScheme="red"
-                    size="sm"
-                    onClick={() => handleDelete(item.order_id)}
-                  >
-                    Hủy đơn hàng
-                  </Button>
-                )}
-              </Box>
-            </GridItem>
-          </Grid>
+        <Box>
+          <Box
+            key={item.id}
+            mb={4}
+            p={4}
+            borderWidth="1px"
+            borderRadius="lg"
+            _hover={{ bg: hoverBgColor }}
+          >
+            <Grid templateColumns="repeat(3, 1fr)" gap={4}>
+              <GridItem colSpan={1}>
+                <Text>
+                  <strong>Tên khách hàng:</strong> {item.name}
+                </Text>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <Text>
+                  <strong>Số điện thoại:</strong> {item.phone}
+                </Text>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <Text>
+                  <strong>Địa chỉ:</strong> {item.address}
+                </Text>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <Text>
+                  <strong>Phương thức thanh toán:</strong> {item.paymentMethod}
+                </Text>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <Text>
+                  <strong>Thời gian:</strong> {item.date}
+                </Text>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <Text>
+                  <strong>Giá:</strong> {item.price}
+                </Text>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <Text>
+                  <strong>Số lượng:</strong> {item.quantity}
+                </Text>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <Text>
+                  <strong>Tổng:</strong> {item.total}
+                </Text>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <Text>
+                  <strong>Trạng thái:</strong> {item.statuss}
+                </Text>
+              </GridItem>
+            </Grid>
+          </Box>
+          <GridItem colSpan={1} className="d-flex flex-row-reverse">
+            <Box>
+              {item.statuss === "Chờ xác nhận" && (
+                <Button
+                  colorScheme="green"
+                  size="sm"
+                  margin="10px"
+                  onClick={() => handleApprove(item.order_id)}
+                >
+                  Duyệt
+                </Button>
+              )}
+              {item.status !== "Đã hủy" && (
+                <Button
+                  colorScheme="red"
+                  size="sm"
+                  onClick={() => handleDelete(item.order_id)}
+                >
+                  Hủy đơn hàng
+                </Button>
+              )}
+            </Box>
+          </GridItem>{" "}
         </Box>
       ))}
     </Box>

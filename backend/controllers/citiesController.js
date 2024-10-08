@@ -37,34 +37,50 @@ exports.getCitiesById = (req, res) => {
     }
   );
 };
+// gọi đến Quận/ Huyện theo  ID tỉnh
+exports.getCitiesDistrictsById = (req, res) => {
+  const city_Id = req.params.id;
 
-// Delete a city
-// exports.deleteCities = (req, res) => {
-//   const cityId = req.params.id; // Use consistent camelCase naming
+  // Kiểm tra xem city_Id có hợp lệ không
+  if (!city_Id || isNaN(city_Id)) {
+    return res.status(400).json({ error: "ID thành phố không hợp lệ" });
+  }
 
-//   // Prepare the SQL query to delete the city
-//   const query = "DELETE FROM cities WHERE id = ?";
+  // Kiểm tra kết nối cơ sở dữ liệu
+  if (!connection) {
+    return res
+      .status(500)
+      .json({ error: "Không thể kết nối đến cơ sở dữ liệu" });
+  }
 
-//   // Execute the query
-//   connection.query(query, [cityId], (err, results) => {
-//     if (err) {
-//       // Log the error and respond with a 500 status code
-//       console.error("Database query error:", err);
-//       return res
-//         .status(500)
-//         .json({ error: "Đã xảy ra lỗi khi xóa thành phố." });
-//     }
+  // Truy vấn cơ sở dữ liệu để lấy danh sách huyện theo ID thành phố
+  connection.query(
+    `SELECT districts.id, districts.name
+     FROM districts
+     JOIN cities ON districts.city_id = cities.id
+     WHERE cities.id = ?`,
+    [city_Id],
+    (err, results) => {
+      if (err) {
+        console.error("Database query error:", err);
+        return res
+          .status(500)
+          .json({
+            error: "Đã xảy ra lỗi khi tìm kiếm thông tin thành phố/quận/huyện",
+          });
+      }
 
-//     // Check if any rows were affected (i.e., if the city was deleted)
-//     if (results.affectedRows === 0) {
-//       // If no rows were affected, respond with a 404 status code
-//       return res.status(404).json({ message: "City not found" });
-//     }
+      if (results.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "Không tìm thấy thành phố/quận/huyện" });
+      }
 
-//     // Respond with a success message
-//     res.status(200).json({ message: "Xóa thành phố thành công" });
-//   });
-// };
+      // Trả về danh sách huyện
+      res.status(200).json(results);
+    }
+  );
+};
 
 // Update a city
 exports.updateCities = (req, res) => {
@@ -91,7 +107,9 @@ exports.updateCities = (req, res) => {
     if (results.affectedRows === 0) {
       return res.status(404).json({ message: "City not found" });
     }
-    res.status(200).json({ message: "Cập nhật thành phố/quận/huyện thành công" });
+    res
+      .status(200)
+      .json({ message: "Cập nhật thành phố/quận/huyện thành công" });
   });
 };
 

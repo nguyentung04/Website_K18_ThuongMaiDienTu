@@ -11,14 +11,10 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  fetchCitiesById,
-  updateCities,
-} from "../../../../service/api/cities";
+import { fetchCitiesById, updateCities } from "../../../../service/api/cities";
 
 const EditCities = () => {
   const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
   const [errors, setErrors] = useState({});
   const toast = useToast();
   const { id } = useParams();
@@ -36,7 +32,7 @@ const EditCities = () => {
         const data = await fetchCitiesById(id);
         if (data) {
           setName(data.name || "");
-          setDescription(data.description || "");
+         
         }
       } catch (error) {
         toast({
@@ -90,14 +86,16 @@ const EditCities = () => {
 
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
-        <Text  fontSize="2xl" fontWeight="bold">Sửa thông tin Tỉnh thành</Text>
+      <Text fontSize="2xl" fontWeight="bold">
+        Sửa thông tin Tỉnh thành
+      </Text>
       <form onSubmit={handleSubmit}>
         <FormControl id="name" mb={4} isInvalid={errors.name}>
           <FormLabel>Tên thương hiệu</FormLabel>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
           {errors.name && <FormErrorMessage>{errors.name}</FormErrorMessage>}
         </FormControl>
-       
+
         <Button colorScheme="teal" mr="10px" type="submit">
           Đồng ý
         </Button>

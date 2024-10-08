@@ -12,9 +12,7 @@ const product_detailRoutes = require("./routes/product_detail/index");
 const citieslRoutes = require("./routes/cities/citiesRoutes");
 const districtsController = require("./routes/districts/index");
 
-const product_detailRoutes = require("./routes/product_detail/index");
-const citieslRoutes = require("./routes/cities/citiesRoutes");
-const districtsController = require("./routes/districts/index");
+
 
 const app = express();
 app.use(express.json());

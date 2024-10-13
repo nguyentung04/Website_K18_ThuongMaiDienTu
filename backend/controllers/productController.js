@@ -96,8 +96,28 @@ exports.sellProducts = (req, res) => {
 };
 
 exports.GetOneProduct = (req, res) => {
+  // Lấy giá trị ID từ URL params
+  const productId = req.params.id;
+  // Thực hiện truy vấn SQL với giá trị ID
+  connection.query(
+    `SELECT 
+    *
+FROM 
+    products
+WHERE 
+    id = ?;`,
+    [productId],  // Truyền giá trị ID vào câu lệnh SQL
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      if (results.length === 0) {
+        return res.status(404).json({ message: 'Sản phẩm không tồn tại' });
+      }
+      res.status(200).json(results[0]); // Trả về sản phẩm đầu tiên
+    }
+  );
 };
-
 
 // admin
 exports.getAllProducts = (req, res) => {
@@ -175,10 +195,54 @@ exports.updateProduct = (req, res) => {
   });
 };
 
-
 exports.postProduct = async (req, res, next) => {
-};
+  try {
+    console.log("Request Body:", req.body);
 
+    const {
+      name,
+      price,
+      quantity,
+      discountPrice,
+      image,
+      description,
+      status,
+      category_id
+    } = req.body;
+
+    // Ensure category_id is an integer
+    const categoryId = parseInt(category_id, 10);
+
+    const query = `
+      INSERT INTO products (name, image, price,quantity, discountPrice, description, status, category_id) 
+      VALUES (?, ?, ?, ?,?, ?, ?, ?)
+    `;
+    const values = [
+      name,
+      image,
+      price,
+      quantity,
+      discountPrice,
+      description,
+      status,
+      categoryId
+    ];
+
+    connection.query(query, values, (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ error: 'An error occurred while adding the product.' });
+      }
+      res.status(201).json({
+        message: "Product added successfully",
+        productId: results.insertId,
+      });
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+    next(error);
+  }
+};
 
 exports.deleteProduct = (req, res) => {
   const productId = req.params.id;

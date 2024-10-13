@@ -1,39 +1,32 @@
 import axios from "axios";
-import request from "../../config/ApiConfig";
-
-
 
 const BASE_URL = "http://localhost:3000/api";
 
 export const fetchProducts = async () => {
   try {
-    return await request({ method: "GET", path: `api/products` });
+    const response = await axios.get(`${BASE_URL}/products`); // Corrected URL
+    return response.data;
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("Error fetching products:", error.response ? error.response.data : error.message);
     throw error;
   }
 };
-
-
 
 export const fetchProductById = async (id) => {
   try {
     const response = await axios.get(`${BASE_URL}/products/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching product:", error);
+    console.error("Error fetching product:", error.response ? error.response.data : error.message);
     throw error;
   }
 };
-
-
 
 export const updateProduct = async (id, productData) => {
   try {
     // Log the product data being sent for debugging
     console.log("Updating product:", { id, productData });
 
-    // Perform the PUT request to update the product
     const response = await axios.put(
       `${BASE_URL}/products/${id}`,
       productData,
@@ -42,11 +35,9 @@ export const updateProduct = async (id, productData) => {
       }
     );
 
-    // Return the response data
     return response.data;
   } catch (error) {
-    // Log and throw the error for proper error handling
-    console.error("Failed to update product:", error);
+    console.error("Failed to update product:", error.response ? error.response.data : error.message);
     throw error;
   }
 };
@@ -56,13 +47,10 @@ export const deleteProduct = async (id) => {
     const response = await axios.delete(`${BASE_URL}/products/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error deleting product:", error);
+    console.error("Error deleting product:", error.response ? error.response.data : error.message);
     throw error;
   }
 };
-
-
-
 
 export const addProduct = async (productData) => {
   try {
@@ -72,6 +60,4 @@ export const addProduct = async (productData) => {
     console.error('Error adding product:', error.response ? error.response.data : error.message);
     throw error;
   }
-}
-
-
+};

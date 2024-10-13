@@ -126,7 +126,8 @@ const CitiesPage = () => {
             Thêm quận/huyện
           </Button>
         </Link>
-      </Flex>      {/*  ===================================== thanh tìm kiếm ================================*/}
+      </Flex>   
+         {/*  ===================================== thanh tìm kiếm ================================*/}
       <Flex align="center" mb={4}>
         {/* Input tìm kiếm */}
         <Flex opacity={1}>
@@ -182,7 +183,7 @@ const CitiesPage = () => {
             <Th>STT</Th>
             <Th display={"none"}>ID</Th>
             <Th>Tỉnh thành</Th>
-            <Th>Actions</Th>
+            <Th>Hoạt động</Th>
           </Tr>
         </Thead>
         <Tbody>

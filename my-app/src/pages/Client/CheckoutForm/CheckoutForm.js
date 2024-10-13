@@ -55,7 +55,7 @@ const CheckoutForm = () => {
     setFormData({
       ...formData,
       province: selectedProvince,
-      city: "", // Reset city when province changes
+      city: "", // Reset city khi province thay đổi
     });
 
     setLoadingDistricts(true);
@@ -102,51 +102,48 @@ const CheckoutForm = () => {
       newErrors.paymentMethod = "Chọn phương thức thanh toán";
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return !Object.values(newErrors).length;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!validateForm()) return;
-
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    if (cart.length === 0) {
-      alert("Giỏ hàng trống. Không thể đặt hàng.");
-      return;
-    }
-
-    const orderItems = cart.map((item) => ({
-      product_id: item.id,
-      quantity: item.quantity,
-      price: typeof item.price === "string"
-        ? parseFloat(item.price.replace(/[^0-9.-]+/g, ""))
-        : parseFloat(item.price),
-      total: (typeof item.price === "string"
-        ? parseFloat(item.price.replace(/[^0-9.-]+/g, ""))
-        : parseFloat(item.price)) * item.quantity,
-    }));
-
+  
     setIsSubmitting(true);
     try {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      if (cart.length === 0) {
+        alert("Giỏ hàng trống. Không thể đặt hàng.");
+        return;
+      }
+  
+      const orderItems = cart.map((item) => ({
+        product_id: item.id,
+        quantity: item.quantity,
+        price: parseFloat(item.price),
+        total: parseFloat(item.price) * item.quantity,
+      }));
+  
+      const orderData = {
+        ...formData,
+        id_cities: formData.city, // Đây là ID cho thành phố (city)
+        id_districts: formData.province, // Đây là ID cho quận (district)
+        order_detail: orderItems,
+      };
+  
+      console.log(orderData); // In ra dữ liệu đơn hàng để kiểm tra
+  
       const response = await fetch("http://localhost:3000/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...formData,
-          order_detail: orderItems,
-        }),
+        body: JSON.stringify(orderData),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Có lỗi xảy ra");
-      }
-
+  
       const data = await response.json();
+  
       if (data.message === "Đặt hàng thành công!") {
         localStorage.removeItem("cart");
         toast({
@@ -157,6 +154,16 @@ const CheckoutForm = () => {
           isClosable: true,
         });
         navigate("/products");
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          city: "",
+          province: "",
+          address: "",
+          note: "",
+          paymentMethod: "COD",
+        });
       } else {
         throw new Error("Có lỗi xảy ra. Vui lòng thử lại.");
       }
@@ -258,6 +265,13 @@ const CheckoutForm = () => {
               <FormErrorMessage>{errors.city}</FormErrorMessage>
             </FormControl>
           </Box>
+
+          
+
+        
+
+         
+
           <FormControl mb={3} isInvalid={errors.address}>
             <FormLabel htmlFor="address">Địa chỉ cụ thể</FormLabel>
             <Textarea
@@ -277,6 +291,7 @@ const CheckoutForm = () => {
               className="custom-input"
               id="paymentMethod"
               name="paymentMethod"
+              placeholder="Chọn phương thức thanh toán"
               value={formData.paymentMethod}
               onChange={handleChange}
             >
@@ -286,12 +301,7 @@ const CheckoutForm = () => {
             <FormErrorMessage>{errors.paymentMethod}</FormErrorMessage>
           </FormControl>
 
-          <Button
-            className="w-100"
-            type="submit"
-            colorScheme="teal"
-            isLoading={isSubmitting}
-          >
+          <Button className="w-100" type="submit" colorScheme="teal" isLoading={isSubmitting}>
             Đặt hàng
           </Button>
         </form>

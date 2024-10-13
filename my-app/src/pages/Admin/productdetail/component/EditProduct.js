@@ -87,6 +87,7 @@ const EditProduct = () => {
     getCategories();
   }, [id, toast]);
 
+  console.log(product);
   const validateForm = () => {
     const newErrors = {};
     if (!formValues.machineType)

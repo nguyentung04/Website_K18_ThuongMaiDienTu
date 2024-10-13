@@ -345,8 +345,6 @@ exports.PostOrders = (req, res) => {
     name,
     phone,
     address,
-    id_cities,
-    id_districts,
     paymentMethod,
     order_detail,
   } = req.body;
@@ -363,13 +361,11 @@ exports.PostOrders = (req, res) => {
 
     // Thêm đơn hàng vào bảng orders
     const sql =
-      "INSERT INTO orders (name, phone, address, id_cities, id_districts, paymentMethod) VALUES (?, ?, ?, ?, ?, ?)";
+      "INSERT INTO orders (name, phone, address, paymentMethod) VALUES (?, ?, ?, ?)";
     const values = [
       name,
       phone,
       address,
-      id_cities || null,
-      id_districts || null,
       paymentMethod,
     ];
 
@@ -382,7 +378,7 @@ exports.PostOrders = (req, res) => {
 
       const orderId = results.insertId;
       const orderDetailSql =
-        "INSERT INTO order_detail (order_id, product_id, quantity, price, total) VALUES ?";
+        "INSERT INTO order_detail (order_id, product_id, city_id , district_id , quantity, price, total) VALUES ?";
       const orderDetailValues = order_detail.map((item) => [
         orderId,
         item.product_id,
@@ -411,3 +407,56 @@ exports.PostOrders = (req, res) => {
     });
   });
 };
+
+// exports.PostOrders = (req, res) => {
+//   const {
+//     name,
+//     phone,
+//     address,
+//     city_id,
+//     district_id,
+//     paymentMethod,
+//   } = req.body;
+
+//   if (!name || !phone || !address || !paymentMethod) {
+//     return res.status(400).json({ error: "Thiếu thông tin cần thiết" });
+//   }
+
+//   // Bắt đầu giao dịch để đảm bảo toàn vẹn dữ liệu
+//   connection.beginTransaction((err) => {
+//     if (err) {
+//       return res.status(500).json({ error: "Lỗi khi bắt đầu giao dịch" });
+//     }
+
+//     // Thêm đơn hàng vào bảng orders
+//     const sql =
+//       "INSERT INTO orders (name, phone, address,  paymentMethod) VALUES (?, ?, ?,  ?)";
+//     const values = [
+//       name,
+//       phone,
+//       address,
+//       city_id ,
+//       district_id ,
+//       paymentMethod,
+//     ];
+
+//     connection.query(sql, values, (err, result) => {
+//       if (err) {
+//         return connection.rollback(() => {
+//           res.status(500).json({ error: "Lỗi khi thêm đơn hàng" });
+//         });
+//       }
+
+//       // Commit giao dịch nếu không có lỗi
+//       connection.commit((err) => {
+//         if (err) {
+//           return connection.rollback(() => {
+//             res.status(500).json({ error: "Lỗi khi commit giao dịch" });
+//           });
+//         }
+
+//         res.status(200).json({ message: "Tạo đơn hàng thành công", order_id: result.insertId });
+//       });
+//     });
+//   });
+// };

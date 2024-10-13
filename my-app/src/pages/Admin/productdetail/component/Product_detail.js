@@ -51,6 +51,8 @@ const ProductDetails = () => {
   if (!product) {
     return <Text>Loading...</Text>; // Handle loading state
   }
+  console.log(id);
+  
   //** ========================================================================================== */
   // Hàm xử lý sự kiện khi người dùng nhập vào ô tìm kiếm
   const handleInputChange = (e) => {
@@ -217,7 +219,7 @@ const ProductDetails = () => {
                         <Text whiteSpace={"nowrap"} fontWeight="bold">
                           Màu:
                         </Text>
-                        <Text>{product.color}</Text>
+                        <Text>{product.coler}</Text>
                       </Flex>
 
                       <Flex className="product-info-item">

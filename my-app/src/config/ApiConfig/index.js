@@ -5,18 +5,28 @@ export const BASE_URL = "http://localhost:3000/"; // Update with your server URL
 const request = async ({ method = "GET", path = "", data = {}, headers = {} }) => {
   try {
     const res = await axios({
-      method: method,
+      method,
       baseURL: BASE_URL,
       url: path,
-      data: data,
+      data,
       headers: {
         ...headers,
       },
     });
 
-    return res.data;
+    // Kiểm tra phản hồi thành công
+    if (res.status >= 200 && res.status < 300) {
+      return res.data;
+    } else {
+      // Xử lý các phản hồi không phải 2xx
+      console.error("Yêu cầu không thành công:", res.status, res.data);
+      throw new Error(res.data?.message || "Yêu cầu không thành công");
+    }
   } catch (error) {
-    alert(error?.response?.data?.message || "Error");
+    // Sử dụng cách thân thiện hơn với người dùng để xử lý lỗi
+    console.error("API Error:", error);
+    const errorMessage = error?.response?.data?.message || "Đã xảy ra lỗi không mong muốn";
+    alert(errorMessage); // Bạn có thể thay thế điều này bằng thông báo toast trong một ứng dụng thực tế
     return null;
   }
 };

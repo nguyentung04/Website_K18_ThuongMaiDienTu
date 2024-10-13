@@ -53,7 +53,6 @@ export const deleteCategory = async (id) => {
 export const addCategory = async (categoryData) => {
   // Replace with your API endpoint and method to add a category
   const response = await fetch(`${BASE_URL}/categories`, {
-    method: "POST",
     headers: {
       "Content-Type": "application/json",
     },

@@ -194,7 +194,7 @@ const EditProduct = () => {
             <option value="">Chọn loại sản phẩm</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
-                {category.name}
+                {category.namect}
               </option>
             ))}
           </Select>
@@ -213,7 +213,7 @@ const EditProduct = () => {
         </FormControl>
 
         <FormControl id="discountPrice" mb={4} isInvalid={errors.discountPrice}>
-          <FormLabel>Giá</FormLabel>
+          <FormLabel>Giá giảm (%)</FormLabel>
           <Input
             type="number"
             value={discountPrice}

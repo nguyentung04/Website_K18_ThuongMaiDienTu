@@ -37,6 +37,7 @@ const SignIn = () => {
       if (data.token) {
         // Lưu token và tất cả dữ liệu của tài khoản vào local storage
         localStorage.setItem('token', data.token);
+        localStorage.setItem('username', username);
         localStorage.setItem('userData', JSON.stringify(data.user));
         
         // Nếu bạn vẫn muốn lưu username riêng

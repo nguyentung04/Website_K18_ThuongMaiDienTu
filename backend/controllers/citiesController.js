@@ -38,33 +38,6 @@ exports.getCitiesById = (req, res) => {
   );
 };
 
-// Delete a city
-// exports.deleteCities = (req, res) => {
-//   const cityId = req.params.id; // Use consistent camelCase naming
-
-//   // Prepare the SQL query to delete the city
-//   const query = "DELETE FROM cities WHERE id = ?";
-
-//   // Execute the query
-//   connection.query(query, [cityId], (err, results) => {
-//     if (err) {
-//       // Log the error and respond with a 500 status code
-//       console.error("Database query error:", err);
-//       return res
-//         .status(500)
-//         .json({ error: "Đã xảy ra lỗi khi xóa thành phố." });
-//     }
-
-//     // Check if any rows were affected (i.e., if the city was deleted)
-//     if (results.affectedRows === 0) {
-//       // If no rows were affected, respond with a 404 status code
-//       return res.status(404).json({ message: "City not found" });
-//     }
-
-//     // Respond with a success message
-//     res.status(200).json({ message: "Xóa thành phố thành công" });
-//   });
-// };
 
 // Update a city
 exports.updateCities = (req, res) => {

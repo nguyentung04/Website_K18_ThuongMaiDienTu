@@ -1,6 +1,6 @@
-
 const connection = require("../config/database");
 
+//Minh Canh
 // Lấy tất cả đơn hàng
 exports.getAllOrders = (req, res) => {
   connection.query(
@@ -49,7 +49,7 @@ exports.orderByName1 = (req, res) => {
 
   // Kiểm tra xem id có hợp lệ không
   if (!id || isNaN(id)) {
-    return res.status(400).json({ error: 'Invalid order ID' });
+    return res.status(400).json({ error: "Invalid order ID" });
   }
 
   connection.query(
@@ -64,10 +64,12 @@ exports.orderByName1 = (req, res) => {
     [id],
     (err, results) => {
       if (err) {
-        return res.status(500).json({ error: 'Database query error: ' + err.message });
+        return res
+          .status(500)
+          .json({ error: "Database query error: " + err.message });
       }
       if (results.length === 0) {
-        return res.status(404).json({ error: 'Order not found' });
+        return res.status(404).json({ error: "Order not found" });
       }
       res.status(200).json(results);
     }
@@ -93,7 +95,7 @@ exports.getOrderById = (req, res) => {
         return res.status(500).json({ error: err.message });
       }
       if (results.length === 0) {
-        return res.status(404).json({ error: 'Order not found' });
+        return res.status(404).json({ error: "Order not found" });
       }
       res.status(200).json(results);
     }
@@ -150,6 +152,8 @@ exports.PostOrders = (req, res) => {
     name,
     phone,
     address,
+    id_cities,
+    id_districts,
     paymentMethod,
     order_detail,
   } = req.body;
@@ -166,11 +170,13 @@ exports.PostOrders = (req, res) => {
 
     // Thêm đơn hàng vào bảng orders
     const sql =
-      "INSERT INTO orders (name, phone, address, paymentMethod) VALUES (?, ?, ?, ?)";
+      "INSERT INTO orders (name, phone, address, id_cities, id_districts, paymentMethod) VALUES (?, ?, ?, ?, ?, ?)";
     const values = [
       name,
       phone,
       address,
+      id_cities || null,
+      id_districts || null,
       paymentMethod,
     ];
 
@@ -183,7 +189,7 @@ exports.PostOrders = (req, res) => {
 
       const orderId = results.insertId;
       const orderDetailSql =
-        "INSERT INTO order_detail (order_id, product_id, city_id , district_id , quantity, price, total) VALUES ?";
+        "INSERT INTO order_detail (order_id, product_id, quantity, price, total) VALUES ?";
       const orderDetailValues = order_detail.map((item) => [
         orderId,
         item.product_id,

@@ -115,13 +115,14 @@ const CommentDetailTable = () => {
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md">
       <Text fontSize="2xl" fontWeight="bold" mb={4}>
-        Chi tiết bình luận #{id}
+        Chi tiết bình luận của sản phẩm {id}
       </Text>
       <Table variant="simple">
         <Thead bg={headerBgColor}>
           <Tr>
             <Th>ID comment</Th>
-            <Th display={"none"}>ID </Th>
+            <Th>Họ tên khách hàng</Th>
+            <Th>ID sản phẩm </Th>
             <Th>Nội Dung</Th>
             <Th>Hành Động</Th>
           </Tr>
@@ -130,7 +131,8 @@ const CommentDetailTable = () => {
           {commentDetails.map((item) => (
             <Tr key={item.id} _hover={{ bg: hoverBgColor }}>
               <Td>{item.comment_id}</Td>
-              <Td display={"none"}>{item.id }</Td>
+              <Td>{item.fullname}</Td>
+              <Td>{item.id}</Td>
               <Td>{item.content}</Td>
               <Td>
                 <Button

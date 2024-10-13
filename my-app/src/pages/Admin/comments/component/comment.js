@@ -138,10 +138,11 @@ const CommentPage = () => {
         <Thead>
           <Tr>
             <Th>STT</Th>
-            <Th display="none">ID</Th>
-            <Th>Họ tên</Th>
+            <Th>Họ tên khách hàng</Th>
+            <Th>ID khách hàng</Th>
             <Th>Sản phẩm</Th>
-            <Th>Tổng</Th>
+            <Th>ID sản phẩm</Th>
+            {/* <Th>Tổng</Th> */}
             <Th>Thời gian</Th>
             <Th>Hành động</Th>
           </Tr>
@@ -149,11 +150,12 @@ const CommentPage = () => {
         <Tbody>
           {comments.map((comment, index) => (
             <Tr key={comment.id} _hover={{ bg: hoverBgColor }}>
-              <Td fontWeight="bold">{index + 1}</Td>
-              <Td display="none">{comment.id}</Td>
+              <Td fontWeight="bold">{index + 1}</Td>    
               <Td>{comment.fullname}</Td>
+              <Td>{comment.user_id}</Td>
               <Td>{comment.name}</Td>
-              <Td>{comment.count}</Td>
+              <Td>{comment.id}</Td>
+              {/* <Td>{comment.count}</Td> */}
               <Td>{comment.created_at}</Td>
               <Td>
                 <Link to={`admin/comments/${comment.id}`}>

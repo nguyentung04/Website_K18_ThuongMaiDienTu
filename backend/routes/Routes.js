@@ -26,6 +26,7 @@ router.get("/products_khuyenmai", productController.sellProducts);
 router.get("/products/:id", productController.GetOneProduct);
 router.get("/product/likes", productController.getAllProductLikes);
  router.post('/product/:id/like', productController.toggleProductLike);
+ router.get("/productdetail/:id", productController.ProductDetail);
 
 //categoris
 router.get("/categories", categoryController.getAllcategoris);

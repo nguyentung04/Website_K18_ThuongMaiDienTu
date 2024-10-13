@@ -1,22 +1,13 @@
 const connection = require("../config/database");
 
 exports.getAllProducts = (req, res) => {
-  connection.query(`
-    SELECT 
-      DATE_FORMAT(created_at, '%Y-%m') AS month, 
-      COUNT(*) AS totalProducts
-    FROM products
-    GROUP BY month
-    ORDER BY month DESC;`, (err, results) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      res.status(200).json(results);
-    });
+  connection.query("SELECT * FROM products", (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.status(200).json(results);
+  });
 };
-
-
-
 //sanpham noi bat
 exports.featuredProducts = (req, res) => {
   const query = `
@@ -29,7 +20,7 @@ exports.featuredProducts = (req, res) => {
     LEFT JOIN 
       product_likes pl ON p.id = pl.product_id
     WHERE 
-      p.status = 'khuyến mãi'
+      p.status = 'nổi bật'
     GROUP BY 
       p.id
     ORDER BY 
@@ -55,7 +46,7 @@ exports.bestSellProducts = (req, res) => {
   LEFT JOIN 
     product_likes pl ON p.id = pl.product_id
   WHERE 
-    p.status = 'khuyến mãi'
+    p.status = 'bán chạy'
   GROUP BY 
     p.id
   ORDER BY 
@@ -121,16 +112,19 @@ WHERE
 
 // admin
 exports.getAllProducts = (req, res) => {
-  connection.query(`SELECT products.id, products.name, products.image, products.description, products.price, products.discountPrice, products.status, categories.name AS category
+  connection.query(
+    `SELECT products.id,products.name,products.image,products.description,products.status,products.price, categories.name AS category
 FROM products
 INNER JOIN categories ON products.category_id = categories.id
 WHERE 1;
-`, (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
+`,
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.status(200).json(results);
     }
-    res.status(200).json(results);
-  });
+  );
 };
 
 exports.getProductById = (req, res) => {
@@ -150,14 +144,21 @@ exports.getProductById = (req, res) => {
   );
 };
 
-
-
 exports.updateProduct = (req, res) => {
   const productId = req.params.id;
-  const { name, price, discountPrice, description, image, status, category_id } = req.body;
+  const { name, price, sell_price, description, image, status, category_id } =
+    req.body;
 
+  // Log the incoming data for debugging
   console.log("Updating product with ID:", productId);
-  console.log("Product Data:", { name, price, discountPrice, description, image, status, category_id });
+  console.log("Product Data:", {
+    name,
+    price,
+    description,
+    image,
+    status,
+    category_id,
+  });
 
   const query = `
     UPDATE products 
@@ -165,7 +166,6 @@ exports.updateProduct = (req, res) => {
       name = ?, 
       image = ?, 
       price = ?,  
-      discountPrice = ?,
       description = ?, 
       status = ?, 
       category_id = ? 
@@ -176,12 +176,15 @@ exports.updateProduct = (req, res) => {
     name,
     image,
     price,
-    discountPrice,
     description,
     status,
     category_id,
     productId,
   ];
+
+  // Log the SQL query and values
+  console.log("SQL Query:", query);
+  console.log("Values:", values);
 
   connection.query(query, values, (err, results) => {
     if (err) {
@@ -194,7 +197,6 @@ exports.updateProduct = (req, res) => {
     res.status(200).json({ message: "Product updated successfully" });
   });
 };
-
 exports.postProduct = async (req, res, next) => {
   try {
     console.log("Request Body:", req.body);
@@ -243,7 +245,6 @@ exports.postProduct = async (req, res, next) => {
     next(error);
   }
 };
-
 exports.deleteProduct = (req, res) => {
   const productId = req.params.id;
 

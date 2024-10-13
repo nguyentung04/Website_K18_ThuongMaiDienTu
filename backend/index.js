@@ -7,7 +7,7 @@ const Routes = require("./routes/Routes");
 const commentsRoutes = require("./routes/commentsRoutes");
 const comment_detailRoutes = require("./routes/comment_detailRoute");
 const cityRoutes = require("./routes/city")
-
+const comment = require("./routes/comment");
 const product_detailRoutes = require("./routes/product_detail/index");
 const citieslRoutes = require("./routes/cities/citiesRoutes");
 const districtsController = require("./routes/districts/index");
@@ -61,7 +61,7 @@ app.use('/api', comment_detailRoutes);
 app.use('/api', product_detailRoutes);
 app.use('/api', citieslRoutes);
 app.use('/api', districtsController);
-
+app.use('/api', comment);
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

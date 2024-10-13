@@ -35,7 +35,7 @@ const PromotionalProducts = () => {
     const fetchProducts = async () => {
       try {
         const featuredResponse = await axios.get(
-          `${BASE_URL}/api/products_banchay`
+          `${BASE_URL}/api/products_khuyenmai`
         );
         setFeaturedProducts(featuredResponse.data);
 
@@ -60,7 +60,7 @@ const PromotionalProducts = () => {
 
   // New function to handle liking/unliking products
   const toggleLike = async (productId) => {
-    const userId = JSON.parse(localStorage.getItem('userData'))?.id;
+    const userId = JSON.parse(localStorage.getItem('userData')).id;
     if (!userId) {
       console.error("User not logged in");
       return;

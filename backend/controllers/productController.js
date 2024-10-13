@@ -1,13 +1,23 @@
 const connection = require("../config/database");
 
 exports.getAllProducts = (req, res) => {
-  connection.query("SELECT * FROM products", (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
+  connection.query(
+    `
+    SELECT 
+      DATE_FORMAT(created_at, '%Y-%m') AS month, 
+      COUNT(*) AS totalProducts
+    FROM products
+    GROUP BY month
+    ORDER BY month DESC;`,
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.status(200).json(results);
     }
-    res.status(200).json(results);
-  });
+  );
 };
+
 //sanpham noi bat
 exports.featuredProducts = (req, res) => {
   const query = `
@@ -113,7 +123,7 @@ WHERE
 // admin
 exports.getAllProducts = (req, res) => {
   connection.query(
-    `SELECT products.id,products.name,products.image,products.description,products.status,products.price, categories.name AS category
+    `SELECT products.id, products.name, products.image, products.description, products.price, products.discountPrice, products.status, categories.name AS category
 FROM products
 INNER JOIN categories ON products.category_id = categories.id
 WHERE 1;
@@ -146,14 +156,22 @@ exports.getProductById = (req, res) => {
 
 exports.updateProduct = (req, res) => {
   const productId = req.params.id;
-  const { name, price, sell_price, description, image, status, category_id } =
-    req.body;
+  const {
+    name,
+    price,
+    discountPrice,
+    description,
+    image,
+    status,
+    category_id,
+  } = req.body;
 
   // Log the incoming data for debugging
   console.log("Updating product with ID:", productId);
   console.log("Product Data:", {
     name,
     price,
+    discountPrice,
     description,
     image,
     status,

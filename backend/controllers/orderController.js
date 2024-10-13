@@ -4,13 +4,7 @@ const connection = require("../config/database");
 // Lấy tất cả đơn hàng
 exports.getAllOrders = (req, res) => {
   connection.query(
-    `SELECT 
-      o.*, 
-      c.name AS city, 
-      d.name AS district 
-    FROM orders o
-    LEFT JOIN cities c ON o.id_cities = c.id
-    LEFT JOIN districts d ON o.id_districts = d.id`,
+    `SELECT * FROM orders WHERE 1`,
     (err, results) => {
       if (err) {
         return res.status(500).json({ error: err.message });
@@ -19,7 +13,6 @@ exports.getAllOrders = (req, res) => {
     }
   );
 };
-
 // Lấy toàn bộ đơn hàng theo name
 exports.orderByName = (req, res) => {
   const { name } = req.params; // Lấy giá trị từ tham số URL
@@ -189,7 +182,7 @@ exports.PostOrders = (req, res) => {
 
       const orderId = results.insertId;
       const orderDetailSql =
-        "INSERT INTO order_detail (order_id, product_id, quantity, price, total) VALUES ?";
+        "INSERT INTO order_detail (order_id, product_id, city_id , district_id , quantity, price, total) VALUES ?";
       const orderDetailValues = order_detail.map((item) => [
         orderId,
         item.product_id,
@@ -218,3 +211,56 @@ exports.PostOrders = (req, res) => {
     });
   });
 };
+
+// exports.PostOrders = (req, res) => {
+//   const {
+//     name,
+//     phone,
+//     address,
+//     city_id,
+//     district_id,
+//     paymentMethod,
+//   } = req.body;
+
+//   if (!name || !phone || !address || !paymentMethod) {
+//     return res.status(400).json({ error: "Thiếu thông tin cần thiết" });
+//   }
+
+//   // Bắt đầu giao dịch để đảm bảo toàn vẹn dữ liệu
+//   connection.beginTransaction((err) => {
+//     if (err) {
+//       return res.status(500).json({ error: "Lỗi khi bắt đầu giao dịch" });
+//     }
+
+//     // Thêm đơn hàng vào bảng orders
+//     const sql =
+//       "INSERT INTO orders (name, phone, address,  paymentMethod) VALUES (?, ?, ?,  ?)";
+//     const values = [
+//       name,
+//       phone,
+//       address,
+//       city_id ,
+//       district_id ,
+//       paymentMethod,
+//     ];
+
+//     connection.query(sql, values, (err, result) => {
+//       if (err) {
+//         return connection.rollback(() => {
+//           res.status(500).json({ error: "Lỗi khi thêm đơn hàng" });
+//         });
+//       }
+
+//       // Commit giao dịch nếu không có lỗi
+//       connection.commit((err) => {
+//         if (err) {
+//           return connection.rollback(() => {
+//             res.status(500).json({ error: "Lỗi khi commit giao dịch" });
+//           });
+//         }
+
+//         res.status(200).json({ message: "Tạo đơn hàng thành công", order_id: result.insertId });
+//       });
+//     });
+//   });
+// };

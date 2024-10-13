@@ -60,7 +60,7 @@ const CheckoutForm = () => {
 
     setLoadingDistricts(true);
     try {
-      const districtsData = await fetchDistrictsByCity(selectedProvince);
+      const districtsData = await fetchCitiesByDistricts(selectedProvince);
       setDistricts(districtsData);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách quận/huyện:", error);
@@ -141,9 +141,13 @@ const CheckoutForm = () => {
         },
         body: JSON.stringify(orderData),
       });
-  
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Có lỗi xảy ra");
+      }
+
       const data = await response.json();
-  
       if (data.message === "Đặt hàng thành công!") {
         localStorage.removeItem("cart");
         toast({
@@ -265,13 +269,6 @@ const CheckoutForm = () => {
               <FormErrorMessage>{errors.city}</FormErrorMessage>
             </FormControl>
           </Box>
-
-          
-
-        
-
-         
-
           <FormControl mb={3} isInvalid={errors.address}>
             <FormLabel htmlFor="address">Địa chỉ cụ thể</FormLabel>
             <Textarea
@@ -291,7 +288,6 @@ const CheckoutForm = () => {
               className="custom-input"
               id="paymentMethod"
               name="paymentMethod"
-              placeholder="Chọn phương thức thanh toán"
               value={formData.paymentMethod}
               onChange={handleChange}
             >

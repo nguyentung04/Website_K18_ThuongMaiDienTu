@@ -140,6 +140,7 @@ const CommentPage = () => {
               <Td>{comment.id}</Td>
               <Td>{comment.fullname}</Td>
               <Td>{comment.user_id}</Td>
+              <Td>{comment.user_id}</Td>
               <Td>{comment.name}</Td>
               <Td>{comment.product_id}</Td>
               <Td>{comment.count}</Td>

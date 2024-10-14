@@ -14,8 +14,8 @@ import {
 } from "@chakra-ui/react";
 import {
   fetchCities,
-  fetchDistrictsByCity,
-} from "../../../service/api/city";
+  fetchCitiesByDistricts,
+} from "../../../service/api/cities";
 
 const CheckoutForm = () => {
   const [formData, setFormData] = useState({
@@ -60,7 +60,7 @@ const CheckoutForm = () => {
 
     setLoadingDistricts(true);
     try {
-      const districtsData = await fetchDistrictsByCity(selectedProvince);
+      const districtsData = await fetchCitiesByDistricts(selectedProvince);
       setDistricts(districtsData);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách quận/huyện:", error);

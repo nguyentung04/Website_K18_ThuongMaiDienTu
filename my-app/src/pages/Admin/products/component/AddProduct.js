@@ -18,12 +18,11 @@ const AddProduct = () => {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
-  const [discountPrice, setDiscountPrice] = useState(""); 
+  const [discountPrice, setDiscountPrice] = useState(""); // Thêm trạng thái cho giá giảm
   const [status, setStatus] = useState("");
   const [description, setDescription] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [quantity, setQuantity] = useState(""); // Add state for quantity
   const [errors, setErrors] = useState({});
   const toast = useToast();
   const navigate = useNavigate();
@@ -59,9 +58,6 @@ const AddProduct = () => {
       newErrors.price = "Giá là bắt buộc và phải là số lớn hơn 0.";
     if (discountPrice && (isNaN(discountPrice) || parseFloat(discountPrice) < 0 || parseFloat(discountPrice) >= parseFloat(price))) {
       newErrors.discountPrice = "Giá giảm phải là số và nhỏ hơn giá gốc.";
-    }
-    if (!quantity || isNaN(quantity) || parseInt(quantity) <= 0) {
-      newErrors.quantity = "Số lượng là bắt buộc và phải lớn hơn 0.";
     }
     if (!description) newErrors.description = "Mô tả là bắt buộc.";
     if (!status) newErrors.status = "Trạng thái là bắt buộc.";
@@ -111,8 +107,7 @@ const AddProduct = () => {
     const productData = {
       name,
       price,
-      quantity, // Include quantity in the product data
-      discountPrice: discountPrice ? parseFloat(discountPrice) : 0, 
+      discountPrice: discountPrice ? parseFloat(discountPrice) : 0, // Gán giá giảm
       description,
       image: imageUrl,
       status,
@@ -162,7 +157,7 @@ const AddProduct = () => {
           >
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
-                {cat.namect}
+                {cat.name}
               </option>
             ))}
           </Select>
@@ -181,18 +176,7 @@ const AddProduct = () => {
           />
           {errors.price && <FormErrorMessage>{errors.price}</FormErrorMessage>}
         </FormControl>
-        <FormControl id="quantity" mb={4} isInvalid={errors.quantity}>
-          <FormLabel>Số lượng</FormLabel>
-          <Input
-            type="number"
-            min="1"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)} // Use setQuantity instead of setPrice
-          />
-          {errors.quantity && (
-            <FormErrorMessage>{errors.quantity}</FormErrorMessage>
-          )}
-        </FormControl>
+
         <FormControl id="discountPrice" mb={4} isInvalid={errors.discountPrice}>
           <FormLabel>Giá giảm (%)</FormLabel>
           <Input
@@ -202,9 +186,7 @@ const AddProduct = () => {
             value={discountPrice}
             onChange={(e) => setDiscountPrice(e.target.value)}
           />
-          {errors.discountPrice && (
-            <FormErrorMessage>{errors.discountPrice}</FormErrorMessage>
-          )}
+          {errors.discountPrice && <FormErrorMessage>{errors.discountPrice}</FormErrorMessage>}
         </FormControl>
 
         <FormControl id="description" mb={4} isInvalid={errors.description}>

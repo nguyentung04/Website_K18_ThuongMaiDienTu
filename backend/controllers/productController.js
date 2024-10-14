@@ -1,13 +1,23 @@
+
 const connection = require("../config/database");
 
 exports.getAllProducts = (req, res) => {
-  connection.query("SELECT * FROM products", (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.status(200).json(results);
-  });
-};
+    connection.query(
+      `
+      SELECT 
+        DATE_FORMAT(created_at, '%Y-%m') AS month, 
+        COUNT(*) AS totalProducts
+      FROM products
+      GROUP BY month
+      ORDER BY month DESC;`,
+      (err, results) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+        res.status(200).json(results);
+      }
+    );
+  };
 //sanpham noi bat
 exports.featuredProducts = (req, res) => {
   const query = `
@@ -113,7 +123,7 @@ WHERE
 // admin
 exports.getAllProducts = (req, res) => {
   connection.query(
-    `SELECT products.id,products.name,products.image,products.description,products.status,products.price, categories.name AS category
+    `SELECT products.id,products.name,products.image,products.description,products.status,products.price, products.discountPrice, categories.name AS category
 FROM products
 INNER JOIN categories ON products.category_id = categories.id
 WHERE 1;
@@ -146,7 +156,7 @@ exports.getProductById = (req, res) => {
 
 exports.updateProduct = (req, res) => {
   const productId = req.params.id;
-  const { name, price, sell_price, description, image, status, category_id } =
+  const { name, price, sell_price, description,discountPrice, image, status, category_id } =
     req.body;
 
   // Log the incoming data for debugging
@@ -154,6 +164,7 @@ exports.updateProduct = (req, res) => {
   console.log("Product Data:", {
     name,
     price,
+    discountPrice,
     description,
     image,
     status,
@@ -166,6 +177,7 @@ exports.updateProduct = (req, res) => {
       name = ?, 
       image = ?, 
       price = ?,  
+      discountPrice = ?,
       description = ?, 
       status = ?, 
       category_id = ? 
@@ -176,6 +188,7 @@ exports.updateProduct = (req, res) => {
     name,
     image,
     price,
+    discountPrice,
     description,
     status,
     category_id,
@@ -204,7 +217,7 @@ exports.postProduct = async (req, res, next) => {
     const {
       name,
       price,
-      quantity,
+      // quantity,
       discountPrice,
       image,
       description,
@@ -216,14 +229,14 @@ exports.postProduct = async (req, res, next) => {
     const categoryId = parseInt(category_id, 10);
 
     const query = `
-      INSERT INTO products (name, image, price,quantity, discountPrice, description, status, category_id) 
-      VALUES (?, ?, ?, ?,?, ?, ?, ?)
+      INSERT INTO products (name, image, price, discountPrice, description, status, category_id) 
+      VALUES (?, ?, ?, ?,?, ?, ?)
     `;
     const values = [
       name,
       image,
       price,
-      quantity,
+      // quantity,
       discountPrice,
       description,
       status,
@@ -402,3 +415,4 @@ WHERE p.id = ?;`,
     }
   );
 };
+

@@ -8,6 +8,7 @@ import OldProductsPremium from "../pages/Client/OldProductsPremium/Products";
 import About from "../pages/Client/About/About";
 import SignIn from "../pages/Auth/Login/SignIn";
 import SignUp from "../pages/Auth/Register/SignUp";
+import ForgotPassword from "../pages/Auth/ForgotPassword/ForgotPassword.js";
 import Profile from "../pages/Client/Profile/ClientProfile";
 import ProductDetails from "../pages/Client/ProductDetails/ProductDetails";
 import Cart from "../pages/Client/Cart/Cart";
@@ -42,6 +43,7 @@ const ClientRoutes = () => {
       </Route>
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
     </Routes>
   );
 };

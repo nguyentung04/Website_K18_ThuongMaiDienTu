@@ -20,6 +20,9 @@ import {
   AlertDialogOverlay,
   useColorModeValue,
   useToast,
+  Input,
+  List,
+  ListItem,
 } from "@chakra-ui/react";
 import { fetchProducts, deleteProduct } from "../../../../service/api/products";
 
@@ -32,7 +35,10 @@ const ProductsTable = () => {
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null); 
+   //** ========================================================================================== */
+  const [searchQuery, setSearchQuery] = useState(""); // Lưu chuỗi tìm kiếm
+  const [suggestions, setSuggestions] = useState([]); // Lưu gợi ý quận/huyện
 
   useEffect(() => {
     const getProducts = async () => {
@@ -98,8 +104,12 @@ const ProductsTable = () => {
 
   // Hàm tính toán giá sau khi trừ giá khuyến mãi
   const calculateDiscountedPrice = (price, discountPercentage) => {
-    if (discountPercentage && discountPercentage > 0 && discountPercentage <= 100) {
-      const discountedPrice = price - (price * (discountPercentage / 100));
+    if (
+      discountPercentage &&
+      discountPercentage > 0 &&
+      discountPercentage <= 100
+    ) {
+      const discountedPrice = price - price * (discountPercentage / 100);
       return discountedPrice;
     }
     return price; // Nếu không có khuyến mãi, trả về giá gốc
@@ -107,9 +117,38 @@ const ProductsTable = () => {
 
   // Hàm format giá trị VNĐ
   const formatCurrency = (value) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(value);
+  };
+  //** ========================================================================================== */
+  // Hàm xử lý sự kiện khi người dùng nhập vào ô tìm kiếm
+  const handleInputChange = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    // Nếu chuỗi tìm kiếm không rỗng, lọc danh sách quận/huyện
+    if (query !== "") {
+      const filteredSuggestions = products.filter((products) =>
+        products.name.toLowerCase().includes(query)
+      );
+      setSuggestions(filteredSuggestions);
+    } else {
+      setSuggestions([]);
+    }
   };
 
+  // Hàm xử lý khi người dùng chọn 1 gợi ý
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion.name); // Cập nhật chuỗi tìm kiếm với tên đã chọn
+    setSuggestions([]); // Ẩn danh sách gợi ý sau khi chọn
+  };
+
+  // Filter products based on search query
+  const filteredproducts = products.filter((products) =>
+    products.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
       <Flex mb={5} justify="space-between" align="center">
@@ -127,7 +166,56 @@ const ProductsTable = () => {
           </Button>
         </Link>
       </Flex>
-
+ {/*  ===================================== thanh tìm kiếm ================================*/}
+      <Flex align="center" mb={4}>
+        {/* Input tìm kiếm */}
+        <Flex opacity={1}>
+          <Input
+            placeholder="Tìm kiếm..."
+            value={searchQuery}
+            onChange={handleInputChange} // Sửa lại hàm onChange
+            variant="outline"
+            borderColor="#00aa9f"
+            color="black"
+            mr={2}
+            width="200px"
+          />
+          {/* Hiển thị gợi ý */}
+          {suggestions.length > 0 && (
+            <List
+              border="1px solid #ccc"
+              borderRadius="md"
+              bg="white"
+              // mt={2}
+              position={"absolute"}
+              marginTop={10}
+              width="200px"
+              paddingLeft={0}
+            >
+              {suggestions.map((suggestion) => (
+                <ListItem
+                  key={suggestion.id}
+                  p={2}
+                  _hover={{ bg: "gray.200", cursor: "pointer" }}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  {suggestion.name}
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </Flex>
+        <Button
+          fontFamily="math"
+          variant="solid"
+          colorScheme="teal"
+          bg="#00aa9f"
+          _hover={{ bg: "#32dfd4" }}
+          mr={4}
+        >
+          Tìm kiếm
+        </Button>
+      </Flex>
       <Table variant="simple">
         <Thead>
           <Tr>
@@ -139,12 +227,12 @@ const ProductsTable = () => {
             <Th>Giá (VNĐ)</Th>
             <Th>Khuyến mãi (%)</Th>
             <Th>Giá sau khuyến mãi</Th>
-            <Th>Trạng thái</Th>
+            {/* <Th>Trạng thái</Th> */}
             <Th>Hoạt động</Th>
           </Tr>
         </Thead>
-        <Tbody>
-          {products.map((product, index) => (
+        <Tbody fontWeight="bold">
+          {filteredproducts.map((product, index) => (
             <Tr key={product.id} _hover={{ bg: hoverBgColor }}>
               <Td fontWeight="bold">{index + 1}</Td>
               <Td display="none">{product.id}</Td>
@@ -160,11 +248,7 @@ const ProductsTable = () => {
                 </Box>
               </Td>
               <Td>
-                <Box display="flex" alignItems="center">
-                  <Box>
-                    <Text fontWeight="bold">{product.name}</Text>
-                  </Box>
-                </Box>
+                <Text>{product.name}</Text>
               </Td>
               <Td>
                 <Text>{product.category}</Text>
@@ -177,24 +261,33 @@ const ProductsTable = () => {
               </Td>
 
               <Td>
-                <Text>{formatCurrency(calculateDiscountedPrice(product.price, product.discountPrice))}</Text>
+                <Text>
+                  {formatCurrency(
+                    calculateDiscountedPrice(
+                      product.price,
+                      product.discountPrice
+                    )
+                  )}
+                </Text>
               </Td>
-              <Td>
+              {/* <Td>
                 <Text>{product.status}</Text>
-              </Td>
+              </Td> */}
               <Td>
-                <Link to={`admin/products/edit/${product.id}`}>
-                  <Button colorScheme="blue" size="sm" mr={2}>
-                    Sửa
+                <Box className="d-flex ">
+                  <Link to={`admin/products/edit/${product.id}`}>
+                    <Button colorScheme="blue" size="sm" mr={2}>
+                      Sửa
+                    </Button>
+                  </Link>
+                  <Button
+                    colorScheme="red"
+                    size="sm"
+                    onClick={() => handleDeleteClick(product)}
+                  >
+                    Xóa
                   </Button>
-                </Link>
-                <Button
-                  colorScheme="red"
-                  size="sm"
-                  onClick={() => handleDeleteClick(product)}
-                >
-                  Xóa
-                </Button>
+                </Box>
               </Td>
             </Tr>
           ))}

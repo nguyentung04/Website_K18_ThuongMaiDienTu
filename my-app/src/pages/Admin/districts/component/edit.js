@@ -46,7 +46,7 @@ const EditDistricts = () => {
         const districtData = await fetchDistrictsById(id);
         if (districtData) {
           setName(districtData.name || "");
-          setProvince(districtData.cityId || ""); // Assuming cityId is part of the district data
+          setProvince(districtData.city_id  || ""); // Assuming cityId is part of the district data
         }
       } catch (error) {
         toast({

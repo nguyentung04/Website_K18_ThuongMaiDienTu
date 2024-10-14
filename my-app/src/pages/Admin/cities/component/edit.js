@@ -5,7 +5,6 @@ import {
   Input,
   FormControl,
   FormLabel,
-  Heading,
   FormErrorMessage,
   useToast,
   Text,
@@ -32,13 +31,12 @@ const EditCities = () => {
         const data = await fetchCitiesById(id);
         if (data) {
           setName(data.name || "");
-         
         }
       } catch (error) {
         toast({
           title: "Có lỗi khi tìm kiếm thành phố.",
           description: "Không thể lấy thông tin chi tiết về thành phố.",
-          status: "lỗi",
+          status: "error", // Use 'error' instead of 'lỗi'
           duration: 5000,
           isClosable: true,
         });
@@ -61,9 +59,9 @@ const EditCities = () => {
     try {
       await updateCities(id, citiesData);
       toast({
-        title: "thành phố được cập nhật.",
-        description: "chi tiết thành phố đã được cập nhật thành công.",
-        status: "thành công",
+        title: "Thành phố được cập nhật.",
+        description: "Chi tiết thành phố đã được cập nhật thành công.",
+        status: "success", // Use 'success' instead of 'thành công'
         duration: 5000,
         isClosable: true,
       });
@@ -73,7 +71,7 @@ const EditCities = () => {
       toast({
         title: "Có lỗi khi cập nhật thành phố.",
         description: error.message,
-        status: "error",
+        status: "error", // Use 'error' for error messages
         duration: 5000,
         isClosable: true,
       });

@@ -176,7 +176,7 @@ exports.deleteCities = (req, res) => {
                 res.status(500).json({ error: err.message });
               });
             }
-            res.status(200).json({ message: "Order deleted successfully" });
+            res.status(200).json({ message: "Tỉnh đã xóa thành công" });
           });
         });
       }

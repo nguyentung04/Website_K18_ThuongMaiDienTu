@@ -69,8 +69,9 @@ router.get("/categories/:id", categoryController.getCategoryById);
 router.post("/categories", categoryController.postCategory);
 router.put("/categories/:id", categoryController.updateCategory);
 router.delete("/categories/:id", categoryController.deleteCategory);
+
 // Order routes
-router.get("/orders", orderController.getAllOrders);
+    router.get("/orders", orderController.getAllOrders);
 
 // Order detail routes
 router.get("/order_detail", order_detailController.getAllOrder_detail);

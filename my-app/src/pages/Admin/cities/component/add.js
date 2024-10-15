@@ -39,18 +39,18 @@ const AddCitiesPage = () => {
     try {
       await addCities(citiesData); // Call your API to add the cities
       toast({
-        title: "Danh mục đã được thêm.",
-        description: "Danh mục mới đã được thêm thành công.",
+        title: "Tỉnh đã được thêm.",
+        description: "Tỉnh mới đã được thêm thành công.",
         status: "success", // Changed to correct status value
         duration: 5000,
         isClosable: true,
       });
       navigate("/admin/cities"); // Ensure the correct path for navigation
     } catch (error) {
-      console.error("Không thêm được danh mục:", error);
+      console.error("Không thêm được Tỉnh:", error);
       toast({
-        title: "Lỗi khi thêm danh mục.",
-        description: "Không thêm được danh mục.",
+        title: "Lỗi khi thêm Tỉnh.",
+        description: "Không thêm được Tỉnh.",
         status: "error", // Changed to correct status value
         duration: 5000,
         isClosable: true,

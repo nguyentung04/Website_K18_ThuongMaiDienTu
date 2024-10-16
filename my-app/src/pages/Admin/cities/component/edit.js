@@ -60,8 +60,8 @@ const EditCities = () => {
       await updateCities(id, citiesData);
       toast({
         title: "Thành phố được cập nhật.",
-        description: "Chi tiết thành phố đã được cập nhật thành công.",
-        status: "success", // Use 'success' instead of 'thành công'
+        description: "Thành phố đã được cập nhật thành công.",
+        status: "success", // Correct status value
         duration: 5000,
         isClosable: true,
       });
@@ -71,7 +71,7 @@ const EditCities = () => {
       toast({
         title: "Có lỗi khi cập nhật thành phố.",
         description: error.message,
-        status: "error", // Use 'error' for error messages
+        status: "error", // Correct status value
         duration: 5000,
         isClosable: true,
       });

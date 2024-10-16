@@ -46,7 +46,7 @@ const AddCategoryPage = () => {
     try {
       // Gửi yêu cầu tải lên hình ảnh
       const response = await axios.post(
-        `http://localhost:3000/api/uploads/categories`, // Đường dẫn API của bạn
+        `http://localhost:3000/api/upload/categories`, // Đường dẫn API của bạn
         formData,
         {
           headers: {

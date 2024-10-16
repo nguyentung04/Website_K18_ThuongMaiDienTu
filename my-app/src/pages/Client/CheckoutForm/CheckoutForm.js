@@ -14,8 +14,8 @@ import {
 } from "@chakra-ui/react";
 import {
   fetchCities,
-  fetchDistrictsByCity,
-} from "../../../service/api/city";
+  fetchCitiesByDistricts,
+} from "../../../service/api/cities";
 
 const CheckoutForm = () => {
   const [formData, setFormData] = useState({

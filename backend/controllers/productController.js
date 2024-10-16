@@ -1,3 +1,4 @@
+
 const connection = require("../config/database");
 
 exports.getAllProducts = (req, res) => {

@@ -37,6 +37,7 @@ const CheckoutForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
 
+const userId = JSON.parse(localStorage.getItem("userData")).id;
   useEffect(() => {
     const fetchCityData = async () => {
       try {
@@ -119,6 +120,7 @@ const CheckoutForm = () => {
       }
   
       const orderItems = cart.map((item) => ({
+        user_id: userId,
         product_id: item.id,
         quantity: item.quantity,
         price: parseFloat(item.price),
@@ -127,6 +129,7 @@ const CheckoutForm = () => {
   
       const orderData = {
         ...formData,
+       
         id_cities: formData.city, // Đây là ID cho thành phố (city)
         id_districts: formData.province, // Đây là ID cho quận (district)
         order_detail: orderItems,
@@ -155,6 +158,7 @@ const CheckoutForm = () => {
         });
         navigate("/products");
         setFormData({
+
           name: "",
           email: "",
           phone: "",

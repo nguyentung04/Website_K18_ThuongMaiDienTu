@@ -55,8 +55,8 @@ const AuthorsTable = () => {
           prevData.filter((user) => user.id !== selectedUser.id)
         );
         toast({
-          title: "User deleted.",
-          description: "User has been deleted successfully.",
+          title: "Người dùng đã xóa.",
+          description: "Người dùng đã bị xóa thành công.",
           status: "success",
           duration: 5000,
           isClosable: true,
@@ -64,8 +64,8 @@ const AuthorsTable = () => {
       }
     } catch (error) {
       toast({
-        title: "Error deleting user",
-        description: "Failed to delete the user.",
+        title: "Lỗi khi xóa người dùng",
+        description: "Không xóa được người dùng.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -78,8 +78,8 @@ const AuthorsTable = () => {
   const handleDeleteClick = (user) => {
     if (user.role === "admin") {
       toast({
-        title: "Cannot Delete Admin",
-        description: "You cannot delete a user with the admin role.",
+        title: "Không thể xóa Admin",
+        description: "Bạn không thể xóa người dùng có vai trò quản trị viên.",
         status: "warning",
         duration: 5000,
         isClosable: true,

@@ -18,6 +18,7 @@ import {
 } from "../../../service/api/cities";
 
 const CheckoutForm = () => {
+ 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -37,7 +38,7 @@ const CheckoutForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
 
-const userId = JSON.parse(localStorage.getItem("userData")).id;
+
   useEffect(() => {
     const fetchCityData = async () => {
       try {
@@ -50,7 +51,13 @@ const userId = JSON.parse(localStorage.getItem("userData")).id;
 
     fetchCityData();
   }, []);
-
+  const [userId, setUserId] = useState(null);
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (userData && userData.id) {
+      setUserId(userData.id);
+    }
+  }, []);
   const handleProvinceChange = async (e) => {
     const selectedProvince = e.target.value;
     setFormData({
@@ -120,7 +127,7 @@ const userId = JSON.parse(localStorage.getItem("userData")).id;
       }
   
       const orderItems = cart.map((item) => ({
-        user_id: userId,
+        
         product_id: item.id,
         quantity: item.quantity,
         price: parseFloat(item.price),
@@ -129,10 +136,10 @@ const userId = JSON.parse(localStorage.getItem("userData")).id;
   
       const orderData = {
         ...formData,
-       
-        id_cities: formData.city, // Đây là ID cho thành phố (city)
-        id_districts: formData.province, // Đây là ID cho quận (district)
+        id_cities: formData.city,
+        id_districts: formData.province,
         order_detail: orderItems,
+        user_id: userId, // Thêm user_id vào dữ liệu đơn hàng
       };
   
       console.log(orderData); // In ra dữ liệu đơn hàng để kiểm tra
@@ -156,7 +163,7 @@ const userId = JSON.parse(localStorage.getItem("userData")).id;
           duration: 5000,
           isClosable: true,
         });
-        navigate("/products");
+        navigate("/");
         setFormData({
 
           name: "",

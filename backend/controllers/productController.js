@@ -427,7 +427,13 @@ exports.ProductDetail = (req, res) => {
     c.name AS category_name,
     c.logo,
     p.*,
-    pd.*
+    pd.machineType,
+    pd.identification,
+    pd.thickness,
+    pd.wireMaterial,
+    pd.antiWater,
+    pd.gender,
+    pd.coler
 FROM 
     products p
 LEFT JOIN 

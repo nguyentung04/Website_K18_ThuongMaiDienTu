@@ -18,6 +18,8 @@ import CategoryIcon, {
   CustomIcon,
   DistrictIcon,
   ProvinceIcon,
+  ArticleIcon,
+  FolderIcon,
 } from "../../../components/icon/icon";
 
 const Sidebar = () => {
@@ -179,6 +181,64 @@ const Sidebar = () => {
                   }
                 >
                   Sản phẩm chi tiết
+                </Button>
+              )}
+            </NavLink>{" "}
+            <NavLink to="/admin/posts">
+              {({ isActive }) => (
+                <Button
+                  fontFamily="math"
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  bg={isActive ? activeBg : "inherit"}
+                  color={isActive ? activeColor : linkColor}
+                  fontWeight={isActive ? "bold" : "normal"}
+                  _hover={{ bg: activeBg, textDecoration: "none" }}
+                  _active={{ bg: activeBg, color: activeColor }}
+                  mb="0.5px"
+                  mx="auto"
+                  ps="16px"
+                  py="12px"
+                  borderRadius="15px"
+                  w="100%"
+                  height="50px"
+                  leftIcon={
+                    <ArticleIcon
+                      boxSize={5}
+                      color={isActive ? activeColor : linkColor}
+                    />
+                  }
+                >
+                  Bài viết
+                </Button>
+              )}
+            </NavLink>{" "}
+            <NavLink to="/admin/post_categories">
+              {({ isActive }) => (
+                <Button
+                  fontFamily="math"
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  bg={isActive ? activeBg : "inherit"}
+                  color={isActive ? activeColor : linkColor}
+                  fontWeight={isActive ? "bold" : "normal"}
+                  _hover={{ bg: activeBg, textDecoration: "none" }}
+                  _active={{ bg: activeBg, color: activeColor }}
+                  mb="0.5px"
+                  mx="auto"
+                  ps="16px"
+                  py="12px"
+                  borderRadius="15px"
+                  w="100%"
+                  height="50px"
+                  leftIcon={
+                    <FolderIcon
+                      boxSize={5}
+                      color={isActive ? activeColor : linkColor}
+                    />
+                  }
+                >
+                  Danh mục bài viết
                 </Button>
               )}
             </NavLink>{" "}

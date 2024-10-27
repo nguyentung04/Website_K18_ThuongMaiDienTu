@@ -120,7 +120,9 @@ const OrderDetail = () => {
             <CardIcon /> HÌNH THỨC THANH TOÁN
           </span>
           <p>
-            {order[0].paymentMethod === "bank" ? "Chuyển khoản" : "Thanh toán khi nhận hàng"}
+            {order[0].paymentMethod === "bank"
+              ? "Chuyển khoản"
+              : "Thanh toán khi nhận hàng"}
           </p>
         </div>
       </div>
@@ -132,7 +134,7 @@ const OrderDetail = () => {
               src={`${BASE_URL}/uploads/products/${item.image}`}
               alt={item.name}
             />
-            <div className="product-details">
+            <div className="product-details d-flex justify-content-between align-self-center">
               <h4>{item.name}</h4>
               <p>
                 <strong>Giá:</strong>{" "}
@@ -151,12 +153,15 @@ const OrderDetail = () => {
                   currency: "VND",
                 }).format(item.total || 0)}
               </p>
-              <button
-                className="action-button cancel-button"
-                onClick={() => handleCancelOrder(item.order_id)} // Gọi đúng orderId
-              >
-                Hủy
-              </button>
+              <div className="d-flex justify-content-end">
+                <button
+                  type="button"
+                  className=" btn btn-danger action-button cancel-button p-2"
+                  onClick={() => handleCancelOrder(item.order_id)} // Gọi đúng orderId
+                >
+                  Hủy
+                </button>
+              </div>
             </div>
           </div>
         ))}

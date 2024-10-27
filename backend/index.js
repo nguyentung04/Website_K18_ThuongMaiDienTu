@@ -6,7 +6,8 @@ const fs = require("fs");
 const Routes = require("./routes/Routes");
 const commentsRoutes = require("./routes/commentsRoutes");
 const comment_detailRoutes = require("./routes/comment_detailRoute");
-// const cityRoutes = require("./routes/city");
+const posts = require("./routes/posts");
+const post_categories = require("./routes/post_categories");
 const comment = require("./routes/comment");
 const product_detailRoutes = require("./routes/product_detail/index");
 const citieslRoutes = require("./routes/cities/citiesRoutes");
@@ -64,6 +65,8 @@ app.use('/api', product_detailRoutes);
 app.use('/api', citieslRoutes);
 app.use('/api', districtsController);
 app.use('/api', comment);
+app.use('/api', posts);
+app.use('/api', post_categories);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

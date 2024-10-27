@@ -12,6 +12,9 @@ import OrdersRoutes from "../pages/Admin/orders/router";
 import CategoryRoutes from "../pages/Admin/categories/router";
 import CommentsRoutes from "../pages/Admin/comments/router";
 
+
+import PostsRoutes from "../pages/Admin/posts/router";
+import Post_categoriesRoutes from "../pages/Admin/post_categories/router";
 const AdminRoutes = () => {
   // Lấy thông tin từ localStorage
   const token = localStorage.getItem('token');
@@ -30,6 +33,8 @@ const AdminRoutes = () => {
       <Route path="user/*" element={<UserRoutes />} />
       <Route path="productdetail/*" element={<ProductdetailRoutes />} />
       
+      <Route path="posts/*" element={<PostsRoutes />} />
+      <Route path="post_categories/*" element={<Post_categoriesRoutes />} />
       <Route path="districts/*" element={<DistrictsRoutes />} />
       <Route path="cities/*" element={<CitiesRoutes />} />
       <Route path="orders/*" element={<OrdersRoutes />} />

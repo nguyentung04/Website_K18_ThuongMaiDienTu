@@ -128,7 +128,7 @@ const PromotionalProducts = () => {
     <div className="PromotionalProducts">
       <div className="row align-items-center">
         <div className="col fix-title uppercase">
-          <h2>Sản phẩm khuyến mãi</h2>
+          <h2>Sản phẩm bán chạy</h2>
         </div>
       </div>
       <div className="products_blocks_wrapper">

@@ -38,6 +38,7 @@ router.get("/product/categories/:id", categoryController.GetAllProductOfCategori
 router.get("/orders", orderController.getAllOrders);
 router.get('/ordersByName/:name', orderController.orderByName);
 router.get('/orderByName1/:id', orderController.orderByName1);
+router.get('/orderDetail/:id', orderController.orderDetail);
 router.post("/orders", orderController.PostOrders);
 router.delete('/orders/:id', orderController.deleteOrder);
 router.get('/orders/:id', orderController.getOrderById);
@@ -69,8 +70,9 @@ router.get("/categories/:id", categoryController.getCategoryById);
 router.post("/categories", categoryController.postCategory);
 router.put("/categories/:id", categoryController.updateCategory);
 router.delete("/categories/:id", categoryController.deleteCategory);
+
 // Order routes
-router.get("/orders", orderController.getAllOrders);
+    router.get("/orders", orderController.getAllOrders);
 
 // Order detail routes
 router.get("/order_detail", order_detailController.getAllOrder_detail);

@@ -1,12 +1,21 @@
 const connection = require("../config/database");
 
 exports.getAllProducts = (req, res) => {
-  connection.query("SELECT * FROM products", (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
+  connection.query(
+    `
+      SELECT 
+        DATE_FORMAT(created_at, '%Y-%m') AS month, 
+        COUNT(*) AS totalProducts
+      FROM products
+      GROUP BY month
+      ORDER BY month DESC;`,
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.status(200).json(results);
     }
-    res.status(200).json(results);
-  });
+  );
 };
 //sanpham noi bat
 exports.featuredProducts = (req, res) => {
@@ -97,13 +106,13 @@ FROM
     products
 WHERE 
     id = ?;`,
-    [productId],  // Truyền giá trị ID vào câu lệnh SQL
+    [productId], // Truyền giá trị ID vào câu lệnh SQL
     (err, results) => {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
       if (results.length === 0) {
-        return res.status(404).json({ message: 'Sản phẩm không tồn tại' });
+        return res.status(404).json({ message: "Sản phẩm không tồn tại" });
       }
       res.status(200).json(results[0]); // Trả về sản phẩm đầu tiên
     }
@@ -113,7 +122,7 @@ WHERE
 // admin
 exports.getAllProducts = (req, res) => {
   connection.query(
-    `SELECT products.id,products.name,products.image,products.description,products.status,products.price, categories.name AS category
+    `SELECT products.id,products.name,products.image,products.description,products.status,products.price, products.discountPrice, categories.name AS category
 FROM products
 INNER JOIN categories ON products.category_id = categories.id
 WHERE 1;
@@ -146,14 +155,23 @@ exports.getProductById = (req, res) => {
 
 exports.updateProduct = (req, res) => {
   const productId = req.params.id;
-  const { name, price, sell_price, description, image, status, category_id } =
-    req.body;
+  const {
+    name,
+    price,
+    sell_price,
+    description,
+    discountPrice,
+    image,
+    status,
+    category_id,
+  } = req.body;
 
   // Log the incoming data for debugging
   console.log("Updating product with ID:", productId);
   console.log("Product Data:", {
     name,
     price,
+    discountPrice,
     description,
     image,
     status,
@@ -166,6 +184,7 @@ exports.updateProduct = (req, res) => {
       name = ?, 
       image = ?, 
       price = ?,  
+      discountPrice = ?,
       description = ?, 
       status = ?, 
       category_id = ? 
@@ -176,6 +195,7 @@ exports.updateProduct = (req, res) => {
     name,
     image,
     price,
+    discountPrice,
     description,
     status,
     category_id,
@@ -204,36 +224,38 @@ exports.postProduct = async (req, res, next) => {
     const {
       name,
       price,
-      quantity,
+      // quantity,
       discountPrice,
       image,
       description,
       status,
-      category_id
+      category_id,
     } = req.body;
 
     // Ensure category_id is an integer
     const categoryId = parseInt(category_id, 10);
 
     const query = `
-      INSERT INTO products (name, image, price,quantity, discountPrice, description, status, category_id) 
-      VALUES (?, ?, ?, ?,?, ?, ?, ?)
+      INSERT INTO products (name, image, price, discountPrice, description, status, category_id) 
+      VALUES (?, ?, ?, ?,?, ?, ?)
     `;
     const values = [
       name,
       image,
       price,
-      quantity,
+      // quantity,
       discountPrice,
       description,
       status,
-      categoryId
+      categoryId,
     ];
 
     connection.query(query, values, (err, results) => {
       if (err) {
         console.error("Database error:", err);
-        return res.status(500).json({ error: 'An error occurred while adding the product.' });
+        return res
+          .status(500)
+          .json({ error: "An error occurred while adding the product." });
       }
       res.status(201).json({
         message: "Product added successfully",
@@ -246,23 +268,47 @@ exports.postProduct = async (req, res, next) => {
   }
 };
 exports.deleteProduct = (req, res) => {
-  const productId = req.params.id;
+  // const productId = req.params.id;
 
-  // Prepare the SQL query to delete the product
-  const query = "DELETE FROM products WHERE id = ?";
+  const { productId } = req.params;
 
-  // Execute the query
-  connection.query(query, [productId], (err, results) => {
+  // Bắt đầu transaction
+  connection.beginTransaction((err) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
-    // Check if any rows were affected (i.e., if the product was deleted)
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ message: "Product not found" });
-    }
 
-    // Respond with a success message
-    res.status(200).json({ message: "Product deleted successfully" });
+    // Xóa chi tiết đơn hàng trước
+    connection.query(
+      "DELETE FROM product_detail WHERE product_id = ?",
+      [productId],
+      (err) => {
+        if (err) {
+          return connection.rollback(() => {
+            res.status(500).json({ error: err.message });
+          });
+        }
+
+        // Xóa đơn hàng
+        connection.query("DELETE FROM products WHERE id = ?", [productId], (err) => {
+          if (err) {
+            return connection.rollback(() => {
+              res.status(500).json({ error: err.message });
+            });
+          }
+
+          // Cam kết transaction
+          connection.commit((err) => {
+            if (err) {
+              return connection.rollback(() => {
+                res.status(500).json({ error: err.message });
+              });
+            }
+            res.status(200).json({ message: "Order deleted successfully" });
+          });
+        });
+      }
+    );
   });
 };
 
@@ -371,7 +417,6 @@ exports.toggleProductLike = (req, res) => {
   });
 };
 
-
 exports.ProductDetail = (req, res) => {
   // Lấy giá trị ID từ URL params
   const productId = req.params.id;
@@ -382,7 +427,13 @@ exports.ProductDetail = (req, res) => {
     c.name AS category_name,
     c.logo,
     p.*,
-    pd.*
+    pd.machineType,
+    pd.identification,
+    pd.thickness,
+    pd.wireMaterial,
+    pd.antiWater,
+    pd.gender,
+    pd.coler
 FROM 
     products p
 LEFT JOIN 

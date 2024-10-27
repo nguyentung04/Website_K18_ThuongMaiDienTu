@@ -14,10 +14,11 @@ import {
 } from "@chakra-ui/react";
 import {
   fetchCities,
-  fetchDistrictsByCity,
-} from "../../../service/api/city";
+  fetchCitiesByDistricts,
+} from "../../../service/api/cities";
 
 const CheckoutForm = () => {
+ 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -37,6 +38,7 @@ const CheckoutForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
 
+
   useEffect(() => {
     const fetchCityData = async () => {
       try {
@@ -49,7 +51,13 @@ const CheckoutForm = () => {
 
     fetchCityData();
   }, []);
-
+  const [userId, setUserId] = useState(null);
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (userData && userData.id) {
+      setUserId(userData.id);
+    }
+  }, []);
   const handleProvinceChange = async (e) => {
     const selectedProvince = e.target.value;
     setFormData({
@@ -60,7 +68,7 @@ const CheckoutForm = () => {
 
     setLoadingDistricts(true);
     try {
-      const districtsData = await fetchDistrictsByCity(selectedProvince);
+      const districtsData = await fetchCitiesByDistricts(selectedProvince);
       setDistricts(districtsData);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách quận/huyện:", error);
@@ -119,6 +127,7 @@ const CheckoutForm = () => {
       }
   
       const orderItems = cart.map((item) => ({
+        
         product_id: item.id,
         quantity: item.quantity,
         price: parseFloat(item.price),
@@ -127,9 +136,10 @@ const CheckoutForm = () => {
   
       const orderData = {
         ...formData,
-        id_cities: formData.city, // Đây là ID cho thành phố (city)
-        id_districts: formData.province, // Đây là ID cho quận (district)
+        id_cities: formData.city,
+        id_districts: formData.province,
         order_detail: orderItems,
+        user_id: userId, // Thêm user_id vào dữ liệu đơn hàng
       };
   
       console.log(orderData); // In ra dữ liệu đơn hàng để kiểm tra
@@ -153,8 +163,9 @@ const CheckoutForm = () => {
           duration: 5000,
           isClosable: true,
         });
-        navigate("/products");
+        navigate("/");
         setFormData({
+
           name: "",
           email: "",
           phone: "",

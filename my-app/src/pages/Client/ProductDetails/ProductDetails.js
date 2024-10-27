@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Img, useDisclosure, useToast } from "@chakra-ui/react";
+import { Img, useDisclosure } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as faStarSolid } from "@fortawesome/free-solid-svg-icons";
-import {
-  faStar as faStarRegular,
-  faThumbsUp,
-} from "@fortawesome/free-regular-svg-icons";
+import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
 import {
   faTruckFast,
   faShieldAlt,
@@ -16,128 +13,23 @@ import {
 import { CameraIcon } from "../../../components/icon/icon";
 import "./ProductDetails.css";
 import ProductSimilar from "./../Home/component/ProductSimilar/ProductSimilar";
+import Reviews from "./../Home/component/Reviews/Reviews";
 const BASE_URL = "http://localhost:3000";
-const products = [];
-const itemsPerPage = 4;
-const ProductDetails = () => {
+const ProductDetails = ({ user }) => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
-  const [similar, setSimilar] = useState([]); // Khởi tạo mảng rỗng
-  const [quantity, setQuantity] = useState(1);
+  const [quantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [loadingSimilar, setLoadingSimilar] = useState(true); // Trạng thái loading cho sản phẩm tương tự
   const productInfoRef = useRef(null);
   const [isExpanded, setIsExpanded] = useState(false);
-
   const specificationsRef = useRef(null);
   const evaluateRef = useRef(null);
   const similarProductsRef = useRef(null);
-  const loggedInUser = JSON.parse(localStorage.getItem("user"));
-  const [userRating, setUserRating] = useState(0);
-  const [comment, setComment] = useState("");
-  const [reviews, setReviews] = useState([]);
+  const [reviews] = useState([]);
+  const [userData, setUserData] = useState(null); // Khai báo state để lưu dữ liệu người dùng
 
-  const [showReplyForm, setShowReplyForm] = useState(false);
-
-  const [replyContent, setReplyContent] = useState("");
-
-  const [replyPhone, setReplyPhone] = useState("");
-
-  const [showReplies, setShowReplies] = useState({});
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
-  const [productDetails, setProductDetails] = useState(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    province: "",
-    city: "",
-    address: "",
-    note: "",
-    paymentMethod: "COD",
-  });
-
-  const [errors, setErrors] = useState({});
-  const toast = useToast();
-  const toggleReplies = (index) => {
-    setShowReplies((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
-  };
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const loggedInUser = JSON.parse(localStorage.getItem("user"));
-    const review = {
-      name: loggedInUser ? loggedInUser.name : "Anonymous",
-      rating: userRating,
-      comment,
-      likes: 0,
-      time: new Date().toLocaleString(),
-      replies: [],
-    };
-
-    setReviews([...reviews, review]);
-    setUserRating(0);
-    setComment("");
-  };
-  const cancelReply = (formKey) => {
-    setShowReplyForm((prev) => ({
-      ...prev,
-      [formKey]: false,
-    }));
-  };
-
-  const handleReplyContentChange = (e) => setReplyContent(e.target.value);
-
-  const handleLikeClick = (index) => {
-    const updatedReviews = [...reviews];
-    updatedReviews[index].likes = (updatedReviews[index].likes || 0) + 1;
-    setReviews(updatedReviews);
-  };
-
-  const toggleReplyForm = (reviewIndex, replyIndex = null) => {
-    const formKey =
-      replyIndex !== null ? `${reviewIndex}-${replyIndex}` : reviewIndex;
-
-    setShowReplyForm((prev) => ({
-      ...prev,
-      [formKey]: !prev[formKey],
-    }));
-  };
-
-  const handleReplySubmit = (reviewIndex, replyIndex = null, e) => {
-    e.preventDefault();
-
-    if (!replyContent) {
-      alert("Vui lòng điền đầy đủ thông tin!");
-      return;
-    }
-
-    const newReply = {
-      name: "Người dùng",
-      content: replyContent,
-      time: new Date().toLocaleString(),
-      replies: [],
-    };
-
-    const updatedReviews = [...reviews];
-    let targetReplies =
-      replyIndex !== null
-        ? updatedReviews[reviewIndex].replies[replyIndex].replies
-        : updatedReviews[reviewIndex].replies;
-
-    targetReplies.push(newReply);
-    setReviews(updatedReviews);
-    setReplyContent("");
-    setShowReplyForm((prev) => ({
-      ...prev,
-      [`${reviewIndex}-${replyIndex}`]: false,
-    }));
-  };
+  const [setProductDetails] = useState(null);
   const scrollToProductInfo = () => {
     productInfoRef.current.scrollIntoView({ behavior: "smooth" });
   };
@@ -150,14 +42,13 @@ const ProductDetails = () => {
   const scrollToSimilarProducts = () => {
     similarProductsRef.current.scrollIntoView({ behavior: "smooth" });
   };
-
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/api/products/${id}`);
+        const response = await axios.get(`${BASE_URL}/api/productdetail/${id}`);
         setProduct(response.data);
       } catch (error) {
         setError("Lỗi khi lấy dữ liệu sản phẩm");
@@ -165,72 +56,16 @@ const ProductDetails = () => {
         setLoading(false);
       }
     };
-
     fetchProduct();
   }, [id]);
 
-  // Fetch reviews
-  // useEffect(() => {
-  //   const fetchReviews = async () => {
-  //     try {
-  //       const response = await axios.get(`${BASE_URL}/api/products/${id}/reviews`);
-  //       setReviews(response.data);
-  //     } catch (error) {
-  //       setError("Lỗi khi lấy dữ liệu đánh giá");
-  //     }
-  //   };
-  //   fetchReviews();
-  // }, [id]);
-
-  // Fetch similar products
-  useEffect(() => {
-    const fetchSimilarProducts = async () => {
-      if (product && product.category_id) {
-        setLoadingSimilar(true); // Bắt đầu loading cho sản phẩm tương tự
-        try {
-          const response = await axios.get(
-            `${BASE_URL}/api/product/categories/${product.category_id}`
-          );
-          setSimilar(response.data.filter((p) => p.id !== product.id)); // Lọc sản phẩm không giống sản phẩm chính
-        } catch (error) {
-          setError("Lỗi khi lấy dữ liệu sản phẩm tương tự");
-        } finally {
-          setLoadingSimilar(false); // Kết thúc loading cho sản phẩm tương tự
-        }
-      }
-    };
-
-    fetchSimilarProducts();
-  }, [product]);
-
-  const [currentPage, setCurrentPage] = useState(0);
-  const totalPages = Math.ceil(products.length / itemsPerPage);
-  const handleNext = () => {
-    setCurrentPage((prevIndex) =>
-      prevIndex === totalPages - 1 ? 0 : prevIndex + 1
-    );
-  };
-  const handlePrev = () => {
-    setCurrentPage((prevIndex) =>
-      prevIndex === 0 ? totalPages - 1 : prevIndex - 1
-    );
-  };
-  const startIndex = currentPage * itemsPerPage;
-  const currentProducts = products.slice(startIndex, startIndex + itemsPerPage);
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
     }).format(price);
   };
-  const increaseQuantity = () => {
-    setQuantity((prevQuantity) => prevQuantity + 1);
-  };
-
-  const decreaseQuantity = () => {
-    setQuantity((prevQuantity) => Math.max(prevQuantity - 1, 1));
-  };
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { onOpen } = useDisclosure();
   const addToCart = () => {
     if (product) {
       const details = {
@@ -245,7 +80,6 @@ const ProductDetails = () => {
       const existingProductIndex = cart.findIndex(
         (item) => item.id === product.id
       );
-
       if (existingProductIndex !== -1) {
         cart[existingProductIndex].quantity += quantity;
       } else {
@@ -272,38 +106,16 @@ const ProductDetails = () => {
     reviews.length > 0
       ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
       : 0;
-  const handleUserRatingClick = (index) => {
-    setUserRating(index + 1);
-  };
+
   if (loading) {
     return <div className="loading">Đang tải dữ liệu...</div>;
   }
   if (error) {
     return <div className="error">{error}</div>;
   }
-
   if (!product) {
     return <div>Không tìm thấy sản phẩm</div>;
   }
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-  };
-  const validate = () => {
-    const newErrors = {};
-    if (!formData.name) newErrors.name = "Tên khách hàng là bắt buộc";
-    if (!formData.email) newErrors.email = "Địa chỉ email là bắt buộc";
-    if (!formData.phone) newErrors.phone = "Số điện thoại là bắt buộc";
-    if (!formData.province) newErrors.province = "Tỉnh là bắt buộc";
-    if (!formData.city) newErrors.city = "Thành phố là bắt buộc";
-    if (!formData.address) newErrors.address = "Địa chỉ nhận hàng là bắt buộc";
-    if (!formData.paymentMethod)
-      newErrors.paymentMethod = "Chọn phương thức thanh toán";
-    return newErrors;
-  };
   return (
     <div className="product-details">
       <div className="container">
@@ -327,7 +139,6 @@ const ProductDetails = () => {
             product.images.length > 0 ? (
               <div className="image-slider-container"></div>
             ) : (
-              // Single Image Display
               <img
                 src={`${BASE_URL}/uploads/products/${product.image}`}
                 alt={product.name}
@@ -537,184 +348,16 @@ const ProductDetails = () => {
             </div>
           </div>
         </div>
-        <div ref={evaluateRef} className="reviews-section">
-          <h3 className="comment_title">ĐÁNH GIÁ</h3>
-          <div className="comment-box">
-            <form onSubmit={handleSubmit} className="comment-form">
-              <div className="comment-rating">
-                {[...Array(5)].map((star, index) => (
-                  <FontAwesomeIcon
-                    key={index}
-                    icon={index < userRating ? faStarSolid : faStarRegular}
-                    style={{ color: "#d0b349", cursor: "pointer" }}
-                    onClick={() => handleUserRatingClick(index)}
-                  />
-                ))}
-              </div>
-              <div className="form-floating comment-content">
-                <textarea
-                  className="form-control"
-                  placeholder="Nhập nội dung"
-                  id="comment"
-                  name="comment"
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  style={{ height: "100px" }}
-                  required
-                />
-                <label htmlFor="comment">Nhập nội dung</label>
-              </div>
-              {/* Submit Button */}
-              <div className="comment-submit">
-                <button type="submit" className="submit_button">
-                  Gửi đánh giá
-                </button>
-              </div>
-            </form>
-            <hr />
-            <div className="reviews-list">
-              {reviews.map((review, index) => (
-                <div key={index} className="review">
-                  <h3>{review.name}</h3>
-                  <div className="review-rating">
-                    {[...Array(5)].map((star, i) => (
-                      <FontAwesomeIcon
-                        key={i}
-                        icon={i < review.rating ? faStarSolid : faStarRegular}
-                        style={{ color: "#d0b349" }}
-                      />
-                    ))}
-                  </div>
-                  <p>{review.comment}</p>
-                  <div className="review-actions">
-                    <button
-                      onClick={() => handleLikeClick(index)}
-                      className="like-button"
-                    >
-                      <FontAwesomeIcon icon={faThumbsUp} /> {review.likes || 0}
-                    </button>
-                    <button
-                      onClick={() => toggleReplyForm(index)}
-                      className="reply-button"
-                    >
-                      Trả lời
-                    </button>
-                    <span>| {review.time}</span>
-                  </div>
+        {/* đánh giá */}
 
-                  {showReplyForm[index] && (
-                    <form
-                      onSubmit={(e) => handleReplySubmit(index, null, e)}
-                      className="reply-form"
-                    >
-                      <div className="form-floating reply-content">
-                        <textarea
-                          className="form-group"
-                          value={replyContent}
-                          onChange={handleReplyContentChange}
-                          placeholder="Nội dung trả lời"
-                          required
-                        />
-                      </div>
-                      <div className="button-reply">
-                        <button
-                          type="button"
-                          className="cancel-reply-button"
-                          onClick={() => cancelReply(index)}
-                        >
-                          Hủy
-                        </button>
-                        <button type="submit" className="submit-reply-button">
-                          Gửi
-                        </button>
-                      </div>
-                    </form>
-                  )}
-                  {review.replies && review.replies.length > 0 && (
-                    <div>
-                      {showReplies[index] && (
-                        <div className="replies-list">
-                          {review.replies.map((reply, replyIndex) => (
-                            <div key={replyIndex} className="reply">
-                              <h6>{reply.name}</h6>
-                              <p>{reply.content}</p>
-                              <div className="review-actions">
-                                <button
-                                  onClick={() => handleLikeClick(replyIndex)}
-                                  className="like-button"
-                                >
-                                  <FontAwesomeIcon icon={faThumbsUp} />{" "}
-                                  {reply.likes || 0}
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    toggleReplyForm(index, replyIndex)
-                                  }
-                                  className="reply-button"
-                                >
-                                  Trả lời
-                                </button>
-                                <span>| {reply.time}</span>
-                              </div>
-
-                              {showReplyForm[`${index}-${replyIndex}`] && (
-                                <form
-                                  onSubmit={(e) =>
-                                    handleReplySubmit(index, replyIndex, e)
-                                  }
-                                  className="reply-form"
-                                >
-                                  <div className="form-floating reply-content">
-                                    <textarea
-                                      className="form-group"
-                                      value={replyContent}
-                                      onChange={handleReplyContentChange}
-                                      placeholder="Nội dung trả lời"
-                                      required
-                                    />
-                                  </div>
-                                  <div className="button-reply">
-                                    <button
-                                      type="button"
-                                      className="cancel-reply-button"
-                                      onClick={() =>
-                                        cancelReply(`${index}-${replyIndex}`)
-                                      }
-                                    >
-                                      Hủy
-                                    </button>
-                                    <button
-                                      type="submit"
-                                      className="submit-reply-button"
-                                    >
-                                      Gửi
-                                    </button>
-                                  </div>
-                                </form>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      <button
-                        onClick={() => toggleReplies(index)}
-                        className="toggle-replies-button"
-                      >
-                        {showReplies[index]
-                          ? "Thu gọn phản hồi"
-                          : `Hiển thị ${review.replies.length} phản hồi`}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* Reviews Section */}
+        <div ref={evaluateRef} className="home-banchay">
+          <Reviews productId={id} user={user} userData={userData}/>
         </div>
-        <div  ref={similarProductsRef} className="home-banchay">
+
+        <div ref={similarProductsRef} className="home-banchay">
           <ProductSimilar categoryId={product.category_id} />
         </div>
-       
       </div>
     </div>
   );

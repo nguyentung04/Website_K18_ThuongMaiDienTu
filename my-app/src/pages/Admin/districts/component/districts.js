@@ -179,7 +179,7 @@ const DistrictsPage = () => {
             <Th>STT</Th>
             <Th display={"none"}>ID</Th>
             <Th>Quận/Huyện</Th>
-            <Th>Actions</Th>
+            <Th>Hoạt động</Th>
           </Tr>
         </Thead>
         <Tbody>

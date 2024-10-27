@@ -8,9 +8,13 @@ const SignIn = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const [lockErrorMessage, setLockErrorMessage] = useState('');
+
+  const navigate = useNavigate();
   const [lockErrorMessage, setLockErrorMessage] = useState('');
 
   const navigate = useNavigate();
@@ -20,9 +24,12 @@ const SignIn = () => {
 
     fetch("http://localhost:3000/api/login", {
       method: "POST",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({ username, password }),
       body: JSON.stringify({ username, password }),
     })
       .then(response => {
@@ -71,7 +78,55 @@ const SignIn = () => {
         <header className="signin-header">
           <h1>Đăng nhập</h1>
         </header>
+    <div className="signin-container">
+      <div className="signin-box">
+        <header className="signin-header">
+          <h1>Đăng nhập</h1>
+        </header>
 
+        <section className="signin-form">
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="username">Tên đăng nhập:</label>
+              <input
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">Mật khẩu:</label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="remember-me">
+              <input
+                type="checkbox"
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              <label htmlFor="rememberMe">Ghi nhớ đăng nhập</label>
+            </div>
+
+            <button type="submit" className="btn-submit">Đăng nhập</button>
+
+            {error && <p className="error-message">{error}</p>}
+
+            <div className="signin-links">
+              <a href="/forgot-password">Quên mật khẩu?</a>
+              <p className="signup-link">Chưa có tài khoản? <a href="/signup">Đăng ký</a></p>
+            </div>
+          </form>
         <section className="signin-form">
           <form onSubmit={handleSubmit}>
             <div className="form-group">
@@ -122,6 +177,12 @@ const SignIn = () => {
           </div>
         </section>
       </div>
+          <div className="social-login">
+            <button className="social-btn google-login">Đăng nhập bằng Google</button>
+            <button className="social-btn facebook-login">Đăng nhập bằng Facebook</button>
+          </div>
+        </section>
+      </div>
 
       {showSuccessModal && (
         <SuccessModal
@@ -135,6 +196,7 @@ const SignIn = () => {
 
       {showErrorModal && (
         <ErrorModal
+          message={lockErrorMessage || error}
           message={lockErrorMessage || error}
           onClose={() => setShowErrorModal(false)}
         />

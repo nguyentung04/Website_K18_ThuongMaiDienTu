@@ -14,6 +14,9 @@ import {
   Input,
   List,
   ListItem,
+  Input,
+  List,
+  ListItem,
 } from "@chakra-ui/react";
 import { fetchComments, updateCommentCounts } from "../../../../service/api/comments";
 import { Link } from "react-router-dom";
@@ -24,6 +27,9 @@ const CommentPage = () => {
   const [suggestions, setSuggestions] = useState([]);
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
 
+  //** ========================================================================================== */
+  const [searchQuery, setSearchQuery] = useState(""); // Lưu chuỗi tìm kiếm
+  const [suggestions, setSuggestions] = useState([]); // Lưu gợi ý quận/huyện
   useEffect(() => {
     const getComments = async () => {
       try {
@@ -73,6 +79,33 @@ const CommentPage = () => {
     }
   };
 
+  //** ========================================================================================== */
+  // Hàm xử lý sự kiện khi người dùng nhập vào ô tìm kiếm
+  const handleInputChange = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    // Nếu chuỗi tìm kiếm không rỗng, lọc danh sách quận/huyện
+    if (query !== "") {
+      const filteredSuggestions = comments.filter((comments) =>
+        comments.fullname.toLowerCase().includes(query)
+      );
+      setSuggestions(filteredSuggestions);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  // Hàm xử lý khi người dùng chọn 1 gợi ý
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion.fullname); // Cập nhật chuỗi tìm kiếm với tên đã chọn
+    setSuggestions([]); // Ẩn danh sách gợi ý sau khi chọn
+  };
+
+  // Filter comments based on search query
+  const filteredcomments = comments.filter((comments) =>
+    comments.fullname.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md">
       <Flex mb={5} justify="space-between" align="center">
@@ -161,3 +194,4 @@ const CommentPage = () => {
 };
 
 export default CommentPage;
+

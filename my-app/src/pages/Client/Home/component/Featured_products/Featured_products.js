@@ -168,7 +168,7 @@ const FeaturedProducts = () => {
     <div className="FeaturedProducts">
       <div className="row align-items-center">
         <div className="col fix-title uppercase">
-          <h2>sản phẩm bán chạy</h2>
+          <h2>sản phẩm nổi bật</h2>
         </div>
       </div>
       <div className="products_blocks_wrapper">

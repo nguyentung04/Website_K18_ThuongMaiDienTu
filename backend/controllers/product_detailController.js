@@ -2,7 +2,7 @@ const connection = require("../config/database");
 
 exports.getAllProduct_Details = (req, res) => {
   connection.query(
-    `SELECT pr.*, prd.*, ct.*, ct.name AS category
+    `SELECT pr.*, prd.*, ct.name AS category
 FROM products pr
 INNER JOIN product_detail prd ON pr.id = prd.product_id
 INNER JOIN categories ct ON pr.category_id = ct.id;
@@ -20,7 +20,7 @@ exports.getProductDetailById = (req, res) => {
   // const productId = req.params.id;
   const productDetailId = req.params.id;
   connection.query(
-    `SELECT pr.*, prd.*, ct.*, ct.name AS category
+    `SELECT pr.*, prd.*, ct.name AS category
 FROM products pr
 INNER JOIN product_detail prd ON pr.id = prd.product_id
 INNER JOIN categories ct ON pr.category_id = ct.id

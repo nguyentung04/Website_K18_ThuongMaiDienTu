@@ -15,12 +15,21 @@ const Navbar = () => {
   const { getTotalUniqueItems } = useContext(CartContext);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("username");
+    // Xóa tất cả dữ liệu liên quan đến phiên người dùng
+    localStorage.removeItem("token"); // Xóa token
+    localStorage.removeItem("username"); // Xóa tên đăng nhập
     localStorage.removeItem("userData");
-    localStorage.removeItem("likedProducts");
+    localStorage.removeItem("role");
+    localStorage.removeItem("id"); // Xóa ID người dùng
+    localStorage.removeItem("userEmail"); // Xóa email người dùng
+    localStorage.removeItem("userName"); // Xóa tên người dùng
+
+    // ... có thể thêm các mục khác nếu cần
+
+    // Chuyển hướng người dùng về trang đăng nhập
     navigate("/signin");
-  };
+};
+
   /** ======================== đổi màu chữ sao khi click ( navbar ) ===================== */
 
   // Lấy giá trị `activeLink` từ localStorage hoặc đặt mặc định là chuỗi rỗng

@@ -35,7 +35,7 @@ const PromotionalProducts = () => {
     const fetchProducts = async () => {
       try {
         const featuredResponse = await axios.get(
-          `${BASE_URL}/api/products_banchay`
+          `${BASE_URL}/api/products_khuyenmai`
         );
         setFeaturedProducts(featuredResponse.data);
 
@@ -60,7 +60,7 @@ const PromotionalProducts = () => {
 
   // New function to handle liking/unliking products
   const toggleLike = async (productId) => {
-    const userId = JSON.parse(localStorage.getItem('userData'))?.id;
+    const userId = JSON.parse(localStorage.getItem('userData')).id;
     if (!userId) {
       console.error("User not logged in");
       return;
@@ -128,7 +128,7 @@ const PromotionalProducts = () => {
     <div className="PromotionalProducts">
       <div className="row align-items-center">
         <div className="col fix-title uppercase">
-          <h2>Sản phẩm khuyến mãi</h2>
+          <h2>Sản phẩm bán chạy</h2>
         </div>
       </div>
       <div className="products_blocks_wrapper">

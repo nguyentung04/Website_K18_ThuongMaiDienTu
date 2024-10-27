@@ -1,30 +1,38 @@
 // const connection = require("../config/database");
 
-// //lấy tất cả đơn hàng
+// //Minh Canh
+// // Lấy tất cả đơn hàng
 // exports.getAllOrders = (req, res) => {
-//   connection.query("SELECT * FROM orders", (err, results) => {
-//     if (err) {
-//       return res.status(500).json({ error: err.message });
+//   connection.query(
+//     `SELECT 
+//       o.*, 
+//       c.name AS city, 
+//       d.name AS district 
+//     FROM orders o
+//     LEFT JOIN cities c ON o.id_cities = c.id
+//     LEFT JOIN districts d ON o.id_districts = d.id`,
+//     (err, results) => {
+//       if (err) {
+//         return res.status(500).json({ error: err.message });
+//       }
+//       res.status(200).json(results);
 //     }
-//     res.status(200).json(results);
-//   });
+//   );
 // };
 
-// //lấy toàn bộ đơn hàng theo name
+// // Lấy toàn bộ đơn hàng theo name
 // exports.orderByName = (req, res) => {
 //   const { name } = req.params; // Lấy giá trị từ tham số URL
 
 //   connection.query(
 //     `SELECT 
-//     o.*,        
-//     od.*,       
-//     p.*         
-// FROM orders o
-// JOIN order_detail od ON o.id = od.order_id
-// JOIN products p ON od.product_id = p.id
-// WHERE o.name = ?
-// ;
-// `, // Sử dụng dấu hỏi để bảo mật SQL Injection
+//       o.*,        
+//       od.*,       
+//       p.*         
+//     FROM orders o
+//     JOIN order_detail od ON o.id = od.order_id
+//     JOIN products p ON od.product_id = p.id
+//     WHERE o.name = ?`, // Sử dụng dấu hỏi để bảo mật SQL Injection
 //     [name], // Thay thế dấu hỏi bằng giá trị của name
 //     (err, results) => {
 //       if (err) {
@@ -35,13 +43,13 @@
 //   );
 // };
 
-
+// // Lấy toàn bộ đơn hàng theo id
 // exports.orderByName1 = (req, res) => {
 //   const { id } = req.params;
 
 //   // Kiểm tra xem id có hợp lệ không
 //   if (!id || isNaN(id)) {
-//     return res.status(400).json({ error: 'Invalid order ID' });
+//     return res.status(400).json({ error: "Invalid order ID" });
 //   }
 
 //   connection.query(
@@ -56,44 +64,45 @@
 //     [id],
 //     (err, results) => {
 //       if (err) {
-//         return res.status(500).json({ error: 'Database query error: ' + err.message });
+//         return res
+//           .status(500)
+//           .json({ error: "Database query error: " + err.message });
 //       }
 //       if (results.length === 0) {
-//         return res.status(404).json({ error: 'Order not found' });
+//         return res.status(404).json({ error: "Order not found" });
 //       }
 //       res.status(200).json(results);
 //     }
 //   );
 // };
 
-
-
-
-
-// //lấy toàn bộ đơn hàng theo id
-
+// // Lấy đơn hàng theo ID
 // exports.getOrderById = (req, res) => {
-//   const orderId = parseInt(req.params.id); // Lấy order_id từ tham số URL
+//   const orderId = parseInt(req.params.id);
 
-//   // Thực hiện truy vấn SQL
 //   connection.query(
 //     `SELECT 
-//        o.*,        
-//        od.*        
-//      FROM orders o
-//      JOIN order_detail od ON o.id = od.order_id
-//      WHERE o.id = ?`, // Sử dụng dấu hỏi để bảo mật SQL Injection
-//     [orderId], // Thay thế dấu hỏi bằng giá trị của orderId
+//       o.*, 
+//       c.name AS city, 
+//       d.name AS district 
+//     FROM orders o
+//     LEFT JOIN cities c ON o.id_cities = c.id
+//     LEFT JOIN districts d ON o.id_districts = d.id
+//     WHERE o.id = ?`,
+//     [orderId],
 //     (err, results) => {
 //       if (err) {
 //         return res.status(500).json({ error: err.message });
 //       }
+//       if (results.length === 0) {
+//         return res.status(404).json({ error: "Order not found" });
+//       }
 //       res.status(200).json(results);
 //     }
 //   );
 // };
 
-// //xóa toàn bộ đơn hàng theo order_id
+// // Xóa đơn hàng theo order_id
 // exports.deleteOrder = (req, res) => {
 //   const { id } = req.params;
 
@@ -137,19 +146,17 @@
 //   });
 // };
 
-
-// exports.getAllOrders = (req, res) => {
-//   connection.query("SELECT * FROM orders", (err, results) => {
-//     if (err) {
-//       return res.status(500).json({ error: err.message });
-//     }
-//     res.status(200).json(results);
-//   });
-// };
-
-// //them vo giỏ hàng
+// // Thêm đơn hàng (POST Orders)
 // exports.PostOrders = (req, res) => {
-//   const { name, phone, address, paymentMethod, order_detail } = req.body;
+//   const {
+//     name,
+//     phone,
+//     address,
+//     id_cities,
+//     id_districts,
+//     paymentMethod,
+//     order_detail,
+//   } = req.body;
 
 //   if (!name || !phone || !address || !paymentMethod || !order_detail) {
 //     return res.status(400).json({ error: "Thiếu thông tin cần thiết" });
@@ -163,8 +170,15 @@
 
 //     // Thêm đơn hàng vào bảng orders
 //     const sql =
-//       "INSERT INTO orders (name, phone, address, paymentMethod) VALUES (?, ?, ?, ?)";
-//     const values = [name, phone, address, paymentMethod];
+//       "INSERT INTO orders (name, phone, address, id_cities, id_districts, paymentMethod) VALUES (?, ?, ?, ?, ?, ?)";
+//     const values = [
+//       name,
+//       phone,
+//       address,
+//       id_cities || null,
+//       id_districts || null,
+//       paymentMethod,
+//     ];
 
 //     connection.query(sql, values, (err, results) => {
 //       if (err) {
@@ -208,16 +222,11 @@
 
 const connection = require("../config/database");
 
+//Minh Canh
 // Lấy tất cả đơn hàng
 exports.getAllOrders = (req, res) => {
   connection.query(
-    `SELECT 
-      o.*, 
-      c.name AS city, 
-      d.name AS district 
-    FROM orders o
-    LEFT JOIN cities c ON o.id_cities = c.id
-    LEFT JOIN districts d ON o.id_districts = d.id`,
+    `SELECT * FROM orders WHERE 1`,
     (err, results) => {
       if (err) {
         return res.status(500).json({ error: err.message });
@@ -226,7 +235,6 @@ exports.getAllOrders = (req, res) => {
     }
   );
 };
-
 // Lấy toàn bộ đơn hàng theo name
 exports.orderByName = (req, res) => {
   const { name } = req.params; // Lấy giá trị từ tham số URL
@@ -256,7 +264,7 @@ exports.orderByName1 = (req, res) => {
 
   // Kiểm tra xem id có hợp lệ không
   if (!id || isNaN(id)) {
-    return res.status(400).json({ error: 'Invalid order ID' });
+    return res.status(400).json({ error: "Invalid order ID" });
   }
 
   connection.query(
@@ -271,10 +279,12 @@ exports.orderByName1 = (req, res) => {
     [id],
     (err, results) => {
       if (err) {
-        return res.status(500).json({ error: 'Database query error: ' + err.message });
+        return res
+          .status(500)
+          .json({ error: "Database query error: " + err.message });
       }
       if (results.length === 0) {
-        return res.status(404).json({ error: 'Order not found' });
+        return res.status(404).json({ error: "Order not found" });
       }
       res.status(200).json(results);
     }
@@ -300,7 +310,7 @@ exports.getOrderById = (req, res) => {
         return res.status(500).json({ error: err.message });
       }
       if (results.length === 0) {
-        return res.status(404).json({ error: 'Order not found' });
+        return res.status(404).json({ error: "Order not found" });
       }
       res.status(200).json(results);
     }
@@ -353,7 +363,15 @@ exports.deleteOrder = (req, res) => {
 
 // Thêm đơn hàng (POST Orders)
 exports.PostOrders = (req, res) => {
-  const { name, phone, address, id_cities, id_districts, paymentMethod, order_detail } = req.body;
+  const {
+    name,
+    phone,
+    address,
+    id_cities,
+    id_districts,
+    paymentMethod,
+    order_detail,
+  } = req.body;
 
   if (!name || !phone || !address || !paymentMethod || !order_detail) {
     return res.status(400).json({ error: "Thiếu thông tin cần thiết" });
@@ -368,7 +386,14 @@ exports.PostOrders = (req, res) => {
     // Thêm đơn hàng vào bảng orders
     const sql =
       "INSERT INTO orders (name, phone, address, id_cities, id_districts, paymentMethod) VALUES (?, ?, ?, ?, ?, ?)";
-    const values = [name, phone, address, id_cities || null, id_districts || null, paymentMethod];
+    const values = [
+      name,
+      phone,
+      address,
+      id_cities || null,
+      id_districts || null,
+      paymentMethod,
+    ];
 
     connection.query(sql, values, (err, results) => {
       if (err) {
@@ -379,7 +404,7 @@ exports.PostOrders = (req, res) => {
 
       const orderId = results.insertId;
       const orderDetailSql =
-        "INSERT INTO order_detail (order_id, product_id, quantity, price, total) VALUES ?";
+        "INSERT INTO order_detail (order_id, product_id, city_id , district_id , quantity, price, total) VALUES ?";
       const orderDetailValues = order_detail.map((item) => [
         orderId,
         item.product_id,

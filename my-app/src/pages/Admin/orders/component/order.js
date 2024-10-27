@@ -14,6 +14,11 @@ import {
   Flex,
   Text,
   useColorModeValue,
+  Flex,
+  Input,
+  List,
+  ListItem,
+  Text,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { fetchOrders, deleteOrder } from "../../../../service/api/orders"; // Import service functions
@@ -24,6 +29,9 @@ const OrdersTable = () => {
   const [suggestions, setSuggestions] = useState([]);
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
 
+  //** ========================================================================================== */
+  const [searchQuery, setSearchQuery] = useState(""); // Lưu chuỗi tìm kiếm
+  const [suggestions, setSuggestions] = useState([]); // Lưu gợi ý quận/huyện
   // Lấy danh sách đơn hàng
   useEffect(() => {
     const getOrders = async () => {
@@ -42,9 +50,12 @@ const OrdersTable = () => {
   // Hàm xử lý xóa đơn hàng
   const handleDeleteOrder = async (id) => {
     try {
-      const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa đơn hàng này?");
+      const confirmDelete = window.confirm(
+        "Bạn có chắc chắn muốn xóa đơn hàng này?"
+      );
       if (confirmDelete) {
         await deleteOrder(id);
+        setOrders(orders.filter((order) => order.id !== id)); // Cập nhật lại danh sách đơn hàng
         setOrders(orders.filter((order) => order.id !== id)); // Cập nhật lại danh sách đơn hàng
       }
     } catch (error) {
@@ -154,7 +165,11 @@ const OrdersTable = () => {
                 </Link>
               </Td>
               <Td>
-                <Button colorScheme="red" size="sm" onClick={() => handleDeleteOrder(order.id)}>
+                <Button
+                  colorScheme="red"
+                  size="sm"
+                  onClick={() => handleDeleteOrder(order.id)}
+                >
                   Xóa
                 </Button>
               </Td>

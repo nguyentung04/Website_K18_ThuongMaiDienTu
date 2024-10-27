@@ -4,7 +4,6 @@ import "./CheckoutForm.css";
 import {
   Box,
   Button,
-  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -13,25 +12,29 @@ import {
   Textarea,
   useToast,
 } from "@chakra-ui/react";
-import { fetchCities, fetchDistrictsByCity } from '../../../service/api/city';
+import {
+  fetchCities,
+  fetchCitiesByDistricts,
+} from "../../../service/api/cities";
 
 const CheckoutForm = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    province: "",
     city: "",
+    province: "",
     address: "",
     note: "",
     paymentMethod: "COD",
   });
 
   const navigate = useNavigate();
-
   const [errors, setErrors] = useState({});
   const [cities, setCities] = useState([]);
   const [districts, setDistricts] = useState([]);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -49,95 +52,102 @@ const CheckoutForm = () => {
 
   const handleProvinceChange = async (e) => {
     const selectedProvince = e.target.value;
-    // Cập nhật dữ liệu của form, đồng thời reset thành phố khi thay đổi tỉnh
     setFormData({
       ...formData,
       province: selectedProvince,
-      city: "",
+      city: "", // Reset city khi province thay đổi
     });
 
+    setLoadingDistricts(true);
     try {
-      const districtsData = await fetchDistrictsByCity(selectedProvince);
+      const districtsData = await fetchCitiesByDistricts(selectedProvince);
       setDistricts(districtsData);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách quận/huyện:", error);
+    } finally {
+      setLoadingDistricts(false);
     }
   };
 
-  // Hàm xử lý khi người dùng thay đổi thành phố
   const handleCityChange = (e) => {
     const selectedCity = e.target.value;
-    // Cập nhật thành phố trong dữ liệu của form
     setFormData({
       ...formData,
       city: selectedCity,
     });
   };
 
-  // Hàm xử lý các thay đổi khác của form (tên, email, địa chỉ, v.v.)
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Cập nhật trường tương ứng trong form dựa vào thuộc tính 'name' của input
     setFormData({
       ...formData,
       [name]: value,
     });
   };
 
-  // Hàm kiểm tra tính hợp lệ của form trước khi submit
   const validateForm = () => {
     const newErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[0-9]{10,11}$/;
 
-    // Kiểm tra từng trường dữ liệu, nếu trống thì thêm thông báo lỗi tương ứng
     if (!formData.name) newErrors.name = "Tên khách hàng là bắt buộc";
-    if (!formData.email) newErrors.email = "Địa chỉ email là bắt buộc";
-    if (!formData.phone) newErrors.phone = "Số điện thoại là bắt buộc";
+    if (!formData.email || !emailRegex.test(formData.email))
+      newErrors.email = "Địa chỉ email không hợp lệ";
+    if (!formData.phone || !phoneRegex.test(formData.phone))
+      newErrors.phone = "Số điện thoại không hợp lệ";
     if (!formData.province) newErrors.province = "Tỉnh là bắt buộc";
-    if (!formData.city) newErrors.city = "Thành phố là bắt buộc";
+    if (!formData.city) newErrors.city = "Quận/Huyện là bắt buộc";
     if (!formData.address) newErrors.address = "Địa chỉ nhận hàng là bắt buộc";
     if (!formData.paymentMethod)
       newErrors.paymentMethod = "Chọn phương thức thanh toán";
 
     setErrors(newErrors);
-    return !Object.values(newErrors).length; 
+    return !Object.values(newErrors).length;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return; // Nếu biểu mẫu không hợp lệ, dừng xử lý
-    }
   
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    if (cart.length === 0) {
-      alert("Giỏ hàng trống. Không thể đặt hàng.");
-      return;
-    }
+    if (!validateForm()) return;
   
-    const orderItems = cart.map((item) => ({
-      product_id: item.id,
-      quantity: item.quantity,
-      price: parseFloat(String(item.price).replace(/[^0-9.-]+/g, "")),
-      total: parseFloat(String(item.price).replace(/[^0-9.-]+/g, "")) * item.quantity,
-    }));
-  
+    setIsSubmitting(true);
     try {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      if (cart.length === 0) {
+        alert("Giỏ hàng trống. Không thể đặt hàng.");
+        return;
+      }
+  
+      const orderItems = cart.map((item) => ({
+        product_id: item.id,
+        quantity: item.quantity,
+        price: parseFloat(item.price),
+        total: parseFloat(item.price) * item.quantity,
+      }));
+  
+      const orderData = {
+        ...formData,
+        id_cities: formData.city, // Đây là ID cho thành phố (city)
+        id_districts: formData.province, // Đây là ID cho quận (district)
+        order_detail: orderItems,
+      };
+  
+      console.log(orderData); // In ra dữ liệu đơn hàng để kiểm tra
+  
       const response = await fetch("http://localhost:3000/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...formData,
-          id_cities: formData.province, 
-          id_districts: formData.city,
-          order_detail: orderItems,
-        }),
+        body: JSON.stringify(orderData),
       });
-  
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Có lỗi xảy ra");
+      }
+
       const data = await response.json();
-  
       if (data.message === "Đặt hàng thành công!") {
         localStorage.removeItem("cart");
         toast({
@@ -147,15 +157,13 @@ const CheckoutForm = () => {
           duration: 5000,
           isClosable: true,
         });
-  
         navigate("/products");
-  
         setFormData({
           name: "",
           email: "",
           phone: "",
-          province: "",
           city: "",
+          province: "",
           address: "",
           note: "",
           paymentMethod: "COD",
@@ -172,15 +180,14 @@ const CheckoutForm = () => {
         duration: 5000,
         isClosable: true,
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
-  
-  
 
   return (
     <div className="checkout-form">
       <h2>Thông tin người mua hàng</h2>
-
       <Box flex={7}>
         <form onSubmit={handleSubmit}>
           <FormControl mb={3} isInvalid={errors.name}>
@@ -195,71 +202,73 @@ const CheckoutForm = () => {
             />
             <FormErrorMessage>{errors.name}</FormErrorMessage>
           </FormControl>
+          <Box display="flex" flexDirection="row" mb={3} gap={2}>
+            <FormControl mb={3} isInvalid={errors.email}>
+              <FormLabel htmlFor="email">Email</FormLabel>
+              <Input
+                className="custom-input"
+                id="email"
+                name="email"
+                placeholder="Nhập địa chỉ email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+              <FormErrorMessage>{errors.email}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl mb={3} isInvalid={errors.email}>
-            <FormLabel htmlFor="email">Email</FormLabel>
-            <Input
-              className="custom-input"
-              id="email"
-              name="email"
-              placeholder="Nhập địa chỉ email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            <FormErrorMessage>{errors.email}</FormErrorMessage>
-          </FormControl>
+            <FormControl mb={3} isInvalid={errors.phone}>
+              <FormLabel htmlFor="phone">Số điện thoại</FormLabel>
+              <Input
+                className="custom-input"
+                id="phone"
+                name="phone"
+                placeholder="Nhập số điện thoại"
+                value={formData.phone}
+                onChange={handleChange}
+              />
+              <FormErrorMessage>{errors.phone}</FormErrorMessage>
+            </FormControl>
+          </Box>
+          <Box display="flex" flexDirection="row" mb={3} gap={2}>
+            <FormControl mb={3} isInvalid={errors.province}>
+              <FormLabel htmlFor="province">Tỉnh/Thành phố</FormLabel>
+              <Select
+                className="custom-input"
+                id="province"
+                name="province"
+                placeholder="Chọn tỉnh/thành phố"
+                onChange={handleProvinceChange}
+                value={formData.province}
+              >
+                {cities.map((city) => (
+                  <option key={city.id} value={city.id}>
+                    {city.name}
+                  </option>
+                ))}
+              </Select>
+              <FormErrorMessage>{errors.province}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl mb={3} isInvalid={errors.phone}>
-            <FormLabel htmlFor="phone">Số điện thoại</FormLabel>
-            <Input
-              className="custom-input"
-              id="phone"
-              name="phone"
-              placeholder="Nhập số điện thoại"
-              value={formData.phone}
-              onChange={handleChange}
-            />
-            <FormErrorMessage>{errors.phone}</FormErrorMessage>
-          </FormControl>
-
-          <FormControl mb={3} isInvalid={errors.province}>
-            <FormLabel htmlFor="province">Tỉnh/Thành phố</FormLabel>
-            <Select
-              className="custom-input"
-              id="province"
-              name="province"
-              placeholder="Chọn tỉnh/thành phố"
-              value={formData.province}
-              onChange={handleProvinceChange}
-            >
-              {cities.map((city) => (
-                <option key={city.id} value={city.id}>
-                  {city.name}
-                </option>
-              ))}
-            </Select>
-            <FormErrorMessage>{errors.province}</FormErrorMessage>
-          </FormControl>
-
-          <FormControl mb={3} isInvalid={errors.city}>
-            <FormLabel htmlFor="city">Quận/Huyện</FormLabel>
-            <Select
-              className="custom-input"
-              id="city"
-              name="city"
-              placeholder="Chọn quận/huyện"
-              value={formData.city}
-              onChange={handleCityChange}
-            >
-              {districts.map((district) => (
-                <option key={district.id} value={district.id}>
-                  {district.name}
-                </option>
-              ))}
-            </Select>
-            <FormErrorMessage>{errors.city}</FormErrorMessage>
-          </FormControl>
-
+            <FormControl mb={3} isInvalid={errors.city}>
+              <FormLabel htmlFor="city">Quận/Huyện</FormLabel>
+              <Select
+                className="custom-input"
+                id="city"
+                name="city"
+                placeholder="Chọn quận/huyện"
+                value={formData.city}
+                onChange={handleCityChange}
+                isDisabled={!formData.province || loadingDistricts}
+              >
+                {districts.map((district) => (
+                  <option key={district.id} value={district.id}>
+                    {district.name}
+                  </option>
+                ))}
+              </Select>
+              <FormErrorMessage>{errors.city}</FormErrorMessage>
+            </FormControl>
+          </Box>
           <FormControl mb={3} isInvalid={errors.address}>
             <FormLabel htmlFor="address">Địa chỉ cụ thể</FormLabel>
             <Textarea
@@ -279,7 +288,6 @@ const CheckoutForm = () => {
               className="custom-input"
               id="paymentMethod"
               name="paymentMethod"
-              placeholder="Chọn phương thức thanh toán"
               value={formData.paymentMethod}
               onChange={handleChange}
             >
@@ -289,7 +297,7 @@ const CheckoutForm = () => {
             <FormErrorMessage>{errors.paymentMethod}</FormErrorMessage>
           </FormControl>
 
-          <Button type="submit" colorScheme="teal">
+          <Button className="w-100" type="submit" colorScheme="teal" isLoading={isSubmitting}>
             Đặt hàng
           </Button>
         </form>

@@ -5,15 +5,16 @@ import {
   Input,
   FormControl,
   FormLabel,
+  Heading,
   FormErrorMessage,
   useToast,
-  Text,
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
-import { fetchCitiesById, updateCities } from "../../../../service/api/cities";
+import { fetchPost_categoriesById, updatePost_categories } from "../../../../service/api/post_categories";
 
-const EditCities = () => {
+const EditCategory = () => {
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [errors, setErrors] = useState({});
   const toast = useToast();
   const { id } = useParams();
@@ -26,24 +27,25 @@ const EditCities = () => {
   };
 
   useEffect(() => {
-    const getcities = async () => {
+    const getCategory = async () => {
       try {
-        const data = await fetchCitiesById(id);
+        const data = await fetchPost_categoriesById(id);
         if (data) {
           setName(data.name || "");
+          setDescription(data.description || "");
         }
       } catch (error) {
         toast({
-          title: "Có lỗi khi tìm kiếm thành phố.",
-          description: "Không thể lấy thông tin chi tiết về thành phố.",
-          status: "lỗi", // Correct status value
+          title: "Lỗi",
+          description: "Không thể cập nhật!!!",
+          status: "error",
           duration: 5000,
           isClosable: true,
         });
-        console.error("Không thể lấy được thành phố:", error);
+        console.error("Failed to fetch category:", error);
       }
     };
-    getcities();
+    getCategory();
   }, [id, toast]);
 
   const handleSubmit = async (e) => {
@@ -54,24 +56,25 @@ const EditCities = () => {
       return;
     }
 
-    const citiesData = { name };
+    const post_categoriesData = { name, description };
 
     try {
-      await updateCities(id, citiesData);
+      console.log("Updating post_categories with data:", post_categoriesData);
+      await updatePost_categories(id, post_categoriesData);
       toast({
-        title: "Thành phố được cập nhật.",
-        description: "Thành phố đã được cập nhật thành công.",
-        status: "success", // Correct status value
-        duration: 5000,
+        title: "Thông báo",
+        description: "Cập nhật thành công!!!",
+        status: "success",
+        duration: 3000,
         isClosable: true,
       });
-      navigate("/admin/cities");
+      navigate("/admin/post_categories");
     } catch (error) {
-      console.error("Cập nhật lỗi:", error);
+      console.error("Update error:", error);
       toast({
-        title: "Có lỗi khi cập nhật thành phố.",
+        title: "Error updating post_categories.",
         description: error.message,
-        status: "error", // Correct status value
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -79,21 +82,22 @@ const EditCities = () => {
   };
 
   const handleCancel = () => {
-    navigate("/admin/cities");
+    navigate("/admin/post_categories");
   };
 
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
-      <Text fontSize="2xl" fontWeight="bold">
-        Sửa thông tin Tỉnh thành
-      </Text>
+      <Heading mb={5}>Sửa thông tin thương hiệu</Heading>
       <form onSubmit={handleSubmit}>
         <FormControl id="name" mb={4} isInvalid={errors.name}>
           <FormLabel>Tên thương hiệu</FormLabel>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
           {errors.name && <FormErrorMessage>{errors.name}</FormErrorMessage>}
         </FormControl>
-
+        <FormControl id="description" mb={4}>
+          <FormLabel>Nội dung (Không bắt buộc)</FormLabel>
+          <Input value={description} onChange={(e) => setDescription(e.target.value)} />
+        </FormControl>
         <Button colorScheme="teal" mr="10px" type="submit">
           Đồng ý
         </Button>
@@ -105,4 +109,4 @@ const EditCities = () => {
   );
 };
 
-export default EditCities;
+export default EditCategory;

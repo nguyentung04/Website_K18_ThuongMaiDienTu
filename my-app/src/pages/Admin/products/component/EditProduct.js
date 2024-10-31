@@ -213,7 +213,7 @@ const EditProduct = () => {
         </FormControl>
 
         <FormControl id="discountPrice" mb={4} isInvalid={errors.discountPrice}>
-          <FormLabel>Giá</FormLabel>
+          <FormLabel>Giảm Giá (%)</FormLabel>
           <Input
             type="number"
             value={discountPrice}

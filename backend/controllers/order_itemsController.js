@@ -90,8 +90,8 @@
 const connection = require('../config/database');
 
 // Example function to get all categoris
-exports.getAllOrder_detail = (req, res) => {
-  connection.query('SELECT * FROM order_detail', (err, results) => {
+exports.getAllorder_items = (req, res) => {
+  connection.query('SELECT * FROM order_items', (err, results) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -129,12 +129,7 @@ exports.getOrderDetailById = (req, res) => {
 
   // Thực hiện truy vấn SQL
   connection.query(
-    `SELECT 
-       o.*,        
-       od.*        
-     FROM orders o
-     JOIN order_detail od ON o.id = od.order_id
-     WHERE o.id = ?`, // Sử dụng dấu hỏi để bảo mật SQL Injection
+    `SELECT o.*, od.* FROM orders o JOIN order_items od ON o.id = od.order_id WHERE o.id = ?`, // Sử dụng dấu hỏi để bảo mật SQL Injection
     [orderId], // Thay thế dấu hỏi bằng giá trị của orderId
     (err, results) => {
       if (err) {
@@ -148,9 +143,9 @@ exports.getOrderDetailById = (req, res) => {
 const { validationResult } = require('express-validator'); // Optional: để xác thực yêu cầu
 
 // Update order status
-exports.updateOrderDetailStatus = (req, res) => {
+exports.updateOrder_itemsDetailStatus = (req, res) => {
     const { id } = req.params; // ID đơn hàng từ URL
-    const { statuss } = req.body; // Trạng thái mới từ nội dung yêu cầu
+    const { status } = req.body; // Trạng thái mới từ nội dung yêu cầu
 
     // Xác thực đầu vào (tùy chọn)
     const errors = validationResult(req);
@@ -159,10 +154,10 @@ exports.updateOrderDetailStatus = (req, res) => {
     }
 
     // Truy vấn SQL để cập nhật trạng thái của đơn hàng
-    const query = `UPDATE order_detail SET statuss = ? WHERE order_id = ?`;
+    const query = `UPDATE order_items SET status = ? WHERE order_id = ?`;
 
     // Execute the query
-    connection.query(query, [statuss, id], (err, results) => {
+    connection.query(query, [status, id], (err, results) => {
         if (err) {
             console.error("Error updating order status:", err);
             return res.status(500).json({ error: err.message });

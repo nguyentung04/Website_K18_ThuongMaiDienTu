@@ -13,7 +13,7 @@ import { useParams } from "react-router-dom";
 import {
   fetchOrderDetailById,
   updateOrderDetailStatus,
-} from "../../../../service/api/order_detail";
+} from "../../../../service/api/order_items";
 import { deleteOrder } from "../../../../service/api/orders";
 
 const OrderDetailTable = () => {
@@ -126,15 +126,15 @@ const OrderDetailTable = () => {
         Chi tiết đơn hàng #{orderId}
       </Text>
       {orderDetails.map((item) => (
-        <Box>
-          <Box
-            key={item.id}
-            mb={4}
-            p={4}
-            borderWidth="1px"
-            borderRadius="lg"
-            _hover={{ bg: hoverBgColor }}
-          >
+        <Box
+          key={item.id}
+          mb={4}
+          p={4}
+          borderWidth="1px"
+          borderRadius="lg"
+          _hover={{ bg: hoverBgColor }}
+        >
+          <Box>
             <Grid templateColumns="repeat(3, 1fr)" gap={4}>
               <GridItem colSpan={1}>
                 <Text>
@@ -182,7 +182,7 @@ const OrderDetailTable = () => {
                 </Text>
               </GridItem>
             </Grid>
-          </Box>
+          </Box>{" "}
           <GridItem colSpan={1} className="d-flex flex-row-reverse">
             <Box>
               {item.statuss === "Chờ xác nhận" && (
@@ -205,7 +205,7 @@ const OrderDetailTable = () => {
                 </Button>
               )}
             </Box>
-          </GridItem>{" "}
+          </GridItem>
         </Box>
       ))}
     </Box>

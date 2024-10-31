@@ -1,4 +1,3 @@
-
 const connection = require("../config/database");
 
 exports.getAllProducts = (req, res) => {
@@ -18,7 +17,6 @@ exports.getAllProducts = (req, res) => {
     }
   );
 };
-
 //sanpham noi bat
 exports.featuredProducts = (req, res) => {
   const query = `
@@ -124,7 +122,7 @@ WHERE
 // admin
 exports.getAllProducts = (req, res) => {
   connection.query(
-    `SELECT products.id, products.name, products.image, products.description, products.price, products.discountPrice, products.status, categories.name AS category
+    `SELECT products.id,products.name,products.image,products.description,products.status,products.price, products.discountPrice, categories.name AS category
 FROM products
 INNER JOIN categories ON products.category_id = categories.id
 WHERE 1;
@@ -160,8 +158,9 @@ exports.updateProduct = (req, res) => {
   const {
     name,
     price,
-    discountPrice,
+    sell_price,
     description,
+    discountPrice,
     image,
     status,
     category_id,
@@ -428,7 +427,13 @@ exports.ProductDetail = (req, res) => {
     c.name AS category_name,
     c.logo,
     p.*,
-    pd.*
+    pd.machineType,
+    pd.identification,
+    pd.thickness,
+    pd.wireMaterial,
+    pd.antiWater,
+    pd.gender,
+    pd.coler
 FROM 
     products p
 LEFT JOIN 

@@ -5,7 +5,7 @@ const router = express.Router();
 const userController = require("../controllers/userController");
 const productController = require("../controllers/productController");
 const categoryController = require("../controllers/categoryController");
-const order_detailController = require("../controllers/order_detailController");
+// const order_detailController = require("../controllers/order_itemsController");
 const orderController = require("../controllers/orderController");
 // const authController = require("../controllers/authController");
 
@@ -43,9 +43,9 @@ router.delete('/orders/:id', orderController.deleteOrder);
 router.get('/orders/:id', orderController.getOrderById);
 
 //orders_detail
-router.get("/order_detail", order_detailController.getAllOrder_detail);
-router.get('/order_detail/:id', order_detailController.getOrderDetailById);
-router.put('/order_detail/:id', order_detailController.updateOrderDetailStatus);
+// router.get("/order_detail", order_detailController.getAllOrder_detail);
+// router.get('/order_detail/:id', order_detailController.getOrderDetailById);
+// router.put('/order_detail/:id', order_detailController.updateOrderDetailStatus);
 // Authentication
 
 // Define storage for multer
@@ -74,7 +74,7 @@ router.delete("/categories/:id", categoryController.deleteCategory);
     router.get("/orders", orderController.getAllOrders);
 
 // Order detail routes
-router.get("/order_detail", order_detailController.getAllOrder_detail);
+// router.get("/order_detail", order_detailController.getAllOrder_detail);//
 
 
 module.exports = router;

@@ -23,6 +23,7 @@ const Navbar = () => {
     localStorage.removeItem("id"); // Xóa ID người dùng
     localStorage.removeItem("userEmail"); // Xóa email người dùng
     localStorage.removeItem("userName"); // Xóa tên người dùng
+    localStorage.removeItem("user"); // Xóa tên người dùng
 
     // ... có thể thêm các mục khác nếu cần
 

@@ -39,6 +39,29 @@ export const updateCategory = async (id, userData) => {
     throw error;
   }
 };
+export const addCategory = async (categoryData) => {
+  try {
+    const response = await fetch(`${BASE_URL}/categories`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(categoryData),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();  // Đọc lỗi từ server
+      console.error("Lỗi từ phía server:", errorData);  // In chi tiết lỗi
+      throw new Error("Failed to add category");
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Lỗi khi thêm danh mục:", error);
+    throw error;
+  }
+};
+
 
 export const deleteCategory = async (id) => {
   try {
@@ -50,17 +73,4 @@ export const deleteCategory = async (id) => {
   }
 };
 
-export const addCategory = async (categoryData) => {
-  // Replace with your API endpoint and method to add a category
-  const response = await fetch(`${BASE_URL}/categories`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(categoryData),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to add category");
-  }
-  return response.json();
-};
+

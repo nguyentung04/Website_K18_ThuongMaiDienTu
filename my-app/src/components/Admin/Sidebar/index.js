@@ -184,7 +184,65 @@ const Sidebar = () => {
                 </Button>
               )}
             </NavLink>{" "}
-            {/* <NavLink to="/admin/cities">
+            <NavLink to="/admin/posts">
+              {({ isActive }) => (
+                <Button
+                  fontFamily="math"
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  bg={isActive ? activeBg : "inherit"}
+                  color={isActive ? activeColor : linkColor}
+                  fontWeight={isActive ? "bold" : "normal"}
+                  _hover={{ bg: activeBg, textDecoration: "none" }}
+                  _active={{ bg: activeBg, color: activeColor }}
+                  mb="0.5px"
+                  mx="auto"
+                  ps="16px"
+                  py="12px"
+                  borderRadius="15px"
+                  w="100%"
+                  height="50px"
+                  leftIcon={
+                    <ArticleIcon
+                      boxSize={5}
+                      color={isActive ? activeColor : linkColor}
+                    />
+                  }
+                >
+                  Bài viết
+                </Button>
+              )}
+            </NavLink>{" "}
+            <NavLink to="/admin/post_categories">
+              {({ isActive }) => (
+                <Button
+                  fontFamily="math"
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  bg={isActive ? activeBg : "inherit"}
+                  color={isActive ? activeColor : linkColor}
+                  fontWeight={isActive ? "bold" : "normal"}
+                  _hover={{ bg: activeBg, textDecoration: "none" }}
+                  _active={{ bg: activeBg, color: activeColor }}
+                  mb="0.5px"
+                  mx="auto"
+                  ps="16px"
+                  py="12px"
+                  borderRadius="15px"
+                  w="100%"
+                  height="50px"
+                  leftIcon={
+                    <FolderIcon
+                      boxSize={5}
+                      color={isActive ? activeColor : linkColor}
+                    />
+                  }
+                >
+                  Danh mục bài viết
+                </Button>
+              )}
+            </NavLink>{" "}
+            <NavLink to="/admin/cities">
               {({ isActive }) => (
                 <Button
                   fontFamily="math"
@@ -212,8 +270,8 @@ const Sidebar = () => {
                   Tỉnh thành
                 </Button>
               )}
-            </NavLink>{" "} */}
-            {/* <NavLink to="/admin/districts">
+            </NavLink>{" "}
+            <NavLink to="/admin/districts">
               {({ isActive }) => (
                 <Button
                   fontFamily="math"
@@ -241,7 +299,7 @@ const Sidebar = () => {
                   Quận/Huyện
                 </Button>
               )}
-            </NavLink>{" "} */}
+            </NavLink>{" "}
             <NavLink
               to="/admin/comments"
               style={({ isActive }) => getLinkStyles({ isActive })}

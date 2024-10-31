@@ -139,6 +139,7 @@ const Products = () => {
   const [quantity, setQuantity] = useState(1);
 
   const [visibleProducts, setVisibleProducts] = useState(12); // Số lượng sản phẩm hiển thị ban đầu
+  const [selectedProduct, setSelectedProduct] = useState(null); // Updated state
 
   useEffect(() => {
     // Hàm fetch sản phẩm từ API
@@ -174,52 +175,24 @@ const Products = () => {
     };
   }, []);
 
-   
-//  ============================= thêm vào giỏ hàng ====================================
-const handleAddToCart = (e, product, quantity = 1) => {
-  e.stopPropagation(); // Prevent the event from triggering the product link
-  addToCart(product, quantity); // Call the function to add the product to the cart with the quantity
-};
-
-const addToCart = (product, quantity = 1) => {
-  if (product && quantity > 0) {
-    // Ensure quantity is valid
-    const details = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      description: product.description,
-      image: product.image,
-      quantity: quantity, // Use the quantity passed in
+    const handleOpenModal = (product) => {
+      setSelectedProduct(product);
+      setIsOpen(true);
     };
-
-    // Retrieve cart from localStorage, or initialize an empty array
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    // Check if the product already exists in the cart
-    const existingProductIndex = cart.findIndex((item) => item.id === product.id);
-
-    if (existingProductIndex !== -1) {
-      // If product exists, update the quantity
-      cart[existingProductIndex].quantity += quantity;
-    } else {
-      // If product doesn't exist, add it to the cart
-      cart.push(details);
-    }
-
-    // Save updated cart back to localStorage
-    localStorage.setItem("cart", JSON.stringify(cart));
-
-    // Optional: You can also provide feedback to the user here (e.g., a notification)
-    console.log(`${product.name} has been added to the cart!`);
-  } else {
-    console.error("Product is invalid or quantity is less than 1.");
-  }
-};
-
-// ==================================================================
+    const handleCloseModal = () => setIsOpen(false);
   const [likedProducts, setLikedProducts] = useState([]);
-  
+  const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
+  const increaseQuantity = () => setQuantity(quantity + 1);
+
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [id]: value }));
+  };
+
+  const handleSubmitModel = (e) => {
+    e.preventDefault();
+    // Form validation and submit logic
+  };
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -761,7 +734,10 @@ const addToCart = (product, quantity = 1) => {
                 </button>
                 <button
                   className="add-to-cart-icon"
-                  onClick={(e) => handleAddToCart(e, product, quantity)} // Gọi hàm với tham số
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenModal(product);
+                  }}
                 >
                   <span style={{ color: "white" }}>
                     <FaShoppingCart
@@ -952,6 +928,229 @@ const addToCart = (product, quantity = 1) => {
         </div>
       </section>
 
+      {/* Cart Modal */}
+      <Modal isOpen={isOpen} onClose={handleCloseModal} size="xl">
+        <ModalOverlay />
+        <ModalContent maxW="1200px">
+          <ModalHeader>Thông tin giao hàng</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Box mx="auto" p={4}>
+              <Flex direction={{ base: "column", md: "row" }} gap={6}>
+                {/* Form Section */}
+                <Box flex={7}>
+                  <form onSubmit={handleSubmitModel}>
+                    <FormControl mb={3} isInvalid={errors.name}>
+                      <FormLabel htmlFor="name">Tên khách hàng</FormLabel>
+                      <Input
+                        className="custom-input"
+                        id="name"
+                        placeholder="Nhập tên khách hàng"
+                        value={formData.name}
+                        onChange={handleChange}
+                      />
+                      {errors.name && (
+                        <FormErrorMessage>{errors.name}</FormErrorMessage>
+                      )}
+                    </FormControl>
+
+                    <Flex mb={3} gap={4}>
+                      <FormControl mb={3} flex={1} isInvalid={errors.email}>
+                        <FormLabel htmlFor="email">Địa chỉ email</FormLabel>
+                        <Input
+                          className="custom-input"
+                          id="email"
+                          placeholder="Địa chỉ email"
+                          value={formData.email}
+                          onChange={handleChange}
+                        />
+                        {errors.email && (
+                          <FormErrorMessage>{errors.email}</FormErrorMessage>
+                        )}
+                      </FormControl>
+
+                      <FormControl mb={3} flex={1} isInvalid={errors.phone}>
+                        <FormLabel htmlFor="phone">Số điện thoại</FormLabel>
+                        <Input
+                          className="custom-input"
+                          type="number"
+                          id="phone"
+                          placeholder="Số điện thoại"
+                          value={formData.phone}
+                          onChange={handleChange}
+                        />
+                        {errors.phone && (
+                          <FormErrorMessage>{errors.phone}</FormErrorMessage>
+                        )}
+                      </FormControl>
+                    </Flex>
+
+                    {/* Province and City Section */}
+                    <Flex mb={3} gap={4}>
+                      <FormControl flex={1} isInvalid={errors.province}>
+                        <FormLabel htmlFor="province">Tỉnh</FormLabel>
+                        <Select
+                          className="custom-input"
+                          id="province"
+                          value={formData.province}
+                          onChange={handleChange}
+                        >
+                          <option value="">Chọn Tỉnh</option>
+                          {/* Map provinces here */}
+                        </Select>
+                        {errors.province && (
+                          <FormErrorMessage>{errors.province}</FormErrorMessage>
+                        )}
+                      </FormControl>
+
+                      <FormControl flex={1} isInvalid={errors.city}>
+                        <FormLabel htmlFor="city">Thành phố</FormLabel>
+                        <Select
+                          className="custom-input"
+                          id="city"
+                          value={formData.city}
+                          onChange={handleChange}
+                          disabled={!formData.province}
+                        >
+                          <option value="">Chọn Thành phố</option>
+                          {/* Map cities based on selected province */}
+                        </Select>
+                        {errors.city && (
+                          <FormErrorMessage>{errors.city}</FormErrorMessage>
+                        )}
+                      </FormControl>
+                    </Flex>
+
+                    <FormControl mb={3} isInvalid={errors.address}>
+                      <FormLabel htmlFor="address">Địa chỉ nhận hàng</FormLabel>
+                      <Input
+                        className="custom-input"
+                        id="address"
+                        placeholder="Nhập địa chỉ nhận hàng"
+                        value={formData.address}
+                        onChange={handleChange}
+                      />
+                      {errors.address && (
+                        <FormErrorMessage>{errors.address}</FormErrorMessage>
+                      )}
+                    </FormControl>
+
+                    <FormControl mb={3}>
+                      <FormLabel htmlFor="note">Ghi chú</FormLabel>
+                      <Textarea
+                        className="custom-input"
+                        id="note"
+                        rows={3}
+                        placeholder="Nhập ghi chú"
+                        value={formData.note}
+                        onChange={handleChange}
+                      />
+                    </FormControl>
+
+                    <FormControl mb={3} isInvalid={errors.paymentMethod}>
+                      <FormLabel htmlFor="paymentMethod">
+                        Phương thức thanh toán
+                      </FormLabel>
+                      <Select
+                        className="custom-input"
+                        id="paymentMethod"
+                        value={formData.paymentMethod}
+                        onChange={handleChange}
+                      >
+                        <option value="COD">
+                          Thanh toán khi giao hàng (COD)
+                        </option>
+                        <option value="bankTransfer">Chuyển khoản</option>
+                      </Select>
+                      {errors.paymentMethod && (
+                        <FormErrorMessage>
+                          {errors.paymentMethod}
+                        </FormErrorMessage>
+                      )}
+                    </FormControl>
+                    <Button type="submit" className="button_order">
+                      Đặt hàng
+                    </Button>
+                  </form>
+                </Box>
+
+                {/* Product Summary Section */}
+                {selectedProduct && (
+                  <Box flex={5}>
+                    <Box
+                      background="#e4cc972e"
+                      mb="40px"
+                      p="20px"
+                      borderRadius="6px"
+                    >
+                      <Flex justifyContent="space-between" columnGap="30px">
+                        <Img
+                          src={`${BASE_URL}/uploads/products/${selectedProduct.image}`}
+                          alt={selectedProduct.name}
+                          maxWidth="114px"
+                        />
+                        <Box width="78%">
+                          <Heading as="h5" size="sm" mb={2}>
+                            {selectedProduct.name}
+                          </Heading>
+                          <Text>MSP: {selectedProduct.id}</Text>
+                          <Flex justify="space-between" align="center" my={4}>
+                            <Flex align="center" gap={1}>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={decreaseQuantity}
+                              >
+                                -
+                              </Button>
+                              <Input
+                                px={2}
+                                value={quantity}
+                                readOnly
+                                textAlign="center"
+                                width="60px"
+                              />
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={increaseQuantity}
+                              >
+                                +
+                              </Button>
+                            </Flex>
+                            <Text fontWeight="bold">
+                              {formatPrice(selectedProduct.price)}
+                            </Text>
+                          </Flex>
+                        </Box>
+                      </Flex>
+                      <Divider borderColor="black" />
+                      <Box display="flex" justifyContent="space-between">
+                        <Text my={3}>Vận chuyển:</Text>
+                        <Text my={3}>Miễn phí</Text>
+                      </Box>
+                      <Box display="flex" justifyContent="space-between">
+                        <Heading as="h5" size="sm">
+                          Tổng cộng:
+                        </Heading>
+                        <Heading as="h5" size="sm">
+                          {formatPrice(selectedProduct.price * quantity)}
+                        </Heading>
+                      </Box>
+                    </Box>
+                  </Box>
+                )}
+              </Flex>
+            </Box>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" onClick={handleCloseModal}>
+              Đóng
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 };

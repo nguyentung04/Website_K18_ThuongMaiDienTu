@@ -3,6 +3,14 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 // Example function to get all users
+// exports.getAllUsers = (req, res) => {
+//   connection.query("SELECT * FROM users", (err, results) => {
+//     if (err) {
+//       return res.status(500).json({ error: err.message });
+//     }
+//     res.status(200).json(results);
+//   });
+// };
 exports.getAllUsers = (req, res) => {
   connection.query("SELECT id, name, username, email, phone, role FROM users", (err, results) => {
     if (err) {
@@ -11,14 +19,6 @@ exports.getAllUsers = (req, res) => {
     res.status(200).json(results);
   });
 };
-// exports.getAllUsers = (req, res) => {
-//   connection.query("SELECT id, name, username, email, phone, role, status FROM users", (err, results) => {
-//     if (err) {
-//       return res.status(500).json({ error: err.message });
-//     }
-//     res.status(200).json(results);
-//   });
-// };
 
 
 

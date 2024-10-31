@@ -1,7 +1,5 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import Dashboard from "../pages/Admin/Dashboard";
 import ProductsRoutes from "../pages/Admin/products/router";
 import UserRoutes from "../pages/Admin/user/router";

@@ -21,10 +21,7 @@ import {
   AlertDialogOverlay,
   useColorModeValue,
   useToast,
-  Img,
-  ListItem,
-  List,
-  Input, // Correctly import useToast
+  Img, // Correctly import useToast
 } from "@chakra-ui/react";
 
 import { fetchUsers, deleteUser } from "../../../../service/api/users";
@@ -36,9 +33,6 @@ const AuthorsTable = () => {
   const cancelRef = useRef();
   const toast = useToast(); // Initialize toast
 
-  //** ========================================================================================== */
-  const [searchQuery, setSearchQuery] = useState(""); // Lưu chuỗi tìm kiếm
-  const [suggestions, setSuggestions] = useState([]); // Lưu gợi ý quận/huyện
   useEffect(() => {
     const getUser = async () => {
       const fetchedData = await fetchUsers();
@@ -61,8 +55,8 @@ const AuthorsTable = () => {
           prevData.filter((user) => user.id !== selectedUser.id)
         );
         toast({
-          title: "User deleted.",
-          description: "User has been deleted successfully.",
+          title: "Người dùng đã xóa.",
+          description: "Người dùng đã bị xóa thành công.",
           status: "success",
           duration: 5000,
           isClosable: true,
@@ -70,8 +64,8 @@ const AuthorsTable = () => {
       }
     } catch (error) {
       toast({
-        title: "Error deleting user",
-        description: "Failed to delete the user.",
+        title: "Lỗi khi xóa người dùng",
+        description: "Không xóa được người dùng.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -84,8 +78,8 @@ const AuthorsTable = () => {
   const handleDeleteClick = (user) => {
     if (user.role === "admin") {
       toast({
-        title: "Cannot Delete Admin",
-        description: "You cannot delete a user with the admin role.",
+        title: "Không thể xóa Admin",
+        description: "Bạn không thể xóa người dùng có vai trò quản trị viên.",
         status: "warning",
         duration: 5000,
         isClosable: true,
@@ -111,41 +105,11 @@ const AuthorsTable = () => {
     }
   };
 
-  //** ========================================================================================== */
-  // Hàm xử lý sự kiện khi người dùng nhập vào ô tìm kiếm
-  const handleInputChange = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
-
-    // Nếu chuỗi tìm kiếm không rỗng, lọc danh sách quận/huyện
-    if (query !== "") {
-      const filteredSuggestions = data.filter((data) =>
-        data.name.toLowerCase().includes(query)
-      );
-      setSuggestions(filteredSuggestions);
-    } else {
-      setSuggestions([]);
-    }
-  };
-
-  // Hàm xử lý khi người dùng chọn 1 gợi ý
-  const handleSuggestionClick = (suggestion) => {
-    setSearchQuery(suggestion.name); // Cập nhật chuỗi tìm kiếm với tên đã chọn
-    setSuggestions([]); // Ẩn danh sách gợi ý sau khi chọn
-  };
-
-  // Filter data based on search query
-  const filteredData = data.filter((data) =>
-    data.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  console.log(data);
 
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
-      <Flex className="d-flex mb-3">
-        <Text fontSize="2xl" fontWeight="bold"  className="me-auto p-2">
-          Danh sách đơn hàng
-        </Text>{" "}
+      <Flex mb={5} justify="space-between" align="center">
+        <Text fontSize="2xl" fontWeight="bold"></Text>
         <Link to="user/add">
           <Button
             bg="#1ba43b"
@@ -155,59 +119,7 @@ const AuthorsTable = () => {
           >
             Thêm người dùng mới
           </Button>
-        </Link>{" "}
-      </Flex>
-      <Flex mb={5} justify="space-between" align="center">
-        {/*  ===================================== thanh tìm kiếm ================================*/}
-        <Flex align="center" mb={4}>
-          {/* Input tìm kiếm */}
-          <Flex opacity={1}>
-            <Input
-              placeholder="Tìm kiếm..."
-              value={searchQuery}
-              onChange={handleInputChange} // Sửa lại hàm onChange
-              variant="outline"
-              borderColor="#00aa9f"
-              color="black"
-              mr={2}
-              width="200px"
-            />
-            {/* Hiển thị gợi ý */}
-            {suggestions.length > 0 && (
-              <List
-                border="1px solid #ccc"
-                borderRadius="md"
-                bg="white"
-                // mt={2}
-                position={"absolute"}
-                marginTop={10}
-                width="200px"
-                paddingLeft={0}
-              >
-                {suggestions.map((suggestion) => (
-                  <ListItem
-                    key={suggestion.id}
-                    p={2}
-                    _hover={{ bg: "gray.200", cursor: "pointer" }}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                  >
-                    {suggestion.name}
-                  </ListItem>
-                ))}
-              </List>
-            )}
-          </Flex>
-          <Button
-            fontFamily="math"
-            variant="solid"
-            colorScheme="teal"
-            bg="#00aa9f"
-            _hover={{ bg: "#32dfd4" }}
-            mr={4}
-          >
-            Tìm kiếm
-          </Button>
-        </Flex>
+        </Link>
       </Flex>
 
       <Table variant="simple">
@@ -224,7 +136,7 @@ const AuthorsTable = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {filteredData.map((item, index) => (
+          {data.map((item, index) => (
             <Tr key={item.id} _hover={{ bg: hoverBgColor }}>
               <Td fontWeight="bold">{index + 1}</Td>
               <Td display="none">
@@ -256,25 +168,14 @@ const AuthorsTable = () => {
                 </Box>
               </Td>
               <Td>
-                <Badge
-                  bg={statusBadgeColor(item.role).bg}
-                  color={statusBadgeColor(item.role).color}
-                >
+                <Badge bg={statusBadgeColor(item.role).bg} color={statusBadgeColor(item.role).color}>
                   {item.role}
                 </Badge>
               </Td>
               <Td>
                 <Badge
-                  bg={
-                    statusBadgeColor(
-                      item.status === 1 ? "đang hoạt động" : "ngưng hoạt động"
-                    ).bg
-                  }
-                  color={
-                    statusBadgeColor(
-                      item.status === 1 ? "đang hoạt động" : "ngưng hoạt động"
-                    ).color
-                  }
+                  bg={statusBadgeColor(item.status === 1 ? "đang hoạt động" : "ngưng hoạt động").bg}
+                  color={statusBadgeColor(item.status === 1 ? "đang hoạt động" : "ngưng hoạt động").color}
                 >
                   {item.status === 1 ? "đang hoạt động" : "ngưng hoạt động"}
                 </Badge>

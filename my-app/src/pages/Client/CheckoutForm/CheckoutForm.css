@@ -96,7 +96,7 @@ form>.button_order {
 .checkout-form form .custom-input:hover {
   border-color: #b29c6e;
   box-shadow: 0 0 8px rgba(178, 156, 110, 0.5);
- /* color: #b29c6e; */
+ color: #b29c6e;
 }
 
 .checkout-form form .custom-input:focus {

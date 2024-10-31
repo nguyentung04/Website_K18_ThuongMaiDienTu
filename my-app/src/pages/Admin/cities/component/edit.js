@@ -36,7 +36,7 @@ const EditCities = () => {
         toast({
           title: "Có lỗi khi tìm kiếm thành phố.",
           description: "Không thể lấy thông tin chi tiết về thành phố.",
-          status: "error", // Use 'error' instead of 'lỗi'
+          status: "lỗi", // Correct status value
           duration: 5000,
           isClosable: true,
         });

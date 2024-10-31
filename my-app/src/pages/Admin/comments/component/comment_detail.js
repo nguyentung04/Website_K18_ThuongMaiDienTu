@@ -148,15 +148,66 @@ const CommentDetailTable = () => {
   );
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md">
-      <Text fontSize="2xl" fontWeight="bold" mb={4}>
-        Chi tiết bình luận của sản phẩm {id}
-      </Text>
+      <Box >
+        <Text fontSize="2xl" fontWeight="bold" mb={4}>
+          Chi tiết bình luận #{id}
+        </Text>
+        {/*  ===================================== thanh tìm kiếm ================================*/}
+        <Flex align="center" mb={4}>
+          {/* Input tìm kiếm */}
+          <Flex opacity={1}>
+            <Input
+              placeholder="Tìm kiếm..."
+              value={searchQuery}
+              onChange={handleInputChange} // Sửa lại hàm onChange
+              variant="outline"
+              borderColor="#00aa9f"
+              color="black"
+              mr={2}
+              width="200px"
+            />
+            {/* Hiển thị gợi ý */}
+            {suggestions.length > 0 && (
+              <List
+                border="1px solid #ccc"
+                borderRadius="md"
+                bg="white"
+                // mt={2}
+                position={"absolute"}
+                marginTop={10}
+                width="200px"
+                paddingLeft={0}
+              >
+                {suggestions.map((suggestion) => (
+                  <ListItem
+                    key={suggestion.id}
+                    p={2}
+                    _hover={{ bg: "gray.200", cursor: "pointer" }}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion.content}
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </Flex>
+          <Button
+            fontFamily="math"
+            variant="solid"
+            colorScheme="teal"
+            bg="#00aa9f"
+            _hover={{ bg: "#32dfd4" }}
+            mr={4}
+          >
+            Tìm kiếm
+          </Button>
+        </Flex>
+      </Box>
       <Table variant="simple">
         <Thead bg={headerBgColor}>
           <Tr>
             <Th>ID comment</Th>
-            <Th>Họ tên khách hàng</Th>
-            <Th>ID sản phẩm </Th>
+            <Th display={"none"}>ID </Th>
             <Th>Nội Dung</Th>
             <Th>Hành Động</Th>
           </Tr>
@@ -165,8 +216,7 @@ const CommentDetailTable = () => {
           {filteredCommentDetails.map((item) => (
             <Tr key={item.id} _hover={{ bg: hoverBgColor }}>
               <Td>{item.comment_id}</Td>
-              <Td>{item.fullname}</Td>
-              <Td>{item.id}</Td>
+              <Td display={"none"}>{item.id}</Td>
               <Td>{item.content}</Td>
               <Td>
                 <Button

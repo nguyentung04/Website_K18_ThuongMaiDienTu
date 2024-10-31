@@ -18,6 +18,7 @@ import {
 } from "../../../service/api/cities";
 
 const CheckoutForm = () => {
+ 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -37,6 +38,7 @@ const CheckoutForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
 
+
   useEffect(() => {
     const fetchCityData = async () => {
       try {
@@ -49,7 +51,13 @@ const CheckoutForm = () => {
 
     fetchCityData();
   }, []);
-
+  const [userId, setUserId] = useState(null);
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (userData && userData.id) {
+      setUserId(userData.id);
+    }
+  }, []);
   const handleProvinceChange = async (e) => {
     const selectedProvince = e.target.value;
     setFormData({
@@ -119,6 +127,7 @@ const CheckoutForm = () => {
       }
   
       const orderItems = cart.map((item) => ({
+        
         product_id: item.id,
         quantity: item.quantity,
         price: parseFloat(item.price),
@@ -127,9 +136,10 @@ const CheckoutForm = () => {
   
       const orderData = {
         ...formData,
-        id_cities: formData.city, // Đây là ID cho thành phố (city)
-        id_districts: formData.province, // Đây là ID cho quận (district)
+        id_cities: formData.city,
+        id_districts: formData.province,
         order_detail: orderItems,
+        user_id: userId, // Thêm user_id vào dữ liệu đơn hàng
       };
   
       console.log(orderData); // In ra dữ liệu đơn hàng để kiểm tra
@@ -141,13 +151,9 @@ const CheckoutForm = () => {
         },
         body: JSON.stringify(orderData),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Có lỗi xảy ra");
-      }
-
+  
       const data = await response.json();
+  
       if (data.message === "Đặt hàng thành công!") {
         localStorage.removeItem("cart");
         toast({
@@ -157,8 +163,9 @@ const CheckoutForm = () => {
           duration: 5000,
           isClosable: true,
         });
-        navigate("/products");
+        navigate("/");
         setFormData({
+
           name: "",
           email: "",
           phone: "",
@@ -269,6 +276,13 @@ const CheckoutForm = () => {
               <FormErrorMessage>{errors.city}</FormErrorMessage>
             </FormControl>
           </Box>
+
+          
+
+        
+
+         
+
           <FormControl mb={3} isInvalid={errors.address}>
             <FormLabel htmlFor="address">Địa chỉ cụ thể</FormLabel>
             <Textarea
@@ -288,6 +302,7 @@ const CheckoutForm = () => {
               className="custom-input"
               id="paymentMethod"
               name="paymentMethod"
+              placeholder="Chọn phương thức thanh toán"
               value={formData.paymentMethod}
               onChange={handleChange}
             >

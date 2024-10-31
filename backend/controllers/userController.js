@@ -2,17 +2,11 @@ const connection = require("../config/database");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-// Example function to get all users
-// exports.getAllUsers = (req, res) => {
-//   connection.query("SELECT * FROM users", (err, results) => {
-//     if (err) {
-//       return res.status(500).json({ error: err.message });
-//     }
-//     res.status(200).json(results);
-//   });
-// };
+
+//Minh Cảnh
+// Lấy tất cả người dùng
 exports.getAllUsers = (req, res) => {
-  connection.query("SELECT id, name, username, email, phone, role FROM users", (err, results) => {
+  connection.query("SELECT id, name, username, email, phone, status, role, createdAt FROM users", (err, results) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -20,10 +14,7 @@ exports.getAllUsers = (req, res) => {
   });
 };
 
-
-
-//login
-
+// Đăng nhập người dùng
 exports.login = (req, res) => {
   const { username, password } = req.body;
 
@@ -54,10 +45,8 @@ exports.login = (req, res) => {
           expiresIn: "1h",
         });
 
-        // Loại bỏ thông tin nhạy cảm như mật khẩu trước khi gửi phản hồi
         const { password, ...userData } = user;
 
-        // Trả về token và toàn bộ thông tin người dùng (trừ mật khẩu)
         res.status(200).json({
           token,
           user: userData,
@@ -67,7 +56,7 @@ exports.login = (req, res) => {
   );
 };
 
-// Đăng nhập
+// Đăng nhập quản trị viên
 exports.loginAdmin = (req, res) => {
   const { username, password } = req.body;
 
@@ -108,11 +97,11 @@ exports.loginAdmin = (req, res) => {
   );
 };
 
-
+// Đăng ký người dùng mới
 exports.register = (req, res) => {
   const { username, name, phone, email, password } = req.body;
 
-  // Kiểm tra xem tên đăng nhập đã tồn tại chưa
+  // Kiểm tra tên đăng nhập đã tồn tại
   connection.query(
     "SELECT * FROM users WHERE username = ?",
     [username],
@@ -125,7 +114,7 @@ exports.register = (req, res) => {
         return res.status(400).json({ message: "Tên đăng nhập đã tồn tại" });
       }
 
-      // Kiểm tra xem email đã tồn tại chưa
+      // Kiểm tra email đã tồn tại
       connection.query(
         "SELECT * FROM users WHERE email = ?",
         [email],
@@ -140,24 +129,24 @@ exports.register = (req, res) => {
             return res.status(400).json({ message: "Email đã tồn tại" });
           }
 
-          // Mã hóa mật khẩu và lưu người dùng vào cơ sở dữ liệu
+          // Mã hóa mật khẩu và lưu người dùng
           bcrypt.hash(password, 10, (err, hashedPassword) => {
             if (err) {
               return res.status(500).json({ message: "Lỗi mã hóa mật khẩu" });
             }
 
             connection.query(
-              "INSERT INTO users (username, name, phone, email, password, status) VALUES (?, ?, ?, ?, ?, '1')",
+              "INSERT INTO users (username, name, phone, email, password, status, createdAt) VALUES (?, ?, ?, ?, ?, '1', NOW())",
               [username, name, phone, email, hashedPassword],
               (err, results) => {
                 if (err) {
-                  console.error("Lỗi khi lưu người dùng:", err); // Ghi lại thông tin lỗi
+                  console.error("Lỗi khi lưu người dùng:", err);
                   return res.status(500).json({ message: "Lỗi khi lưu người dùng vào cơ sở dữ liệu" });
               }
                 res.status(200).json({ message: "Đăng ký thành công!" });
               }
             );
-            console.log({ username, name, phone, email, hashedPassword });          
+            console.log({ username, name, phone, email, hashedPassword });
           });
         }
       );
@@ -165,85 +154,56 @@ exports.register = (req, res) => {
   );
 };
 
+// Lấy người dùng theo ID
 exports.getUserById = (req, res) => {
-  const userId = req.params.id; //Sử dụng cách đặt tên camelCase nhất quán
+  const userId = req.params.id;
 
-  // Query the database to get user by ID
   connection.query(
-    "SELECT * FROM users WHERE id = ?", // SQL query
-    [userId], // Truy vấn tham số hóa để ngăn chặn SQL injection
+    "SELECT * FROM users WHERE id = ?",
+    [userId],
     (err, results) => {
       if (err) {
-        // Ghi lại lỗi và phản hồi bằng mã trạng thái 500
-        console.error("Database query error:", err);
+        console.error("Lỗi truy vấn cơ sở dữ liệu:", err);
         return res
           .status(500)
-          .json({ error: "An error occurred while fetching the user." });
+          .json({ error: "Đã xảy ra lỗi khi tìm kiếm người dùng." });
       }
 
       if (results.length === 0) {
-        // Nếu không tìm thấy người dùng, hãy trả lời bằng mã trạng thái 404
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "Không tìm thấy người dùng" });
       }
 
-      // Respond with the user data
       res.status(200).json(results[0]);
     }
   );
 };
 
+// Xóa người dùng
 exports.deleteUser = (req, res) => {
-  const userId = req.params.id; // Use consistent camelCase naming
+  const userId = req.params.id;
 
-  // Prepare the SQL query to delete the user
   const query = "DELETE FROM Users WHERE id = ?";
 
-  // Execute the query
   connection.query(query, [userId], (err, results) => {
     if (err) {
-      // Log the error and respond with a 500 status code
-      console.error("Database query error:", err);
+      console.error("Lỗi truy vấn cơ sở dữ liệu:", err);
       return res
         .status(500)
-        .json({ error: "An error occurred while deleting the user." });
+        .json({ error: "Đã xảy ra lỗi khi xóa người dùng." });
     }
 
-    // Check if any rows were affected (i.e., if the user was deleted)
     if (results.affectedRows === 0) {
-      // If no rows were affected, respond with a 404 status code
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
     }
 
-    // Respond with a success message
-    res.status(200).json({ message: "User deleted successfully" });
+    res.status(200).json({ message: "Xóa người dùng thành công" });
   });
 };
 
-// exports.updateUser = (req, res) => {
-//   const userId = req.params.id;
-//   const { name, phone, password, email, image, username, role } = req.body;
-
-//   // Prepare the SQL query
-//   const query = `
-//     UPDATE Users SET name=?, image=?, phone=?, password=?, email=?, username=?, role=? 
-//     WHERE id = ?;
-//   `;
-//   const values = [name, image, phone, password, email, username, role, userId];
-
-//   // Execute the query
-//   connection.query(query, values, (err, results) => {
-//     if (err) {
-//       return res.status(500).json({ error: err.message });
-//     }
-//     if (results.affectedRows === 0) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-//     res.status(200).json({ message: "User updated successfully" });
-//   });
-// };
+// Cập nhật người dùng
 exports.updateUser = (req, res) => {
   const userId = req.params.id;
-  const { name,image, phone, password, email, username, role, status } = req.body;
+  const { name, image, phone, password, email, username, role, status } = req.body;
 
   const query = `
     UPDATE users SET name=?, image=?, phone=?, password=?, email=?, username=?, role=?, status=? 
@@ -256,52 +216,42 @@ exports.updateUser = (req, res) => {
       return res.status(500).json({ error: err.message });
     }
     if (results.affectedRows === 0) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
     }
-    res.status(200).json({ message: "User updated successfully" });
+    res.status(200).json({ message: "Cập nhật người dùng thành công" });
   });
 };
 
-
+// Thêm người dùng mới
 exports.postUsers = async (req, res, next) => {
   try {
-    console.log("Request Body:", req.body);
+    console.log("Dữ liệu gửi từ yêu cầu:", req.body);
    
-    const {
-      name,
-      phone,
-      password,
-      email,
-      username,
-      role,
-    } = req.body;
-   
+    const { name, phone, password, email, username, role } = req.body;
+
+    // Mã hóa mật khẩu
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const query = `
-      INSERT INTO users( name,  phone, password, email, username, role)
+      INSERT INTO users(name, phone, password, email, username, role)
       VALUES (?, ?, ?, ?, ?, ?)
     `;
-    const values = [
-      name,
-      phone,
-      password,
-      email,
-      username,
-      role,
-    ];
+    const values = [name, phone, hashedPassword, email, username, role];
 
     connection.query(query, values, (err, results) => {
       if (err) {
-        console.error("Database error:", err);
+        console.error("Lỗi cơ sở dữ liệu:", err);
         return res.status(500).json({ error: err.message });
       }
       res.status(201).json({
-        message: "Product added successfully",
-        productId: results.insertId,
+        message: "Thêm người dùng thành công",
+        userId: results.insertId,
       });
     });
   } catch (error) {
-    console.error("Server error:", error);
+    console.error("Lỗi máy chủ:", error);
     next(error);
   }
 };
+
+

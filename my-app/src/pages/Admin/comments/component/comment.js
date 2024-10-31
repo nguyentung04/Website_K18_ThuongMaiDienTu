@@ -105,21 +105,21 @@ const CommentPage = () => {
   const [comments, setComments] = useState([]);
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
 
-  //** ========================================================================================== */
   const [searchQuery, setSearchQuery] = useState(""); // Lưu chuỗi tìm kiếm
-  const [suggestions, setSuggestions] = useState([]); // Lưu gợi ý quận/huyện
+  const [suggestions, setSuggestions] = useState([]); // Lưu gợi ý
+
   useEffect(() => {
-    const getComments = async () => {
+    const getReviews = async () => {
       try {
-        const data = await fetchComments();
+        const data = await fetchProductReviews(); // Gọi API mới
         if (data) {
-          setComments(data);
+          setReviews(data);
         }
       } catch (error) {
-        console.error("Error fetching comments:", error);
+        console.error("Error fetching product reviews:", error);
       }
     };
-    getComments();
+    getReviews();
   }, []);
 
   const handleUpdateCounts = async () => {
@@ -128,20 +128,17 @@ const CommentPage = () => {
       const updatedComments = await fetchComments(); // Re-fetch comments to get updated counts
       setComments(updatedComments);
     } catch (error) {
-      console.error("Error updating comment counts:", error);
+      console.error("Error updating product review counts:", error);
     }
   };
 
-  //** ========================================================================================== */
-  // Hàm xử lý sự kiện khi người dùng nhập vào ô tìm kiếm
   const handleInputChange = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
 
-    // Nếu chuỗi tìm kiếm không rỗng, lọc danh sách quận/huyện
     if (query !== "") {
-      const filteredSuggestions = comments.filter((comments) =>
-        comments.fullname.toLowerCase().includes(query)
+      const filteredSuggestions = reviews.filter((review) =>
+        review.fullname.toLowerCase().includes(query)
       );
       setSuggestions(filteredSuggestions);
     } else {
@@ -149,16 +146,15 @@ const CommentPage = () => {
     }
   };
 
-  // Hàm xử lý khi người dùng chọn 1 gợi ý
   const handleSuggestionClick = (suggestion) => {
     setSearchQuery(suggestion.fullname); // Cập nhật chuỗi tìm kiếm với tên đã chọn
     setSuggestions([]); // Ẩn danh sách gợi ý sau khi chọn
   };
 
-  // Filter comments based on search query
-  const filteredcomments = comments.filter((comments) =>
-    comments.fullname.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredReviews = reviews.filter((review) =>
+    review.fullname.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md">
       <Flex mb={5} justify="space-between" align="center">
@@ -245,7 +241,7 @@ const CommentPage = () => {
               {/* <Td>{comment.count}</Td> */}
               <Td>{comment.created_at}</Td>
               <Td>
-                <Link to={`admin/comments/${comment.id}`}>
+                <Link to={`admin/reviews/${review.id}`}>
                   <Button colorScheme="blue" size="sm" mr={2}>
                     Chi tiết
                   </Button>

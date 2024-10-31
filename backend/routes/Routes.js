@@ -25,12 +25,13 @@ router.get("/products_noibat", productController.featuredProducts);
 router.get("/products_khuyenmai", productController.sellProducts);
 router.get("/products/:id", productController.GetOneProduct);
 router.get("/product/likes", productController.getAllProductLikes);
- router.post('/product/:id/like', productController.toggleProductLike);
- router.get("/productdetail/:id", productController.ProductDetail);
+router.post('/product/:id/like', productController.toggleProductLike);
+// router.get("/productdetail/:id", productController.ProductDetail);
 
 //categoris
-router.get("/categories", categoryController.getAllcategoris);
-router.get("/product/categories/:id", categoryController.GetAllProductOfCategories);
+router.get("/categories", categoryController.getAllCategories);
+
+router.get("/product/categories/:id", categoryController.getAllCategories);
 
 
 
@@ -65,14 +66,14 @@ router.put("/products/:id", productController.updateProduct);
 router.delete("/products/:id", productController.deleteProduct);
 
 // Category routes
-router.get("/categories", categoryController.getAllcategoris);
+router.get("/categories", categoryController.getAllCategories);
 router.get("/categories/:id", categoryController.getCategoryById);
 router.post("/categories", categoryController.postCategory);
 router.put("/categories/:id", categoryController.updateCategory);
 router.delete("/categories/:id", categoryController.deleteCategory);
 
 // Order routes
-    router.get("/orders", orderController.getAllOrders);
+router.get("/orders", orderController.getAllOrders);
 
 // Order detail routes
 router.get("/order_detail", order_detailController.getAllOrder_detail);

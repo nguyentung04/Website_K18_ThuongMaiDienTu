@@ -5,18 +5,20 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Textarea,
   Heading,
   useToast,
   useColorModeValue,
   FormErrorMessage,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { addCategory } from "../../../../service/api/Category"; // Đảm bảo API này hoạt động đúng
+import { addCategory } from "../../../../service/api/Category";
 import axios from "axios";
 
 const AddCategoryPage = () => {
   const [name, setName] = useState("");
-  const [imageFile, setImageFile] = useState(null); // State để lưu hình ảnh
+  const [description, setDescription] = useState("");
+  const [imageFile, setImageFile] = useState(null);
   const [errors, setErrors] = useState({});
   const toast = useToast();
   const navigate = useNavigate();
@@ -25,7 +27,8 @@ const AddCategoryPage = () => {
   const validate = () => {
     const newErrors = {};
     if (!name) newErrors.name = "Tên thương hiệu là bắt buộc.";
-    if (!imageFile) newErrors.image = "Ảnh logo là bắt buộc."; // Thêm kiểm tra hình ảnh
+    if (!description) newErrors.description = "Mô tả là bắt buộc.";
+    if (!imageFile) newErrors.image = "Ảnh logo là bắt buộc.";
     return newErrors;
   };
 
@@ -37,24 +40,17 @@ const AddCategoryPage = () => {
       return;
     }
 
-    // Tạo FormData để tải lên hình ảnh
     const formData = new FormData();
     formData.append("file", imageFile);
 
     let imageUrl = "";
-
     try {
-      // Gửi yêu cầu tải lên hình ảnh
       const response = await axios.post(
-        `http://localhost:3000/api/upload/categories`, // Đường dẫn API của bạn
+        `http://localhost:3000/api/upload/categories`,
         formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
-      imageUrl = response.data.filePath; // Lấy đường dẫn ảnh từ phản hồi API
+      imageUrl = response.data.filePath;
     } catch (error) {
       toast({
         title: "Lỗi tải lên hình ảnh",
@@ -66,11 +62,10 @@ const AddCategoryPage = () => {
       return;
     }
 
-    // Tạo object chứa dữ liệu danh mục cùng với đường dẫn ảnh
-    const categoryData = { name, logo: imageUrl };
+    const categoryData = { name, description, logo: imageUrl };
 
     try {
-      await addCategory(categoryData); // Gọi API để thêm danh mục
+      await addCategory(categoryData);
       toast({
         title: "Thông báo",
         description: "Danh mục mới đã được thêm thành công.",
@@ -78,7 +73,7 @@ const AddCategoryPage = () => {
         duration: 3000,
         isClosable: true,
       });
-      navigate("/admin/category"); // Đảm bảo đường dẫn này đúng
+      navigate("/admin/category");
     } catch (error) {
       console.error("Không thêm được danh mục:", error);
       toast({
@@ -92,7 +87,7 @@ const AddCategoryPage = () => {
   };
 
   const handleImageChange = (e) => {
-    setImageFile(e.target.files[0]); // Cập nhật state khi người dùng chọn file
+    setImageFile(e.target.files[0]);
   };
 
   return (
@@ -109,9 +104,19 @@ const AddCategoryPage = () => {
           {errors.name && <FormErrorMessage>{errors.name}</FormErrorMessage>}
         </FormControl>
 
+        <FormControl id="description" mb={4} isInvalid={errors.description}>
+          <FormLabel>Mô tả</FormLabel>
+          <Textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Nhập mô tả danh mục"
+          />
+          {errors.description && <FormErrorMessage>{errors.description}</FormErrorMessage>}
+        </FormControl>
+
         <FormControl id="image" mb={4} isInvalid={errors.image}>
           <FormLabel>Logo danh mục</FormLabel>
-          <Input type="file" onChange={handleImageChange} /> {/* Input để chọn ảnh */}
+          <Input type="file" onChange={handleImageChange} />
           {errors.image && <FormErrorMessage>{errors.image}</FormErrorMessage>}
         </FormControl>
 

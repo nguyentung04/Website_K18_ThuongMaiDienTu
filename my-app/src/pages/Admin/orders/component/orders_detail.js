@@ -13,7 +13,7 @@ import { useParams } from "react-router-dom";
 import {
   fetchOrderDetailById,
   updateOrderDetailStatus,
-} from "../../../../service/api/order_detail";
+} from "../../../../service/api/order_items";
 import { deleteOrder } from "../../../../service/api/orders";
 
 const OrderDetailTable = () => {

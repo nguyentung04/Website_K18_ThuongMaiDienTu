@@ -18,6 +18,8 @@ import CategoryIcon, {
   CustomIcon,
   DistrictIcon,
   ProvinceIcon,
+  ArticleIcon,
+  FolderIcon,
 } from "../../../components/icon/icon";
 
 const Sidebar = () => {
@@ -46,7 +48,7 @@ const Sidebar = () => {
       {!isMobile && (
         <Box
           width="250px"
-          height="120vh"
+          height="100vh"
           bg={sidebarBgColor}
           color="#5a5757"
           p={4}

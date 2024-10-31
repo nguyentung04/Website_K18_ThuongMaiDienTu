@@ -90,7 +90,7 @@ exports.updatePosts = (req, res) => {
       SET title = ?, content = ?, avt = ?, author_id = ?, post_categories_id = ?
       WHERE id = ?;
     `;
-    const values = [title, content, avtValue, author_id, post_categories_id, views, postId];
+    const values = [title, content, avtValue, author_id, post_categories_id, postId];
 
     // Thực hiện câu truy vấn
     connection.query(query, values, (err, results) => {

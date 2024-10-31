@@ -18,7 +18,10 @@ import {
   AlertDialogBody,
   AlertDialogFooter,
   useToast,
-  Img, // Thêm Img để hiển thị logo
+  Img,
+  Input,
+  List,
+  ListItem, // Thêm Img để hiển thị logo
 } from "@chakra-ui/react";
 import { fetchPosts, deletePosts } from "../../../../service/api/posts";
 import { Link } from "react-router-dom";
@@ -29,6 +32,11 @@ const PostsPage = () => {
   const [selectedPosts, setSelectedPosts] = useState(null);
   const cancelRef = useRef();
   const toast = useToast();
+
+  //** ========================================================================================== */
+  const [searchQuery, setSearchQuery] = useState(""); // Lưu chuỗi tìm kiếm
+  const [suggestions, setSuggestions] = useState([]); // Lưu gợi ý quận/huyện
+
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
 
   useEffect(() => {
@@ -76,13 +84,84 @@ const PostsPage = () => {
     setIsOpen(true);
   };
 
+  //** ========================================================================================== */
+  // Hàm xử lý sự kiện khi người dùng nhập vào ô tìm kiếm
+  const handleInputChange = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    // Nếu chuỗi tìm kiếm không rỗng, lọc danh sách quận/huyện
+    if (query !== "") {
+      const filteredSuggestions = posts.filter((posts) =>
+        posts.title.toLowerCase().includes(query)
+      );
+      setSuggestions(filteredSuggestions);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  // Hàm xử lý khi người dùng chọn 1 gợi ý
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion.name); // Cập nhật chuỗi tìm kiếm với tên đã chọn
+    setSuggestions([]); // Ẩn danh sách gợi ý sau khi chọn
+  };
+
+  // Filter cities based on search query
+  const filtereposts = posts.filter((posts) =>
+    posts.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md">
       <Flex mb={5} justify="space-between" align="center">
-        <Text fontSize="2xl" fontWeight="bold">
-          Danh sách bài viết
-        </Text>
-        <Link to="add"> {/* Sửa đường dẫn */}
+        <Box>
+          <Text fontSize="2xl" fontWeight="bold">
+            Danh sách bài viết
+          </Text>
+
+          {/*  ===================================== thanh tìm kiếm ================================*/}
+
+          {/* Input tìm kiếm */}
+          <Flex opacity={1}>
+            <Input
+              placeholder="Tìm kiếm..."
+              value={searchQuery}
+              onChange={handleInputChange} // Sửa lại hàm onChange
+              variant="outline"
+              borderColor="#00aa9f"
+              color="black"
+              mr={2}
+              width="200px"
+            />
+            {/* Hiển thị gợi ý */}
+            {suggestions.length > 0 && (
+              <List
+                border="1px solid #ccc"
+                borderRadius="md"
+                bg="white"
+                // mt={2}
+                position={"absolute"}
+                marginTop={10}
+                width="200px"
+                paddingLeft={0}
+              >
+                {suggestions.map((suggestion) => (
+                  <ListItem
+                    key={suggestion.id}
+                    p={2}
+                    _hover={{ bg: "gray.200", cursor: "pointer" }}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion.title}
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </Flex>
+        </Box>
+        <Link to="add">
+          {" "}
+          {/* Sửa đường dẫn */}
           <Button
             bg="#1ba43b"
             color="white"
@@ -108,7 +187,7 @@ const PostsPage = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {posts.map((post, index) => (
+          {filtereposts.map((post, index) => (
             <Tr key={post.id} _hover={{ bg: hoverBgColor }}>
               <Td fontWeight="bold">{index + 1}</Td>
               <Td display="none">{post.id}</Td>
@@ -122,7 +201,10 @@ const PostsPage = () => {
                 />
               </Td>
               <Td>{post.title}</Td>
-              <Td maxW="200px" isTruncated>{post.content}</Td> {/* Hiển thị nội dung với độ dài giới hạn */}
+              <Td maxW="200px" isTruncated>
+                {post.content}
+              </Td>{" "}
+              {/* Hiển thị nội dung với độ dài giới hạn */}
               <Td>{post.views}</Td>
               <Td>{post.post_categories_id}</Td>
               <Td>{post.author_id}</Td>

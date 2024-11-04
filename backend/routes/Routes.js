@@ -19,13 +19,13 @@ router.post('/register', userController.register);
 
 
 //products
-router.get("/products", productController.getAllProducts);
+router.get("/products", productController.getAllProductsAdmin);
 router.get("/products_banchay", productController.bestSellProducts);
 router.get("/products_noibat", productController.featuredProducts);
 router.get("/products_khuyenmai", productController.sellProducts);
 router.get("/products/:id", productController.GetOneProduct);
-router.get("/product/likes", productController.getAllProductLikes);
-router.post('/product/:id/like', productController.toggleProductLike);
+// router.get("/product/likes", productController.getAllProductLikes);
+// router.post('/product/:id/like', productController.toggleProductLike);
 // router.get("/productdetail/:id", productController.ProductDetail);
 
 //categoris
@@ -59,11 +59,15 @@ router.put("/users/:id", userController.updateUser);
 router.delete("/users/:id", userController.deleteUser);
 
 // Product routes
-router.get("/products", productController.getAllProducts);
+router.get("/products", productController.getAllProductsAdmin);
 router.get("/products/:id", productController.getProductById);
-router.post('/products', productController.postProduct);
+// Thêm sản phẩm mới
+router.post("/products", productController.addProduct);
+// Cập nhật sản phẩm
 router.put("/products/:id", productController.updateProduct);
+// Xóa sản phẩm
 router.delete("/products/:id", productController.deleteProduct);
+
 
 // Category routes
 router.get("/categories", categoryController.getAllCategories);

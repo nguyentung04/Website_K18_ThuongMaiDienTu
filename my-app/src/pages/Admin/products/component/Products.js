@@ -37,7 +37,7 @@ const ProductsTable = () => {
   useEffect(() => {
     const getProducts = async () => {
       setLoading(true);
-      setError(null); // Reset error state before fetching
+      setError(null);
       try {
         const data = await fetchProducts();
         if (Array.isArray(data)) {
@@ -49,7 +49,7 @@ const ProductsTable = () => {
         const errorMessage = error.response?.data?.error || "Failed to fetch products.";
         setError(errorMessage);
         toast({
-          title: "Error fetching products",
+          title: "Lỗi khi tải sản phẩm",
           description: errorMessage,
           status: "error",
           duration: 5000,
@@ -87,21 +87,14 @@ const ProductsTable = () => {
       }
     } catch (error) {
       toast({
-        title: "Error deleting product",
-        description: "Failed to delete the product.",
+        title: "Lỗi xóa sản phẩm",
+        description: "Không thể xóa sản phẩm.",
         status: "error",
         duration: 5000,
         isClosable: true,
       });
     }
     setIsOpen(false);
-  };
-
-  const calculateDiscountedPrice = (price, discountPercentage) => {
-    if (discountPercentage && discountPercentage > 0 && discountPercentage <= 100) {
-      return price - (price * (discountPercentage / 100));
-    }
-    return price;
   };
 
   const formatCurrency = (value) => {
@@ -129,6 +122,7 @@ const ProductsTable = () => {
       </Flex>
 
       {error && <Text color="red.500">{error}</Text>}
+      {products.length === 0 && <Text color="gray.500">Không có sản phẩm nào để hiển thị.</Text>}
 
       <Table variant="simple">
         <Thead>
@@ -138,10 +132,8 @@ const ProductsTable = () => {
             <Th>Ảnh</Th>
             <Th>Tên sản phẩm</Th>
             <Th>Loại sản phẩm</Th>
+            <Th>Mô tả</Th>
             <Th>Giá (VNĐ)</Th>
-            <Th>Khuyến mãi (%)</Th>
-            <Th>Giá sau khuyến mãi</Th>
-            <Th>Trạng thái</Th>
             <Th>Hoạt động</Th>
           </Tr>
         </Thead>
@@ -151,15 +143,14 @@ const ProductsTable = () => {
               <Td fontWeight="bold">{index + 1}</Td>
               <Td display="none">{product.id}</Td>
               <Td>
-                <Box display="flex" alignItems="center" justifyContent="center">
-                  <Img
-                    src={`http://localhost:3000/uploads/products/${product.image_url}`}
-                    boxSize="100px"
-                    objectFit="cover"
-                    borderRadius={"22px"}
-                    alt={product.name}
-                  />
-                </Box>
+                <Img
+                  src={`http://localhost:3000/uploads/products/${product.images}`}
+                  width="100px"
+                  height="100px"
+                  objectFit="cover"
+                  borderRadius="22px"
+                  alt={product.name}
+                />
               </Td>
               <Td>
                 <Text fontWeight="bold">{product.name}</Text>
@@ -168,16 +159,10 @@ const ProductsTable = () => {
                 <Text>{product.category}</Text>
               </Td>
               <Td>
+                <Text>{product.description || "Không có mô tả"}</Text>
+              </Td>
+              <Td>
                 <Text>{formatCurrency(product.price)}</Text>
-              </Td>
-              <Td>
-                <Text>{Math.round(product.discountPrice)}%</Text>
-              </Td>
-              <Td>
-                <Text>{formatCurrency(calculateDiscountedPrice(product.price, product.discountPrice))}</Text>
-              </Td>
-              <Td>
-                <Text>{product.status}</Text>
               </Td>
               <Td>
                 <Link to={`admin/products/edit/${product.id}`}>

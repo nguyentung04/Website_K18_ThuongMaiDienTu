@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Flex, Text, Spinner, Box } from '@chakra-ui/react';
+import { Flex, Text, Spinner, Box, Table, Thead, Tbody, Tr, Th, Td } from '@chakra-ui/react';
 import { Bar } from 'react-chartjs-2';
 import Sidebar from '../../components/Admin/Sidebar';
 import Navbar from '../../components/Admin/Navbar';
 import { fetchUsers } from '../../service/api/users';
+import { fetchDistricts } from '../../service/api/city';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
 const Dashboard = () => {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingUsers, setLoadingUsers] = useState(true);
   const [userCounts, setUserCounts] = useState({});
+  const [locations, setLocations] = useState([]);
+  const [loadingLocations, setLoadingLocations] = useState(true);
 
   useEffect(() => {
     const getUsers = async () => {
@@ -22,11 +25,23 @@ const Dashboard = () => {
       } catch (error) {
         console.error("Failed to fetch users:", error);
       } finally {
-        setLoading(false);
+        setLoadingUsers(false);
+      }
+    };
+
+    const getLocations = async () => {
+      try {
+        const data = await fetchDistricts();
+        setLocations(data);
+      } catch (error) {
+        console.error("Failed to fetch locations:", error);
+      } finally {
+        setLoadingLocations(false);
       }
     };
 
     getUsers();
+    getLocations();
   }, []);
 
   const countUsersForLastFourMonths = (users) => {
@@ -97,8 +112,8 @@ const Dashboard = () => {
         beginAtZero: true,
       },
     },
-    barPercentage: 0.5, // Giảm chiều rộng cột
-    categoryPercentage: 0.5, // Giảm khoảng cách giữa các cột
+    barPercentage: 0.5,
+    categoryPercentage: 0.5,
   };
 
   return (
@@ -107,18 +122,43 @@ const Dashboard = () => {
         <Sidebar />
         <Flex ml={{ base: 0, md: "250px" }} direction="column" flex="1" p={4} bg="#f7fafc">
           <Navbar />
-          <Flex direction="column" p={4} mt="60px">
-            <Text fontSize="2xl" fontWeight="bold">Trang chính</Text>
-            {loading ? (
-              <Spinner />
-            ) : (
-              <>
-                <Text fontSize="xl">Số người dùng đã đăng ký trong 4 tháng gần nhất:</Text>
-                <Box width={{ base: "100%", md: "50%" }} height="300px" mt={4}>
-                  <Bar data={chartData} options={chartOptions} />
-                </Box>
-              </>
-            )}
+          <Flex direction="row" p={4} mt="60px">
+            <Flex direction="column" flex="1" mr={4}>
+              <Text fontSize="2xl" fontWeight="bold">Trang chính</Text>
+              {loadingUsers ? (
+                <Spinner />
+              ) : (
+                <>
+                  <Text fontSize="xl">Số người dùng đã đăng ký trong 4 tháng gần nhất:</Text>
+                  <Box width="100%" height="300px" mt={4}>
+                    <Bar data={chartData} options={chartOptions} />
+                  </Box>
+                </>
+              )}
+            </Flex>
+            <Flex direction="column" flex="1">
+              <Text fontSize="2xl" fontWeight="bold">Tỉnh Thành và Quận Huyện</Text>
+              {loadingLocations ? (
+                <Spinner />
+              ) : (
+                <Table variant="simple" mt={4}>
+                  <Thead>
+                    <Tr>
+                      <Th>Tỉnh/Thành phố</Th>
+                      <Th>Quận/Huyện</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {locations.map((location, index) => (
+                      <Tr key={index}>
+                        <Td>{location.name}</Td>
+                        <Td>{location.districts.join(', ')}</Td> 
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              )}
+            </Flex>
           </Flex>
         </Flex>
       </Flex>

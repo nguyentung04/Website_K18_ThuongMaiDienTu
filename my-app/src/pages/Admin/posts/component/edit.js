@@ -25,7 +25,7 @@ const EditPostPage = () => {
   const [content, setContent] = useState("");
   const [author_id, setAuthorId] = useState("");
   const [post_categories_id, setPostCategoriesId] = useState("");
-  const [views, setViews] = useState(0);
+  const [avt, setAvt] = useState(null);  // Track existing avatar
   const [imageFile, setImageFile] = useState(null);
   const [authors, setAuthors] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -36,33 +36,24 @@ const EditPostPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log("Post ID from params:", id); // Confirm ID is correct
       try {
         const post = await fetchPostById(id);
-        console.log("Fetched post response:", post); // Log full API response
-
-        
-
-        // Check if post exists and set state
         if (post) {
           setTitle(post.title || "");
           setContent(post.content || "");
           setAuthorId(post.author_id || "");
           setPostCategoriesId(post.post_categories_id || "");
-          setViews(post.views || 0);
-          console.log("Fetched post title:", post.title);
+          setAvt(post.avt || null);  // Set existing avatar
         } else {
           throw new Error("Post data is empty or undefined.");
         }
 
-        // Fetch authors and categories
         const authorsResponse = await axios.get(`http://localhost:3000/api/users`);
         setAuthors(authorsResponse.data);
 
         const categoriesResponse = await axios.get(`http://localhost:3000/api/post_categories`);
         setCategories(categoriesResponse.data);
       } catch (error) {
-        console.error("Error fetching post data:", error);
         toast({
           title: "Lỗi",
           description: error.message || "Không thể tải bài viết.",
@@ -75,12 +66,12 @@ const EditPostPage = () => {
 
     fetchData();
   }, [id, toast]);
-console.log();
 
   const validate = () => {
     const newErrors = {};
     if (!title) newErrors.title = "Tiêu đề bài viết là bắt buộc.";
     if (!content) newErrors.content = "Nội dung bài viết là bắt buộc.";
+    if (!imageFile && !avt) newErrors.imageFile = "Ảnh là bắt buộc nếu bài viết chưa có ảnh.";
     if (!author_id) newErrors.author = "Người đăng là bắt buộc.";
     if (!post_categories_id) newErrors.category = "Danh mục bài viết là bắt buộc.";
     return newErrors;
@@ -94,7 +85,7 @@ console.log();
       return;
     }
 
-    let imageUrl = "";
+    let imageUrl = avt || "";  // Default to existing avatar if no new image uploaded
 
     if (imageFile) {
       const formData = new FormData();
@@ -124,13 +115,12 @@ console.log();
     }
 
     const postsData = {
-      avt: imageUrl || undefined,
+      avt: imageUrl,
       title,
       content,
       author_id,
       post_categories_id,
     };
-console.log(postsData);
 
     try {
       await updatePosts(id, postsData);
@@ -143,7 +133,6 @@ console.log(postsData);
       });
       navigate("/admin/posts");
     } catch (error) {
-      console.error("Error updating post:", error);
       toast({
         title: "Lỗi khi cập nhật bài viết.",
         description: error.message || "Không cập nhật được bài viết.",
@@ -179,11 +168,8 @@ console.log(postsData);
             onChange={(e) => setContent(e.target.value)}
             placeholder="Nhập nội dung bài viết"
           />
-          {errors.content && (
-            <FormErrorMessage>{errors.content}</FormErrorMessage>
-          )}
+          {errors.content && <FormErrorMessage>{errors.content}</FormErrorMessage>}
         </FormControl>
-
 
         <FormControl id="author" mb={4} isInvalid={errors.author}>
           <FormLabel>Người đăng</FormLabel>
@@ -198,9 +184,7 @@ console.log(postsData);
               </option>
             ))}
           </Select>
-          {errors.author && (
-            <FormErrorMessage>{errors.author}</FormErrorMessage>
-          )}
+          {errors.author && <FormErrorMessage>{errors.author}</FormErrorMessage>}
         </FormControl>
 
         <FormControl id="category" mb={4} isInvalid={errors.category}>
@@ -216,15 +200,13 @@ console.log(postsData);
               </option>
             ))}
           </Select>
-          {errors.category && (
-            <FormErrorMessage>{errors.category}</FormErrorMessage>
-          )}
+          {errors.category && <FormErrorMessage>{errors.category}</FormErrorMessage>}
         </FormControl>
 
-        <FormControl id="image" mb={4} isInvalid={errors.image}>
+        <FormControl id="image" mb={4} isInvalid={errors.imageFile}>
           <FormLabel>Ảnh bài viết</FormLabel>
           <Input type="file" onChange={handleImageChange} />
-          {errors.image && <FormErrorMessage>{errors.image}</FormErrorMessage>}
+          {errors.imageFile && <FormErrorMessage>{errors.imageFile}</FormErrorMessage>}
         </FormControl>
 
         <Button colorScheme="teal" type="submit">

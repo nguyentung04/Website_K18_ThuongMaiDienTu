@@ -7,11 +7,9 @@ exports.getAllOrders = (req, res) => {
   connection.query(
     `SELECT 
       o.*, 
-      c.name AS city, 
-      d.name AS district 
+      u.name AS users
     FROM orders o
-    LEFT JOIN cities c ON o.id_cities = c.id
-    LEFT JOIN districts d ON o.id_districts = d.id`,
+    LEFT JOIN users u ON o.user_id  = u.id`,
     (err, results) => {
       if (err) {
         return res.status(500).json({ error: err.message });

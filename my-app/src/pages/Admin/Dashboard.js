@@ -32,6 +32,7 @@ const Dashboard = () => {
     const getLocations = async () => {
       try {
         const data = await fetchDistricts();
+        console.log("District Data:", data);
         setLocations(data);
       } catch (error) {
         console.error("Failed to fetch locations:", error);
@@ -121,10 +122,10 @@ const Dashboard = () => {
       <Flex>
         <Sidebar />
         <Flex ml={{ base: 0, md: "250px" }} direction="column" flex="1" p={4} bg="#f7fafc">
-         
-          <Flex direction="row" p={4} mt="60px">
-            <Flex direction="column" flex="1" mr={4}>
-              <Text fontSize="2xl" fontWeight="bold">Trang chính</Text>
+          <Navbar />
+          <Flex direction="column" p={4} mt="60px" gap={8}>
+            <Flex direction="column" flex="1" mb={8}>
+              <Text fontSize="2xl" fontWeight="bold">Thống kê người dùng</Text>
               {loadingUsers ? (
                 <Spinner />
               ) : (
@@ -136,12 +137,13 @@ const Dashboard = () => {
                 </>
               )}
             </Flex>
+
             <Flex direction="column" flex="1">
               <Text fontSize="2xl" fontWeight="bold">Tỉnh Thành và Quận Huyện</Text>
               {loadingLocations ? (
                 <Spinner />
               ) : (
-                <Table variant="simple" mt={4}>
+                <Table variant="simple" mt={4} overflowX="auto">
                   <Thead>
                     <Tr>
                       <Th>Tỉnh/Thành phố</Th>

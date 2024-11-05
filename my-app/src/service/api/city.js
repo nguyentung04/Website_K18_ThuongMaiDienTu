@@ -33,17 +33,26 @@ export const fetchProvinces = async () => {
 };
 
 export const fetchDistricts = async () => {
-  // Lấy danh sách tất cả tỉnh thành
-  const provinces = await fetchProvinces();
+  try {
+    const provinces = await fetchProvinces();
 
-  // Tạo một mảng để chứa danh sách quận huyện
-  const districts = await Promise.all(provinces.map(async (province) => {
-    const response = await axios.get(`https://provinces.open-api.vn/api/p/${province.code}`);
-    return {
-      name: province.name,
-      districts: response.data.districts.map(district => district.name), // Lấy tên quận huyện
-    };
-  }));
+    const districts = await Promise.all(provinces.map(async (province) => {
+      const response = await axios.get(`https://provinces.open-api.vn/api/p/${province.code}?depth=2`);
+      
+      // Kiểm tra xem API có trả về danh sách quận huyện không
+      if (response.data && response.data.districts) {
+        return {
+          name: province.name,
+          districts: response.data.districts.map(district => district.name), // Lấy tên quận huyện
+        };
+      }
+      return { name: province.name, districts: [] }; // Trường hợp không có quận huyện
+    }));
 
-  return districts;
+    return districts;
+  } catch (error) {
+    console.error("Error fetching districts:", error);
+    return [];
+  }
 };
+

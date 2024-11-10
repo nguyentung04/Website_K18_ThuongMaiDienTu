@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
@@ -24,16 +23,9 @@ const Navbar = () => {
     localStorage.removeItem("userEmail"); // Xóa email người dùng
     localStorage.removeItem("userName"); // Xóa tên người dùng
     localStorage.removeItem("user"); // Xóa tên người dùng
-
-    // ... có thể thêm các mục khác nếu cần
-
-    // Chuyển hướng người dùng về trang đăng nhập
     navigate("/signin");
-};
+  };
 
-  /** ======================== đổi màu chữ sao khi click ( navbar ) ===================== */
-
-  // Lấy giá trị `activeLink` từ localStorage hoặc đặt mặc định là chuỗi rỗng
   const [activeLink, setActiveLink] = useState(
     localStorage.getItem("activeLink") || ""
   );
@@ -43,14 +35,24 @@ const Navbar = () => {
     setActiveLink(link); // Cập nhật trạng thái `activeLink`
     localStorage.setItem("activeLink", link); // Lưu giá trị vào localStorage
   };
+  
 
-  // Sử dụng `useEffect` để đặt lại `activeLink` khi trang được tải lại
   useEffect(() => {
     const savedLink = localStorage.getItem("activeLink");
     if (savedLink) {
       setActiveLink(savedLink);
     }
   }, []);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const googleUsername = urlParams.get("username");
+  
+    if (googleUsername) {
+      localStorage.setItem("username", googleUsername);  
+    }
+  }, []);
+  
 
   return (
     <div className="stopnav">
@@ -64,40 +66,32 @@ const Navbar = () => {
             <img src="" alt="Logo" className="logo-image" />
           </Link>
           <div className="navbar-links">
-
-            
-          <Link
+            <Link
               to="/"
-              className={`nav-link-trend ${
-                activeLink === "/" ? "active-link" : ""
-              }`}
+              className={`nav-link-trend ${activeLink === "/" ? "active-link" : ""
+                }`}
               onClick={() => handleLinkClick("/")}
             >
               Trang chủ
             </Link>
-            
             <Link
               to="/about"
-              className={`nav-link-introduce ${
-                activeLink === "/about" ? "active-link" : ""
-              }`}
+              className={`nav-link-introduce ${activeLink === "/about" ? "active-link" : ""
+                }`}
               onClick={() => handleLinkClick("/about")}
             >
               Giới thiệu
             </Link>
-
             <div className="dropdown">
               <Link
                 to="/products"
-                className={`dropbtn ${
-                  activeLink === "/menu" ? "active-link" : ""
-                }`}
+                className={`dropbtn ${activeLink === "/menu" ? "active-link" : ""
+                  }`}
                 onClick={() => handleLinkClick("/menu")}
               >
                 Menu <CgChevronDown />
               </Link>
               <div className="dropdown-content">
-                {/* Existing Dropdown Sections */}
                 <div className="dropdown-section">
                   <h4>Hãng Phổ biến</h4>
                   <hr />
@@ -289,9 +283,8 @@ const Navbar = () => {
             <div className="dropdown">
               <Link
                 to="/men"
-                className={`nav-link-trend ${
-                  activeLink === "/men" ? "active-link" : ""
-                }`}
+                className={`nav-link-trend ${activeLink === "/men" ? "active-link" : ""
+                  }`}
                 onClick={() => handleLinkClick("/men")}
               >
                 Nam
@@ -446,9 +439,8 @@ const Navbar = () => {
             <div className="dropdown">
               <Link
                 to="/women"
-                className={`nav-link-trend ${
-                  activeLink === "/women" ? "active-link" : ""
-                }`}
+                className={`nav-link-trend ${activeLink === "/women" ? "active-link" : ""
+                  }`}
                 onClick={() => handleLinkClick("/women")}
               >
                 Nữ <CgChevronDown />
@@ -622,9 +614,8 @@ const Navbar = () => {
 
             <Link
               to="/premium"
-              className={`nav-link-trend ${
-                activeLink === "/premium" ? "active-link" : ""
-              }`}
+              className={`nav-link-trend ${activeLink === "/premium" ? "active-link" : ""
+                }`}
               onClick={() => handleLinkClick("/premium")}
             >
               Cũ cao cấp

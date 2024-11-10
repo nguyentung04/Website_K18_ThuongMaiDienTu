@@ -98,61 +98,103 @@ exports.loginAdmin = (req, res) => {
 };
 
 // Đăng ký người dùng mới
+// exports.register = (req, res) => {
+//   const { username, name, phone, email, password } = req.body;
+
+//   // Kiểm tra tên đăng nhập đã tồn tại
+//   connection.query(
+//     "SELECT * FROM users WHERE username = ?",
+//     [username],
+//     (err, results) => {
+//       if (err) {
+//         return res.status(500).json({ message: "Lỗi kết nối cơ sở dữ liệu" });
+//       }
+
+//       if (results.length > 0) {
+//         return res.status(400).json({ message: "Tên đăng nhập đã tồn tại" });
+//       }
+
+//       // Kiểm tra email đã tồn tại
+//       connection.query(
+//         "SELECT * FROM users WHERE email = ?",
+//         [email],
+//         (err, results) => {
+//           if (err) {
+//             return res
+//               .status(500)
+//               .json({ message: "Lỗi kết nối cơ sở dữ liệu" });
+//           }
+
+//           if (results.length > 0) {
+//             return res.status(400).json({ message: "Email đã tồn tại" });
+//           }
+
+//           // Mã hóa mật khẩu và lưu người dùng
+//           bcrypt.hash(password, 10, (err, hashedPassword) => {
+//             if (err) {
+//               return res.status(500).json({ message: "Lỗi mã hóa mật khẩu" });
+//             }
+
+//             connection.query(
+//               "INSERT INTO users (username, name, phone, email, password, status, createdAt) VALUES (?, ?, ?, ?, ?, '1', NOW())",
+//               [username, name, phone, email, hashedPassword],
+//               (err, results) => {
+//                 if (err) {
+//                   console.error("Lỗi khi lưu người dùng:", err);
+//                   return res.status(500).json({ message: "Lỗi khi lưu người dùng vào cơ sở dữ liệu" });
+//               }
+//                 res.status(200).json({ message: "Đăng ký thành công!" });
+//               }
+//             );
+//             console.log({ username, name, phone, email, hashedPassword });
+//           });
+//         }
+//       );
+//     }
+//   );
+// };
 exports.register = (req, res) => {
   const { username, name, phone, email, password } = req.body;
 
-  // Kiểm tra tên đăng nhập đã tồn tại
-  connection.query(
-    "SELECT * FROM users WHERE username = ?",
-    [username],
-    (err, results) => {
+  if (!username || !password || !email) {
+    return res.status(400).json({ message: "Thông tin không đầy đủ" });
+  }
+
+  connection.query("SELECT * FROM users WHERE username = ?", [username], (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: "Lỗi kết nối cơ sở dữ liệu" });
+    }
+
+    if (results.length > 0) {
+      return res.status(400).json({ message: "Tên đăng nhập đã tồn tại" });
+    }
+
+    connection.query("SELECT * FROM users WHERE email = ?", [email], (err, results) => {
       if (err) {
         return res.status(500).json({ message: "Lỗi kết nối cơ sở dữ liệu" });
       }
 
       if (results.length > 0) {
-        return res.status(400).json({ message: "Tên đăng nhập đã tồn tại" });
+        return res.status(400).json({ message: "Email đã tồn tại" });
       }
 
-      // Kiểm tra email đã tồn tại
-      connection.query(
-        "SELECT * FROM users WHERE email = ?",
-        [email],
-        (err, results) => {
-          if (err) {
-            return res
-              .status(500)
-              .json({ message: "Lỗi kết nối cơ sở dữ liệu" });
-          }
-
-          if (results.length > 0) {
-            return res.status(400).json({ message: "Email đã tồn tại" });
-          }
-
-          // Mã hóa mật khẩu và lưu người dùng
-          bcrypt.hash(password, 10, (err, hashedPassword) => {
-            if (err) {
-              return res.status(500).json({ message: "Lỗi mã hóa mật khẩu" });
-            }
-
-            connection.query(
-              "INSERT INTO users (username, name, phone, email, password, status, createdAt) VALUES (?, ?, ?, ?, ?, '1', NOW())",
-              [username, name, phone, email, hashedPassword],
-              (err, results) => {
-                if (err) {
-                  console.error("Lỗi khi lưu người dùng:", err);
-                  return res.status(500).json({ message: "Lỗi khi lưu người dùng vào cơ sở dữ liệu" });
-              }
-                res.status(200).json({ message: "Đăng ký thành công!" });
-              }
-            );
-            console.log({ username, name, phone, email, hashedPassword });
-          });
+      bcrypt.hash(password, 10, (err, hashedPassword) => {
+        if (err) {
+          return res.status(500).json({ message: "Lỗi mã hóa mật khẩu" });
         }
-      );
-    }
-  );
+
+        connection.query("INSERT INTO users (username, name, phone, email, password, status, createdAt) VALUES (?, ?, ?, ?, ?, '1', NOW())", [username, name, phone, email, hashedPassword], (err, results) => {
+          if (err) {
+            return res.status(500).json({ message: "Lỗi khi lưu người dùng vào cơ sở dữ liệu" });
+          }
+
+          res.status(200).json({ message: "Đăng ký thành công!" });
+        });
+      });
+    });
+  });
 };
+
 
 // Lấy người dùng theo ID
 exports.getUserById = (req, res) => {
@@ -203,13 +245,51 @@ exports.deleteUser = (req, res) => {
 // Cập nhật người dùng
 exports.updateUser = (req, res) => {
   const userId = req.params.id;
-  const { name, image, phone, password, email, username, role, status } = req.body;
+  const { name, image, phone, email, username, role, status } = req.body;
 
-  const query = `
-    UPDATE users SET name=?, image=?, phone=?, password=?, email=?, username=?, role=?, status=? 
-    WHERE id = ?;
-  `;
-  const values = [name, image, phone, password, email, username, role, status, userId];
+  // Tạo mảng để lưu các trường cần cập nhật
+  const fieldsToUpdate = [];
+  const values = [];
+
+  // Kiểm tra từng trường và thêm vào mảng nếu có giá trị
+  if (name) {
+    fieldsToUpdate.push("name = ?");
+    values.push(name);
+  }
+  if (image) {
+    fieldsToUpdate.push("image = ?");
+    values.push(image);
+  }
+  if (phone) {
+    fieldsToUpdate.push("phone = ?");
+    values.push(phone);
+  }
+  if (email) {
+    fieldsToUpdate.push("email = ?");
+    values.push(email);
+  }
+  if (username) {
+    fieldsToUpdate.push("username = ?");
+    values.push(username);
+  }
+  if (role) {
+    fieldsToUpdate.push("role = ?");
+    values.push(role);
+  }
+  if (status) {
+    fieldsToUpdate.push("status = ?");
+    values.push(status);
+  }
+
+  // Thêm ID vào cuối cùng
+  values.push(userId);
+
+  // Nếu không có trường nào để cập nhật
+  if (fieldsToUpdate.length === 0) {
+    return res.status(400).json({ message: "Không có thông tin nào để cập nhật." });
+  }
+
+  const query = `UPDATE users SET ${fieldsToUpdate.join(", ")} WHERE id = ?`;
 
   connection.query(query, values, (err, results) => {
     if (err) {
@@ -222,11 +302,12 @@ exports.updateUser = (req, res) => {
   });
 };
 
+
 // Thêm người dùng mới
 exports.postUsers = async (req, res, next) => {
   try {
     console.log("Dữ liệu gửi từ yêu cầu:", req.body);
-   
+
     const { name, phone, password, email, username, role } = req.body;
 
     // Mã hóa mật khẩu
@@ -253,5 +334,4 @@ exports.postUsers = async (req, res, next) => {
     next(error);
   }
 };
-
 

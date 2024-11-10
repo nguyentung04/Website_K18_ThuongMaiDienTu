@@ -11,14 +11,18 @@ const SignIn = () => {
   const [error, setError] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
-  const [lockErrorMessage, setLockErrorMessage] = useState('');
 
   const navigate = useNavigate();
 
+  const handleGoogleLogin = () => {
+    // Chuyển hướng người dùng đến URL xác thực Google
+    window.location.href = "http://localhost:3000/api/auth/google";
+  };
+
   const handleSubmit = (e) => {
-    e.preventDefault(); // Ngăn chặn sự kiện mặc định của form để trang không bị tải lại.
-  
-    // Gửi yêu cầu đăng nhập đến server.
+    e.preventDefault(); // Ngăn chặn sự kiện mặc định của form để trang không bị tải lại
+
+    // Gửi yêu cầu đăng nhập đến server
     fetch("http://localhost:3000/api/login", {
       method: "POST",
       headers: {
@@ -26,43 +30,39 @@ const SignIn = () => {
       },
       body: JSON.stringify({ username, password }),
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Đăng nhập không thành công');
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log(data); // Kiểm tra nội dung của đối tượng data
-      if (data.token) {
-        // Lưu token và tất cả dữ liệu của tài khoản vào local storage
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('username', username);
-        localStorage.setItem('userData', JSON.stringify(data.user));
-        
-        // Nếu bạn vẫn muốn lưu username riêng
-        localStorage.setItem('username', username);
-        
-        setShowSuccessModal(true);
-        setTimeout(() => {
-          navigate('/'); // Chuyển hướng sau 2-3 giây
-        }, 2000);
-      } else {
-        setError(data.message || 'Đăng nhập thất bại');
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Đăng nhập không thành công');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.token) {
+          // Lưu token và thông tin người dùng vào localStorage
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('username', username);
+          localStorage.setItem('userData', JSON.stringify(data.user));
+
+          setShowSuccessModal(true);
+          setTimeout(() => {
+            navigate('/'); // Chuyển hướng sau 2-3 giây
+          }, 2000);
+        } else {
+          setError(data.message || 'Đăng nhập thất bại');
+          setShowErrorModal(true);
+          setTimeout(() => {
+            setShowErrorModal(false);
+          }, 2000);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        setError('Có lỗi xảy ra');
         setShowErrorModal(true);
         setTimeout(() => {
           setShowErrorModal(false);
         }, 2000);
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      setError('Có lỗi xảy ra');
-      setShowErrorModal(true);
-      setTimeout(() => {
-        setShowErrorModal(false);
-      }, 2000);
-    });
+      });
   };
 
   return (
@@ -107,18 +107,17 @@ const SignIn = () => {
             </div>
 
             <button type="submit" className="btn-submit">Đăng nhập</button>
-
-            {error && <p className="error-message">{error}</p>}
-
-            <div className="signin-links">
-              <a href="/forgot-password">Quên mật khẩu?</a>
-              <p className="signup-link">Chưa có tài khoản? <a href="/signup">Đăng ký</a></p>
-            </div>
           </form>
 
-          <div className="social-login">
-            <button className="social-btn google-login">Đăng nhập bằng Google</button>
-            <button className="social-btn facebook-login">Đăng nhập bằng Facebook</button>
+          <button type="button" className="btn-submit google-login" onClick={handleGoogleLogin}>
+            Đăng nhập bằng Google
+          </button>
+
+          {error && <p className="error-message">{error}</p>}
+
+          <div className="signin-links">
+            <a href="/forgot-password">Quên mật khẩu?</a>
+            <p className="signup-link">Chưa có tài khoản? <a href="/signup">Đăng ký</a></p>
           </div>
         </section>
       </div>
@@ -135,7 +134,7 @@ const SignIn = () => {
 
       {showErrorModal && (
         <ErrorModal
-          message={lockErrorMessage || error}
+          message={error}
           onClose={() => setShowErrorModal(false)}
         />
       )}

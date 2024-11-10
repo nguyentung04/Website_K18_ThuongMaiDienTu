@@ -25,7 +25,7 @@ const OrderHistory = () => {
           const response = await axios.get(
             `${BASE_URL}/api/orderByName1/${user_id}`, // Đảm bảo endpoint chính xác
             {
-              headers: {
+              headers: {  
                 Authorization: `Bearer ${token}`,
               },
             }
@@ -85,7 +85,7 @@ const OrderHistory = () => {
                   <span>
                     Tổng tiền:{" "}
                     <span className="span-price">
-                      {formatCurrency(order.total)}
+                      {formatCurrency(order.total_amount)}
                     </span>
                   </span>
                 </div>

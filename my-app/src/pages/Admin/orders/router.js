@@ -9,7 +9,7 @@ const OrdersRoutes = () => {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<OrdersTable />} />
-        <Route path="/admin/orders/:orderId" element={<OrdersDetail />} />
+        <Route path="orders_detail/:orderId" element={<OrdersDetail />} />
       </Route>
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

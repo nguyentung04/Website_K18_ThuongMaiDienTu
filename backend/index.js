@@ -13,6 +13,7 @@ const product_detailRoutes = require("./routes/product_detail/index");
 const citieslRoutes = require("./routes/cities/citiesRoutes");
 const districtsController = require("./routes/districts/index");
 const order_itemsRoutes = require("./routes/order_items/index");
+const ordersRoutes = require("./routes/orders/index");
 
 const app = express();
 app.use(express.json());
@@ -69,7 +70,7 @@ app.use("/api", comment);
 app.use("/api", posts);
 app.use("/api", post_categories);
 app.use("/api", order_itemsRoutes);
-
+app.use("/api", ordersRoutes);
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

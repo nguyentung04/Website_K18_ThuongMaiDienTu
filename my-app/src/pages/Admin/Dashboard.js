@@ -122,7 +122,7 @@ const Dashboard = () => {
       <Flex>
         <Sidebar />
         <Flex ml={{ base: 0, md: "250px" }} direction="column" flex="1" p={4} bg="#f7fafc">
-          <Navbar />
+      
           <Flex direction="column" p={4} mt="60px" gap={8}>
             <Flex direction="column" flex="1" mb={8}>
               <Text fontSize="2xl" fontWeight="bold">Thống kê người dùng</Text>

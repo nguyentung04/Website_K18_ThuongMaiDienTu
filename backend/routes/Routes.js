@@ -6,7 +6,6 @@ const userController = require("../controllers/userController");
 const productController = require("../controllers/productController");
 const categoryController = require("../controllers/categoryController");
 // const order_detailController = require("../controllers/order_itemsController");
-const orderController = require("../controllers/orderController");
 // const authController = require("../controllers/authController");
 
 //user
@@ -35,14 +34,7 @@ router.get("/product/categories/:id", categoryController.getAllCategories);
 
 
 
-//orders
-router.get("/orders", orderController.getAllOrders);
-router.get('/ordersByName/:name', orderController.orderByName);
-router.get('/orderByName1/:id', orderController.orderByName1);
-router.get('/orderDetail/:id', orderController.orderDetail);
-router.post("/orders", orderController.PostOrders);
-router.delete('/orders/:id', orderController.deleteOrder);
-router.get('/orders/:id', orderController.getOrderById);
+
 
 //orders_detail
 // router.get("/order_detail", order_detailController.getAllOrder_detail);
@@ -76,8 +68,7 @@ router.post("/categories", categoryController.postCategory);
 router.put("/categories/:id", categoryController.updateCategory);
 router.delete("/categories/:id", categoryController.deleteCategory);
 
-// Order routes
-router.get("/orders", orderController.getAllOrders);
+
 
 // Order detail routes
 // router.get("/order_detail", order_detailController.getAllOrder_detail);//

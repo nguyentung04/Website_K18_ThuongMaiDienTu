@@ -93,7 +93,7 @@ exports.postCategory = (req, res) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
-    res.status(201).json({
+    res.status(201).json({ 
       message: "Category created successfully",
       categoryId: results.insertId,
     });

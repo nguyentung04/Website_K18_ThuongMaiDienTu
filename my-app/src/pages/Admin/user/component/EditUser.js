@@ -52,7 +52,7 @@ const EditUser = () => {
           setUsername(data.username || "");
           setPhone(data.phone || "");
           setRole(data.role || "");
-          setUserStatus(data.status || ""); // Sử dụng userStatus thay vì status
+          setUserStatus(data.status === 1 ? "1" : "0"); // Thiết lập status đúng theo kiểu dữ liệu
         }
       } catch (error) {
         toast({
@@ -86,7 +86,7 @@ const EditUser = () => {
         email,
         phone,
         role,
-        status: userStatus, // Đặt status bằng userStatus
+        status: parseInt(userStatus, 10), // Chuyển status thành số nguyên để gửi đến backend
       };
       await updateUser(id, userData);
       toast({

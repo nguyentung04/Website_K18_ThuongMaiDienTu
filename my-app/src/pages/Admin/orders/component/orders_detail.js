@@ -13,7 +13,7 @@ import { useParams } from "react-router-dom";
 import {
   fetchOrderDetailById,
   updateOrderDetailStatus,
-} from "../../../../service/api/order_detail";
+} from "../../../../service/api/order_items";
 import { deleteOrder } from "../../../../service/api/orders";
 
 const OrderDetailTable = () => {
@@ -39,6 +39,13 @@ const OrderDetailTable = () => {
 
     fetchOrderDetails();
   }, [orderId]);
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(value);
+  };
 
   const handleApprove = async (itemId) => {
     try {
@@ -148,7 +155,7 @@ const OrderDetailTable = () => {
               </GridItem>
               <GridItem colSpan={1}>
                 <Text>
-                  <strong>Địa chỉ:</strong> {item.address}
+                  <strong>Địa chỉ:</strong> {item.shipping_address}
                 </Text>
               </GridItem>
               <GridItem colSpan={1}>
@@ -158,12 +165,12 @@ const OrderDetailTable = () => {
               </GridItem>
               <GridItem colSpan={1}>
                 <Text>
-                  <strong>Thời gian:</strong> {item.date}
+                  <strong>Thời gian:</strong> {item.created_at}
                 </Text>
               </GridItem>
               <GridItem colSpan={1}>
                 <Text>
-                  <strong>Giá:</strong> {item.price}
+                  <strong>Giá:</strong> {formatCurrency(item.price)}
                 </Text>
               </GridItem>
               <GridItem colSpan={1}>
@@ -173,19 +180,19 @@ const OrderDetailTable = () => {
               </GridItem>
               <GridItem colSpan={1}>
                 <Text>
-                  <strong>Tổng:</strong> {item.total}
+                  <strong>Tổng:</strong> {formatCurrency(item.total_amount)}
                 </Text>
               </GridItem>
               <GridItem colSpan={1}>
                 <Text>
-                  <strong>Trạng thái:</strong> {item.statuss}
+                  <strong>Trạng thái:</strong> {item.status}
                 </Text>
               </GridItem>
             </Grid>
           </Box>{" "}
           <GridItem colSpan={1} className="d-flex flex-row-reverse">
             <Box>
-              {item.statuss === "Chờ xác nhận" && (
+              {item.status === "Chờ xác nhận" && (
                 <Button
                   colorScheme="green"
                   size="sm"

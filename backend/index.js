@@ -6,23 +6,25 @@ const fs = require("fs");
 const Routes = require("./routes/Routes");
 const commentsRoutes = require("./routes/commentsRoutes");
 const comment_detailRoutes = require("./routes/comment_detailRoute");
-// const cityRoutes = require("./routes/city");
+const posts = require("./routes/posts");
+const post_categories = require("./routes/post_categories");
 const comment = require("./routes/comment");
 const product_detailRoutes = require("./routes/product_detail/index");
 const citieslRoutes = require("./routes/cities/citiesRoutes");
 const districtsController = require("./routes/districts/index");
-
-
+const order_itemsRoutes = require("./routes/order_items/index");
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(cors({
-  origin: 'http://localhost:3001',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin: "http://localhost:3001",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // Phục vụ các tập tin tĩnh từ thư mục tải lên
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -30,7 +32,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Cấu hình lưu trữ multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const entity = req.params.entity || 'default'; // Lấy thực thể từ tham số URL, mặc định là 'default'
+    const entity = req.params.entity || "default"; // Lấy thực thể từ tham số URL, mặc định là 'default'
     const uploadPath = path.join(__dirname, "uploads", entity);
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
@@ -57,13 +59,16 @@ app.post("/api/upload/:entity", upload.single("file"), (req, res) => {
 });
 
 // Use other routes
-app.use('/api', Routes);
-app.use('/api', commentsRoutes);
-app.use('/api', comment_detailRoutes);
-app.use('/api', product_detailRoutes);
-app.use('/api', citieslRoutes);
-app.use('/api', districtsController);
-app.use('/api', comment);
+app.use("/api", Routes);
+app.use("/api", commentsRoutes);
+app.use("/api", comment_detailRoutes);
+app.use("/api", product_detailRoutes);
+app.use("/api", citieslRoutes);
+app.use("/api", districtsController);
+app.use("/api", comment);
+app.use("/api", posts);
+app.use("/api", post_categories);
+app.use("/api", order_itemsRoutes);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

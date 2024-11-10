@@ -8,7 +8,6 @@ import {
   Tr,
   Th,
   Td,
-  Avatar,
   Text,
   Badge,
   Button,
@@ -21,7 +20,6 @@ import {
   AlertDialogOverlay,
   useColorModeValue,
   useToast,
-  Img, // Correctly import useToast
 } from "@chakra-ui/react";
 
 import { fetchUsers, deleteUser } from "../../../../service/api/users";
@@ -31,7 +29,7 @@ const AuthorsTable = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const cancelRef = useRef();
-  const toast = useToast(); // Initialize toast
+  const toast = useToast();
 
   useEffect(() => {
     const getUser = async () => {
@@ -50,7 +48,7 @@ const AuthorsTable = () => {
   const handleConfirmDelete = async () => {
     try {
       if (selectedUser) {
-        await deleteUser(selectedUser.id); // Changed to deleteUser
+        await deleteUser(selectedUser.id);
         setData((prevData) =>
           prevData.filter((user) => user.id !== selectedUser.id)
         );
@@ -72,7 +70,7 @@ const AuthorsTable = () => {
       });
       console.error("Failed to delete user:", error);
     }
-    setIsOpen(false); // Close the dialog
+    setIsOpen(false);
   };
 
   const handleDeleteClick = (user) => {
@@ -104,8 +102,7 @@ const AuthorsTable = () => {
         return { bg: "gray.500", color: "white" };
     }
   };
-
-
+  
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
       <Flex mb={5} justify="space-between" align="center">
@@ -114,8 +111,8 @@ const AuthorsTable = () => {
           <Button
             bg="#1ba43b"
             color="white"
-            _hover={{ bg: "#189537" }} // Màu khi hover
-            _active={{ bg: "#157f31" }} // Màu khi click
+            _hover={{ bg: "#189537" }}
+            _active={{ bg: "#157f31" }}
           >
             Thêm người dùng mới
           </Button>
@@ -137,38 +134,26 @@ const AuthorsTable = () => {
         </Thead>
         <Tbody>
           {data.map((item, index) => (
+            console.log(`User ${index + 1} - ID: ${item.id}, Status: ${item.status}`),
             <Tr key={item.id} _hover={{ bg: hoverBgColor }}>
               <Td fontWeight="bold">{index + 1}</Td>
               <Td display="none">
-                <Box display="flex" alignItems="center">
-                  <Box>
-                    <Text fontWeight="bold">{item.id}</Text>
-                  </Box>
-                </Box>
+                <Text fontWeight="bold">{item.id}</Text>
               </Td>
               <Td>
-                <Box display="flex" alignItems="center">
-                  <Box>
-                    <Text fontWeight="bold">{item.name}</Text>
-                    <Text fontSize="sm" color="gray.500">
-                      {item.email}
-                    </Text>
-                  </Box>
-                </Box>
+                <Text fontWeight="bold">{item.name}</Text>
+                <Text fontSize="sm" color="gray.500">
+                  {item.email}
+                </Text>
               </Td>
               <Td>
                 <Text fontWeight="bold">{item.username}</Text>
-                <Text fontSize="sm" color="gray.500"></Text>
               </Td>
               <Td>
-                <Box display="flex" alignItems="center">
-                  <Box>
-                    <Text fontWeight="bold">{item.phone}</Text>
-                  </Box>
-                </Box>
+                <Text fontWeight="bold">{item.phone}</Text>
               </Td>
               <Td>
-                <Badge bg={statusBadgeColor(item.role).bg} color={statusBadgeColor(item.role).color}>
+                <Badge {...statusBadgeColor(item.role)}>
                   {item.role}
                 </Badge>
               </Td>
@@ -196,6 +181,7 @@ const AuthorsTable = () => {
               </Td>
             </Tr>
           ))}
+          
         </Tbody>
       </Table>
 
@@ -209,11 +195,9 @@ const AuthorsTable = () => {
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Xác nhận xóa
             </AlertDialogHeader>
-
             <AlertDialogBody>
               Bạn có chắc chắn muốn xóa người dùng này không?
             </AlertDialogBody>
-
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose}>
                 Hủy

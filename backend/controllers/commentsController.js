@@ -6,11 +6,14 @@ exports.getAllReviews = (req, res) => {
     `SELECT
       u.id AS user_id,            
       u.name AS fullname,         
+      p.id AS product_id,
+      p.name, 
       p.*,       
-      r.*        
+      r.* 
     FROM product_reviews r
     JOIN users u ON r.user_id = u.id
     JOIN products p ON r.product_id = p.id`,
+    
     (err, results) => {
       if (err) {
         return res.status(500).json({ error: err.message });
@@ -19,6 +22,7 @@ exports.getAllReviews = (req, res) => {
     }
   );
 };
+
 
 // Lấy đánh giá sản phẩm theo ID
 exports.getReviewById = (req, res) => {

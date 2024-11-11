@@ -3,8 +3,8 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const connection = require('./database'); // Kết nối đến database của bạn
 
 passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    clientID: process.env.GF_CLIENT_ID,
+    clientSecret: process.env.GF_CLIENT_SECRET,
     callbackURL: "http://localhost:3000/api/auth/google/callback"
 },
     (accessToken, refreshToken, profile, done) => {

@@ -38,7 +38,7 @@ exports.getOrderDetailById = (req, res) => {
 
   // Thực hiện truy vấn SQL
   connection.query(
-    `SELECT o.*, od.*, u.name AS users FROM orders o JOIN order_items od ON o.id = od.order_id JOIN users u ON u.id = o.user_id WHERE o.id =  ?`, // Sử dụng dấu hỏi để bảo mật SQL Injection
+    `SELECT o.*, od.*, u.name AS users, pr.name AS product_name FROM orders o JOIN order_items od ON o.id = od.order_id JOIN users u ON u.id = o.user_id JOIN products pr ON pr.id = od.product_id WHERE o.id =  ?`, // Sử dụng dấu hỏi để bảo mật SQL Injection
     [orderId], // Thay thế dấu hỏi bằng giá trị của orderId
     (err, results) => {
       if (err) {

@@ -128,7 +128,7 @@ const OrdersTable = () => {
       {" "}
       <Box>
         <Text fontSize="2xl" fontWeight="bold">
-          Danh sách bài viết
+          Danh sách đơn hàng
         </Text>
 
         {/*  ===================================== thanh tìm kiếm ================================*/}

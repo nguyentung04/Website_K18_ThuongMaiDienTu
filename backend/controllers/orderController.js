@@ -52,7 +52,7 @@ exports.orderByName1 = (req, res) => {
   }
 
   connection.query(
-    `SELECT o.*, od.*, p.* FROM orders o JOIN order_items od ON o.id = od.order_id JOIN products p ON od.product_id = p.id WHERE o.user_id =  ?;`,
+    `SELECT o.*, od.*, u.name AS users, pr.name AS product_name FROM orders o JOIN order_items od ON o.id = od.order_id JOIN users u ON u.id = o.user_id JOIN products pr ON pr.id = od.product_id WHERE o.id =  ?;`,
     [id],
     (err, results) => {
       if (err) {

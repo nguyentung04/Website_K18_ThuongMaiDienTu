@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
+<<<<<<< HEAD
 import { Flex, Text, Spinner, Box, Select } from '@chakra-ui/react';
+=======
+import { Flex, Text, Spinner, Box, Table, Thead, Tbody, Tr, Th, Td } from '@chakra-ui/react';
+>>>>>>> cd8004952b13508fe5d6abea03f38c15728b45d8
 import { Bar } from 'react-chartjs-2';
 import Sidebar from '../../components/Admin/Sidebar';
 import Navbar from '../../components/Admin/Navbar';
@@ -15,8 +19,11 @@ const Dashboard = () => {
   const [userCounts, setUserCounts] = useState({});
   const [locations, setLocations] = useState([]);
   const [loadingLocations, setLoadingLocations] = useState(true);
+<<<<<<< HEAD
   const [selectedProvince, setSelectedProvince] = useState('');
   const [districts, setDistricts] = useState([]);
+=======
+>>>>>>> cd8004952b13508fe5d6abea03f38c15728b45d8
 
   useEffect(() => {
     const getUsers = async () => {
@@ -34,6 +41,10 @@ const Dashboard = () => {
     const getLocations = async () => {
       try {
         const data = await fetchDistricts();
+<<<<<<< HEAD
+=======
+        console.log("District Data:", data);
+>>>>>>> cd8004952b13508fe5d6abea03f38c15728b45d8
         setLocations(data);
       } catch (error) {
         console.error("Failed to fetch locations:", error);
@@ -133,6 +144,10 @@ const Dashboard = () => {
       <Flex>
         <Sidebar />
         <Flex ml={{ base: 0, md: "250px" }} direction="column" flex="1" p={4} bg="#f7fafc">
+<<<<<<< HEAD
+=======
+          <Navbar />
+>>>>>>> cd8004952b13508fe5d6abea03f38c15728b45d8
           <Flex direction="column" p={4} mt="60px" gap={8}>
             <Flex direction="column" flex="1" mb={8}>
               <Text fontSize="2xl" fontWeight="bold">Thống kê người dùng</Text>
@@ -153,6 +168,7 @@ const Dashboard = () => {
               {loadingLocations ? (
                 <Spinner />
               ) : (
+<<<<<<< HEAD
                 <>
                   <Select 
                     placeholder="Chọn Tỉnh/Thành phố" 
@@ -169,6 +185,24 @@ const Dashboard = () => {
                     ))}
                   </Select>
                 </>
+=======
+                <Table variant="simple" mt={4} overflowX="auto">
+                  <Thead>
+                    <Tr>
+                      <Th>Tỉnh/Thành phố</Th>
+                      <Th>Quận/Huyện</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {locations.map((location, index) => (
+                      <Tr key={index}>
+                        <Td>{location.name}</Td>
+                        <Td>{location.districts.join(', ')}</Td> 
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+>>>>>>> cd8004952b13508fe5d6abea03f38c15728b45d8
               )}
             </Flex>
           </Flex>

@@ -21,7 +21,7 @@ const ClientLayout = () => {
       <CartProvider>
         <Navbar />
       </CartProvider>
-      <main>
+      <main className="p-2 g-col-6"  >
         <Outlet /> {/* Outlet sẽ hiển thị các trang con */}
       </main>
       {!shouldHideFooter && <Footer />}

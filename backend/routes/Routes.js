@@ -55,7 +55,5 @@ router.post("/categories", categoryController.postCategory);
 router.put("/categories/:id", categoryController.updateCategory);
 router.delete("/categories/:id", categoryController.deleteCategory);
 
-// // Order routes
-// router.get("/orders", orderController.getAllOrders);
 
 module.exports = router;

@@ -48,10 +48,11 @@ const CheckoutForm = () => {
         console.error("Lỗi khi lấy danh sách tỉnh/thành phố:", error);
       }
     };
-
+ 
     fetchCityData();
   }, []);
-
+ 
+  
   const [userId, setUserId] = useState(null);
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("userData"));

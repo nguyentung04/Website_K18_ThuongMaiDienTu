@@ -71,7 +71,7 @@ const EditPostPage = () => {
     const newErrors = {};
     if (!title) newErrors.title = "Tiêu đề bài viết là bắt buộc.";
     if (!content) newErrors.content = "Nội dung bài viết là bắt buộc.";
-    if (!imageFile && !avt) newErrors.imageFile = "Ảnh là bắt buộc nếu bài viết chưa có ảnh.";
+    if (!imageFile ) newErrors.imageFile = "Ảnh là bắt buộc nếu bài viết chưa có ảnh.";
     if (!author_id) newErrors.author = "Người đăng là bắt buộc.";
     if (!post_categories_id) newErrors.category = "Danh mục bài viết là bắt buộc.";
     return newErrors;

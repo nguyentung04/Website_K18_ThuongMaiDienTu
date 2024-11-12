@@ -30,7 +30,7 @@ const OrderDetail = () => {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/api/order_items/${id}`, {
+        const response = await axios.get(`${BASE_URL}/api/orderByName1/${id}`, {
           timeout: 10000,
         });
         console.log("API Response:", response);

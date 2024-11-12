@@ -242,64 +242,7 @@ const Sidebar = () => {
                 </Button>
               )}
             </NavLink>{" "}
-            <NavLink to="/admin/cities">
-              {({ isActive }) => (
-                <Button
-                  fontFamily="math"
-                  justifyContent="flex-start"
-                  alignItems="center"
-                  bg={isActive ? activeBg : "inherit"}
-                  color={isActive ? activeColor : linkColor}
-                  fontWeight={isActive ? "bold" : "normal"}
-                  _hover={{ bg: activeBg, textDecoration: "none" }}
-                  _active={{ bg: activeBg, color: activeColor }}
-                  mb="0.5px"
-                  mx="auto"
-                  ps="16px"
-                  py="12px"
-                  borderRadius="15px"
-                  w="100%"
-                  height="50px"
-                  leftIcon={
-                    <ProvinceIcon
-                      boxSize={5}
-                      color={isActive ? activeColor : linkColor}
-                    />
-                  }
-                >
-                  Tỉnh thành
-                </Button>
-              )}
-            </NavLink>{" "}
-            <NavLink to="/admin/districts">
-              {({ isActive }) => (
-                <Button
-                  fontFamily="math"
-                  justifyContent="flex-start"
-                  alignItems="center"
-                  bg={isActive ? activeBg : "inherit"}
-                  color={isActive ? activeColor : linkColor}
-                  fontWeight={isActive ? "bold" : "normal"}
-                  _hover={{ bg: activeBg, textDecoration: "none" }}
-                  _active={{ bg: activeBg, color: activeColor }}
-                  mb="0.5px"
-                  mx="auto"
-                  ps="16px"
-                  py="12px"
-                  borderRadius="15px"
-                  w="100%"
-                  height="50px"
-                  leftIcon={
-                    <DistrictIcon
-                      boxSize={5}
-                      color={isActive ? activeColor : linkColor}
-                    />
-                  }
-                >
-                  Quận/Huyện
-                </Button>
-              )}
-            </NavLink>{" "}
+        
             <NavLink
               to="/admin/comments"
               style={({ isActive }) => getLinkStyles({ isActive })}

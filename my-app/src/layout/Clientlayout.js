@@ -16,7 +16,7 @@ const ClientLayout = () => {
     /^\/orders\/\d+$/.test(location.pathname);
 
   return (
-    <>
+    <main style={ {fontFamily:"math"}}>
       {" "}
       <CartProvider>
         <Navbar />
@@ -25,7 +25,7 @@ const ClientLayout = () => {
         <Outlet /> {/* Outlet sẽ hiển thị các trang con */}
       </main>
       {!shouldHideFooter && <Footer />}
-    </>
+    </main>
   );
 };
 

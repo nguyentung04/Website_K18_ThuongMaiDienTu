@@ -106,7 +106,7 @@ const OrdersTable = () => {
               <Td>{order.shipping_address}</Td>
               <Td>{order.payment_method}</Td>
               <Td>
-                <Link to={`/admin/orders/${order.id}`}>
+                <Link to={`order_items/${order.id}`}>
                   <Button colorScheme="blue" size="sm">Chi tiết</Button>
                 </Link>
               </Td>

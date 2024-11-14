@@ -21,12 +21,13 @@ exports.getProductDetailById = (req, res) => {
   const productId = req.params.id;
   connection.query(
     `SELECT pr.*, prm.*, pr_img.*, ct.name AS category
-    FROM products pr
-    INNER JOIN product_meta prm ON pr.id = prm.product_id
-    INNER JOIN product_images pr_img ON pr.id = pr_img.product_id
-    INNER JOIN categories ct ON pr.category_id = ct.id
-    WHERE pr.id = ?`,
-    [productId],
+FROM products pr
+INNER JOIN product_meta prm ON pr.id = prm.product_id
+INNER JOIN product_images pr_img ON pr.id = pr_img.product_id
+INNER JOIN categories ct ON pr.category_id = ct.id
+WHERE pr.id =?`,
+    [productDetailId],
+    // [productId],
     (err, results) => {
       if (err) {
         return res.status(500).json({ error: err.message });

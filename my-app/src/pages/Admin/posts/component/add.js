@@ -25,7 +25,7 @@ const AddPostPage = () => {
   const [views, setViews] = useState(0);
   const [imageFile, setImageFile] = useState(null);
   const [authors, setAuthors] = useState([]); // State để lưu danh sách người đăng
-  const [categories, setCategories] = useState([]); // State để lưu danh sách danh mục
+  const [post_categories, setCategories] = useState([]); // State để lưu danh sách danh mục
   const [errors, setErrors] = useState({});
   const toast = useToast();
   const navigate = useNavigate();
@@ -82,7 +82,7 @@ const AddPostPage = () => {
     try {
       // Gửi yêu cầu tải lên hình ảnh
       const response = await axios.post(
-        `http://localhost:3000/api/upload/categories`,
+        `http://localhost:3000/api/upload/posts`,
         formData,
         {
           headers: {
@@ -191,7 +191,7 @@ const AddPostPage = () => {
             value={post_categories_id}
             onChange={(e) => setPostCategoriesId(e.target.value)}
           >
-            {categories.map((category) => (
+            {post_categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
               </option>

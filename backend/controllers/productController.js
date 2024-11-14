@@ -180,8 +180,8 @@ exports.addProduct = (req, res) => {
 
   // Thêm sản phẩm vào bảng products
   const query = `
-    INSERT INTO products (name, description, price, stock, category_id, created_at)
-    VALUES (?, ?, ?, ?, ?, NOW());
+    INSERT INTO products (name, description, price, stock, category_id, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, NOW(), NOW());
   `;
   const productData = [name, description, price, stock, category_id];
 
@@ -195,7 +195,7 @@ exports.addProduct = (req, res) => {
     // Thêm hình ảnh cho sản phẩm nếu có
     if (images && images.length > 0) {
       const imageValues = images.map((image_url) => [productId, image_url]);
-      const imageQuery = `INSERT INTO product_images (product_id, image_url) VALUES ?`;
+      const imageQuery = `INSERT INTO product_images (product_id, image_url,is_primary) VALUES ?`; // Use VALUES ? for bulk insert
 
       connection.query(imageQuery, [imageValues], (err) => {
         if (err) {
@@ -208,6 +208,7 @@ exports.addProduct = (req, res) => {
     }
   });
 };
+
 
 // Cập nhật sản phẩm
 exports.updateProduct = (req, res) => {

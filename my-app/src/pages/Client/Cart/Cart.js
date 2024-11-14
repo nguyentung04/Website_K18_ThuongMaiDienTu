@@ -167,23 +167,25 @@ const Cart = () => {
           <Box key={item.id}>
             {" "}
             <CartProvider>
-              <Flex>
-                <Img
-                  style={{ mixBlendMode: "multiply" }}
-                  src={`${BASE_URL}/uploads/products/${item.image}`}
-                  alt={item.name}
-                  maxWidth="114px"
-                />
-                <Box
-                  width="78%"
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-around",
-                    alignItems: "Center",
-                  }}
-                >
-                  <Box
+              <Box
+                className="d-flex justify-content-between "
+              
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  alignItems: "Center",
+                }}
+              >
+                <Flex>
+                  <Img
+                    style={{ mixBlendMode: "multiply" }}
+                    className="me-4"
+                    src={`${BASE_URL}/uploads/products/${item.image}`}
+                    alt={item.name}
+                    maxWidth="114px"
+                  />
+                  <Heading
                     style={{
                       width: "300px",
                       display: "-webkit-box",
@@ -192,69 +194,72 @@ const Cart = () => {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                     }}
+                    as="h5"
+                    size="sm"
+                    color="#666"
+                    mb={2}
                   >
-                    <Heading as="h5" size="sm" color="#666" mb={2}>
-                      {item.name}
-                    </Heading>
-                  </Box>
-                  <Flex fontWeight="bold">
-                    <span> Giá: </span>{" "}
-                    <Text fontWeight="bold" style={{ marginLeft: "5px" }}>
-                      {item.discountPrice
-                        ? formatPrice(item.discountPrice)
-                        : formatPrice(item.price)}
-                    </Text>{" "}
-                  </Flex>
+                    {item.name}
+                  </Heading>
+                </Flex>
 
-                  <Flex align="center" gap={1}>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => decreaseQuantity(item.id)}
-                      width="33px"
-                      height="35px"
-                    >
-                      -
-                    </Button>
-                    <Input
-                      px={2}
-                      value={item.quantity}
-                      onChange={(e) => handleQuantityChange(e, item.id)}
-                      textAlign="center"
-                      width="60px"
-                      background="#ffffff"
-                      height="35px"
-                    />
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => increaseQuantity(item.id)}
-                    >
-                      +
-                    </Button>
-                  </Flex>
-                  <Flex fontWeight="bold">
-                    <span>
-                      {" "}
-                      Tổng giá: <br></br>
-                    </span>
-                    <Text
-                      fontWeight="bold"
-                      className={fadePrice === item.id ? "fade" : "show"}
-                      style={{ marginLeft: "5px" }}
-                    >
-                      {formatPrice(getProductTotal(item))}
-                    </Text>
-                  </Flex>
-                  <button
-                    className="remove-button"
-                    onClick={() => removeFromCart(item.id)}
+                <Flex fontWeight="bold">
+                  <span> Giá: </span>{" "}
+                  <Text fontWeight="bold" style={{ marginLeft: "5px" }}>
+                    {item.discountPrice
+                      ? formatPrice(item.discountPrice)
+                      : formatPrice(item.price)}
+                  </Text>{" "}
+                </Flex>
+
+                <Flex align="center" gap={1}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => decreaseQuantity(item.id)}
+                    width="33px"
+                    height="35px"
                   >
-                    <DeleteIcon />
-                    <deleteIcon />
-                  </button>
-                </Box>
-              </Flex>
+                    -
+                  </Button>
+                  <Input
+                    px={2}
+                    value={item.quantity}
+                    onChange={(e) => handleQuantityChange(e, item.id)}
+                    textAlign="center"
+                    width="60px"
+                    background="#ffffff"
+                    height="35px"
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => increaseQuantity(item.id)}
+                  >
+                    +
+                  </Button>
+                </Flex>
+                <Flex fontWeight="bold">
+                  <span>
+                    {" "}
+                    Tổng giá: <br></br>
+                  </span>
+                  <Text
+                    fontWeight="bold"
+                    className={fadePrice === item.id ? "fade" : "show"}
+                    style={{ marginLeft: "5px" }}
+                  >
+                    {formatPrice(getProductTotal(item))}
+                  </Text>
+                </Flex>
+                <button
+                  className="remove-button"
+                  onClick={() => removeFromCart(item.id)}
+                >
+                  <DeleteIcon />
+                  <deleteIcon />
+                </button>
+              </Box>
             </CartProvider>
             <Divider borderColor="#666" />
           </Box>

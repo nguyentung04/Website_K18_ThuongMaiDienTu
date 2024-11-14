@@ -88,7 +88,6 @@
 // app.listen(port, () => {
 //   console.log(`Server đã khởi chạy ${port}`);
 // });
-// server.js
 require('dotenv').config();
 const express = require("express");
 const cors = require("cors");

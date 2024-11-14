@@ -34,7 +34,7 @@ const FeaturedProducts = () => {
     const fetchProducts = async () => {
       try {
         const featuredResponse = await axios.get(
-          `${BASE_URL}/api/products_noibat`
+          `${BASE_URL}/api/products`
         );
         setFeaturedProducts(featuredResponse.data);
 
@@ -209,7 +209,7 @@ const FeaturedProducts = () => {
                               : "white"
                           }
                         />
-                        <span>{likeCounts[product.id] || 0}</span>
+                        {/* <span>{likeCounts[product.id] || 0}</span> */}
                       </button>
                       <button
                         className="add-to-cart-icon"
@@ -228,7 +228,7 @@ const FeaturedProducts = () => {
                         <a href={`/product/${product.id}`} className="plain">
                           <div className="product-image">
                             <img
-                              src={`${BASE_URL}/uploads/products/${product.image}`}
+                              src={`${BASE_URL}/uploads/products/${product.images}`}
                               alt={product.name}
                             />
                           </div>

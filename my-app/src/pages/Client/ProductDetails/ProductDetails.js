@@ -121,7 +121,7 @@ const ProductDetails = ({ user }) => {
   return (
     <div className="product-details">
       <div className="container">
-        <div class="container-menu" id="logo thương hiệu & menu">
+        {/* <div class="container-menu" id="logo thương hiệu & menu">
           <div class="brand-logo">
             <Img
               src="my-app/public/logo192.png"
@@ -132,7 +132,7 @@ const ProductDetails = ({ user }) => {
               class="img-fluid"
             />
           </div>
-        </div>
+        </div> */}
         <hr />
         <div className="product-detail-container">
           <div className="product-image-section">
@@ -142,7 +142,7 @@ const ProductDetails = ({ user }) => {
               <div className="image-slider-container"></div>
             ) : (
               <img
-                src={`${BASE_URL}/uploads/products/${product.image}`}
+                src={`${BASE_URL}/uploads/products/${product.image_url}`}
                 alt={product.name}
                 className="product-image"
               />
@@ -239,7 +239,7 @@ const ProductDetails = ({ user }) => {
                   onClick={scrollToProductInfo}
                   className="scroll-button introduce"
                 >
-                  GIỚI THIỆU
+                  MÔ TẢ SẢN PHẨM
                 </button>
               </li>
               <li>
@@ -270,7 +270,7 @@ const ProductDetails = ({ user }) => {
           </div>
         </div>
         <div ref={productInfoRef} className="introduction-section">
-          <h2>GIỚI THỆU</h2>
+          <h2>MÔ TẢ SẢN PHẨM</h2>
 
           <div
             className={`introduction-content ${

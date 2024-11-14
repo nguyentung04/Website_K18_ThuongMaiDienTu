@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Image,
@@ -12,286 +12,173 @@ import {
   Input,
   List,
   ListItem,
-} from "@chakra-ui/react"; // Chakra UI components
-import "./ProductDetails.css"; // Import CSS file
-import { fetchProductDetail } from "../../../../service/api/product_detail";
-import { useParams, useNavigate } from "react-router-dom";
+} from "@chakra-ui/react";
+import "./ProductDetails.css";
+import {
+  fetchProductDetailById,
+  fetchProductDetails,
+} from "../../../../service/api/product_detail";
 
 const ProductDetails = () => {
-  const [product, setProduct] = useState(null);
-  const { id } = useParams(); // Get product ID from URL params
+  const [product, setProduct] = useState([]); // Lưu danh sách sản phẩm
+  const { id } = useParams(); // Lấy ID sản phẩm từ URL
   const toast = useToast();
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
-  const navigate = useNavigate(); // Using useNavigate to redirect
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState(""); // Chuỗi tìm kiếm
+  const [suggestions, setSuggestions] = useState([]); // Gợi ý sản phẩm
 
-  const [searchQuery, setSearchQuery] = useState(""); // Lưu chuỗi tìm kiếm
-  const [suggestions, setSuggestions] = useState([]); // Lưu gợi ý quận/huyện
+  // Lấy dữ liệu chi tiết sản phẩm
+  const getProductDetails = useCallback(async () => {
+    try {
+      const data = id
+        ? [await fetchProductDetailById(id)]
+        : await fetchProductDetails();
+      setProduct(data);
+    } catch (error) {
+      toast({
+        title: "Lỗi",
+        description: "Không thể tải thông tin sản phẩm.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      console.error("Error fetching product:", error);
+    }
+  }, [id, toast]);
 
+  // Lấy dữ liệu khi component mount
   useEffect(() => {
-    const getProduct = async () => {
-      try {
-        const data = await fetchProductDetail(id); // Fetch product detail by ID
-        if (data) {
-          setProduct(data); // Set single product object
-        }
-      } catch (error) {
-        toast({
-          title: "Error fetching product",
-          description: "Failed to fetch product details.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-        console.error("Failed to fetch product:", error);
-      }
-    };
-    getProduct();
-  }, [id, toast]); // Add id and toast as dependencies
+    getProductDetails();
+  }, [getProductDetails]);
 
-  if (!product) {
-    return <Text>Loading...</Text>; // Handle loading state
+  // Xử lý khi không có dữ liệu
+  if (product.length === 0) {
+    return <Text>Loading hoặc không có sản phẩm!</Text>;
   }
-  console.log(id);
-  
-  //** ========================================================================================== */
-  // Hàm xử lý sự kiện khi người dùng nhập vào ô tìm kiếm
+
+  // Xử lý tìm kiếm sản phẩm
   const handleInputChange = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
 
-    // Nếu chuỗi tìm kiếm không rỗng, lọc danh sách quận/huyện
-    if (query !== "") {
-      const filteredSuggestions = product.filter((product) =>
+    // Lọc sản phẩm dựa trên tên
+    const filteredSuggestions = query
+      ? product.filter((item) =>
         product.name.toLowerCase().includes(query)
-      );
-      setSuggestions(filteredSuggestions);
-    } else {
-      setSuggestions([]);
-    }
+      )
+      : [];
+    setSuggestions(filteredSuggestions);
   };
 
-  // Hàm xử lý khi người dùng chọn 1 gợi ý
+  // Khi chọn một gợi ý
   const handleSuggestionClick = (suggestion) => {
-    setSearchQuery(suggestion.name); // Cập nhật chuỗi tìm kiếm với tên đã chọn
-    setSuggestions([]); // Ẩn danh sách gợi ý sau khi chọn
+    setSearchQuery(suggestion.name);
+    navigate(`/admin/productsdetail/${suggestion.product_id}`);
+    setSuggestions([]);
   };
 
-  // Filter cities based on search query
-  const filteredproduct = product.filter((product) =>
+  // Lọc sản phẩm theo chuỗi tìm kiếm
+  const filteredProducts = product.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <Box className="product-details" w={"100%"}>
-      <Flex className="product-details" w={"100%"}>
-        {/* Product Image */}
-        <Box w={"100%"}>
-          <Box
-            display={"flex"}
-            flexDirection={"row"}
-            justifyContent={"space-between"}
-            alignItems={"center"} // Corrected alignitems to alignItems
-          >
-            <Text as="h2" size="lg" mb="4">
+    <Box className="product-details" w="100%">
+      <Flex w="100%" flexDirection="column">
+        {/* Tiêu đề và nút thêm sản phẩm */}
+        <Box w="100%" mb={4}>
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text as="h2" fontSize="2xl">
               Thông tin sản phẩm
             </Text>
-            <Link to="admin/productsdetail/add">
-              <Button
-                bg="#1ba43b"
-                color="white"
-                _hover={{ bg: "#189537" }}
-                _active={{ bg: "#157f31" }}
-              >
+            <Link to="/admin/productsdetail/add">
+              <Button bg="#1ba43b" color="white" _hover={{ bg: "#189537" }}>
                 Thêm
               </Button>
             </Link>
-          </Box>
-        </Box>
-        {/*  ===================================== thanh tìm kiếm ================================*/}
-        <Flex align="center" mb={4}>
-          {/* Input tìm kiếm */}
-          <Flex opacity={1}>
-            <Input
-              placeholder="Tìm kiếm..."
-              value={searchQuery}
-              onChange={handleInputChange} // Sửa lại hàm onChange
-              variant="outline"
-              borderColor="#00aa9f"
-              color="black"
-              mr={2}
-              width="200px"
-            />
-            {/* Hiển thị gợi ý */}
-            {suggestions.length > 0 && (
-              <List
-                border="1px solid #ccc"
-                borderRadius="md"
-                bg="white"
-                // mt={2}
-                position={"absolute"}
-                marginTop={10}
-                width="200px"
-                paddingLeft={0}
-                zIndex={10}
-              >
-                {suggestions.map((suggestion) => (
-                  <ListItem
-                    key={suggestion.id}
-                    p={2}
-                    _hover={{ bg: "gray.200", cursor: "pointer" }}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                  >
-                    {suggestion.name}
-                  </ListItem>
-                ))}
-              </List>
-            )}
           </Flex>
-          <Button
-            fontFamily="math"
-            variant="solid"
-            colorScheme="teal"
-            bg="#00aa9f"
-            _hover={{ bg: "#32dfd4" }}
-            mr={4}
-          >
-            Tìm kiếm
-          </Button>
+        </Box>
+
+        {/* Thanh tìm kiếm */}
+        <Flex align="center" mb={4}>
+          <Input
+            placeholder="Tìm kiếm sản phẩm..."
+            value={searchQuery}
+            onChange={handleInputChange}
+            variant="outline"
+            borderColor="#00aa9f"
+            color="black"
+            width="300px"
+            mr={2}
+          />
+          {suggestions.length > 0 && (
+            <List
+              border="1px solid #ccc"
+              borderRadius="md"
+              bg="white"
+              mt={2}
+              width="300px"
+              position="absolute"
+              zIndex={10}
+            >
+              {suggestions.map((suggestion) => (
+                <ListItem
+                  key={suggestion.product_id}
+                  p={2}
+                  _hover={{ bg: "gray.200", cursor: "pointer" }}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  {suggestion.name}
+                </ListItem>
+              ))}
+            </List>
+          )}
         </Flex>
-        {filteredproduct.map((product) => (
+
+        {/* Danh sách sản phẩm */}
+        {filteredProducts.map((product) => (
           <Flex
-            key={product.id}
+            key={product.product_id}
             _hover={{ bg: hoverBgColor }}
-            className="product-details"
+            p={4}
+            border="1px solid #e2e8f0"
+            borderRadius="md"
+            mb={4}
+            alignItems="center"
           >
-            <Flex gap="4">
-              <Box className="product-image">
-                <Image
-                  w={350}
-                  h={350}
-                  src={`http://localhost:3000/uploads/products/${product.image}`}
-                  alt={product.name}
-                  className="product-image img"
-                />
+            <Image
+              w={150}
+              h={150}
+              src={`http://localhost:3000/uploads/products/${product.image_url}`}
+              alt={product.name}
+              mr={4}
+            />
+            <Grid templateColumns="repeat(2, 1fr)" gap={4} w="full">
+              <Box>
+                <Text fontWeight="bold">Tên sản phẩm: {product.name}</Text>
+                <Text fontWeight="bold">Mô tả: {product.description}</Text>
               </Box>
-
-              {/* Product Information */}
-              <Grid templateColumns="repeat(2, 1fr)" gap="4">
-                <Box className="product-info">
-                  <Grid templateColumns="repeat(1, 1fr)" gap="4">
-                    <Flex className="product-info-item">
-                      <Text whiteSpace={"nowrap"} fontWeight="bold">
-                        Tên sản phẩm:
-                      </Text>
-                      <Text>{product.name}</Text>
-                    </Flex>
-
-                    <Flex className="product-info-item">
-                      <Text whiteSpace={"nowrap"} fontWeight="bold">
-                        Bộ sưu tập:
-                      </Text>
-                      <Text>{product.collection}</Text>
-                    </Flex>
-
-                    <Flex className="product-info-item">
-                      <Text whiteSpace={"nowrap"} fontWeight="bold">
-                        Mô tả:
-                      </Text>
-                      <Text>{product.description}</Text>
-                    </Flex>
-
-                    <Grid templateColumns="repeat(2, 1fr)" gap="4">
-                      <Flex className="product-info-item">
-                        <Text whiteSpace={"nowrap"} fontWeight="bold">
-                          Loại:
-                        </Text>
-                        <Text>{product.category}</Text>
-                      </Flex>
-
-                      <Flex className="product-info-item">
-                        <Text whiteSpace={"nowrap"} fontWeight="bold">
-                          Giới tính:
-                        </Text>
-                        <Text>{product.gender}</Text>
-                      </Flex>
-
-                      <Flex className="product-info-item">
-                        <Text whiteSpace={"nowrap"} fontWeight="bold">
-                          Màu:
-                        </Text>
-                        <Text>{product.coler}</Text>
-                      </Flex>
-
-                      <Flex className="product-info-item">
-                        <Text whiteSpace={"nowrap"} fontWeight="bold">
-                          Số lượng:
-                        </Text>
-                        <Text>{product.quantity}</Text>
-                      </Flex>
-                    </Grid>
-                  </Grid>
-                </Box>
-
-                {/* Pricing */}
-                <Box className="product-pricing">
-                  <Grid templateColumns="repeat(1, 1fr)" gap="4">
-                    <Flex className="product-info-item">
-                      <Text whiteSpace={"nowrap"} fontWeight="bold">
-                        Giá:
-                      </Text>
-                      <Text>
-                        {product.price} {product.currency}
-                      </Text>
-                    </Flex>
-                    <Flex className="product-info-item">
-                      <Text whiteSpace={"nowrap"} fontWeight="bold">
-                        SKU:
-                      </Text>
-                      <Text>{product.identification}</Text>
-                    </Flex>
-                  </Grid>
-
-                  <Grid templateColumns="repeat(2 , 1fr)" gap="4">
-                    <Flex className="product-info-item">
-                      <Text whiteSpace={"nowrap"} fontWeight="bold">
-                        Loại máy:
-                      </Text>
-                      <Text>{product.machineType}</Text>
-                    </Flex>
-                    <Flex className="product-info-item">
-                      <Text whiteSpace={"nowrap"} fontWeight="bold">
-                        Độ dầy:
-                      </Text>
-                      <Text>{product.thickness}</Text>
-                    </Flex>
-                    <Flex className="product-info-item">
-                      <Text whiteSpace={"nowrap"} fontWeight="bold">
-                        Loại dây:
-                      </Text>
-                      <Text>{product.wireMaterial}</Text>
-                    </Flex>
-                    <Flex className="product-info-item">
-                      <Text whiteSpace={"nowrap"} fontWeight="bold">
-                        Chống nước:
-                      </Text>
-                      <Text>{product.antiWater}</Text>
-                    </Flex>
-                  </Grid>
-                </Box>
-              </Grid>
-            </Flex>
-            <Link to={`admin/productsdetail/edit/${product.product_id}`}>
+              <Box>
+                <Text fontWeight="bold">Giá: {product.price.toLocaleString("vi-VN", { style: "currency", currency: "VND" } )}</Text>
+                <Text fontWeight="bold">Loại: {product.category}</Text>
+                <Text fontWeight="bold">Giới tính: {product.gender}</Text>
+                <Text fontWeight="bold">Màu sắc: {product.color}</Text>
+                <Text>{product.color}</Text>
+              </Box>
+            </Grid>
+            <Link to={`/admin/productsdetail/edit/${product.product_id}`}>
               <Button
                 colorScheme="blue"
                 size="sm"
-                fontWeight={"bold"}
-                fontSize={18}
+                ml={4}
+                fontWeight="bold"
+                fontSize={14}
                 w={100}
-                borderRadius={5}
               >
                 Sửa
               </Button>
-            </Link>{" "}
+            </Link>
           </Flex>
         ))}
       </Flex>

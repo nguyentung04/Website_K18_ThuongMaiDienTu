@@ -6,11 +6,14 @@ exports.getAllReviews = (req, res) => {
     `SELECT
       u.id AS user_id,            
       u.name AS fullname,         
+      p.id AS product_id,
+      p.name, 
       p.*,       
-      r.*        
+      r.* 
     FROM product_reviews r
     JOIN users u ON r.user_id = u.id
     JOIN products p ON r.product_id = p.id`,
+    
     (err, results) => {
       if (err) {
         return res.status(500).json({ error: err.message });
@@ -19,6 +22,7 @@ exports.getAllReviews = (req, res) => {
     }
   );
 };
+
 
 // Lấy đánh giá sản phẩm theo ID
 exports.getReviewById = (req, res) => {
@@ -89,29 +93,41 @@ exports.getReviewsByProductID = async (req, res) => {
 // Đăng đánh giá cho sản phẩm
 exports.postReviewByProductID = async (req, res) => {
   try {
-    const { product_id, user_id, content, rating } = req.body;
+      const { product_id } = req.params;
+      const { user_id, content, rating } = req.body;
 
-    if (rating < 1 || rating > 5) {
-      return res.status(400).send("Rating phải nằm trong khoảng từ 1 đến 5.");
-    }
+      if (rating < 1 || rating > 5) {
+          return res.status(400).send("Rating phải nằm trong khoảng từ 1 đến 5.");
+      }
 
-    await connection.promise().beginTransaction();
+      // Kiểm tra product_id có tồn tại không
+      const [productRows] = await connection.promise().query(
+          "SELECT id FROM products WHERE id = ?",
+          [product_id]
+      );
 
-    const insertReviewQuery = `
-      INSERT INTO product_reviews (product_id, user_id, rating, content)
-      VALUES (?, ?, ?, ?);
-    `;
-    await connection.promise().query(insertReviewQuery, [product_id, user_id, rating, content]);
+      if (productRows.length === 0) {
+          return res.status(404).send("Sản phẩm không tồn tại.");
+      }
 
-    await connection.promise().commit();
+      await connection.promise().beginTransaction();
 
-    res.status(201).send("Đánh giá đã được thêm thành công.");
+      const insertReviewQuery = `
+          INSERT INTO product_reviews (product_id, user_id, rating, content)
+          VALUES (?, ?, ?, ?);
+      `;
+      await connection.promise().query(insertReviewQuery, [product_id, user_id, rating, content]);
+
+      await connection.promise().commit();
+
+      res.status(201).send("Đánh giá đã được thêm thành công.");
   } catch (error) {
-    console.error("Lỗi khi thêm đánh giá:", error.message);
-    await connection.promise().rollback();
-    res.status(500).send("Có lỗi xảy ra khi thêm đánh giá.");
+      console.error("Lỗi khi thêm đánh giá:", error.message);
+      await connection.promise().rollback();
+      res.status(500).send("Có lỗi xảy ra khi thêm đánh giá.");
   }
 };
+
 
 // Đăng phản hồi theo review_detail_id
 exports.postReplyByReviewDetailID = async (req, res) => {
@@ -209,3 +225,4 @@ exports.getReplyCountByDetailID = (req, res) => {
     return res.json({ success: true, replyCount });
   });
 };
+

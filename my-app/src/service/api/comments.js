@@ -40,3 +40,6 @@ export const updateProductReviewCounts = async () => {
         throw error; // This rethrows the error so that the calling code can handle it if needed
     }
 };
+
+
+

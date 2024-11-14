@@ -33,7 +33,7 @@ const BestSellingProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const featuredResponse = await axios.get(`${BASE_URL}/api/products_banchay`);
+        const featuredResponse = await axios.get(`${BASE_URL}/api/products`);
         setBestSellingProducts(featuredResponse.data);
 
         // Restore liked products from local storage
@@ -208,7 +208,7 @@ const BestSellingProducts = () => {
                               : "white"
                           }
                         />
-                        <span>{likeCounts[product.id] || 0}</span>
+                        
                       </button>
                       <button
                         className="add-to-cart-icon"
@@ -227,9 +227,10 @@ const BestSellingProducts = () => {
                         <a href={`/product/${product.id}`} className="plain">
                           <div className="product-image">
                             <img
-                              src={`${BASE_URL}/uploads/products/${product.image}`}
+                              src={`${BASE_URL}/uploads/products/${product.images}`}
                               alt={product.name}
                             />
+
                           </div>
                           <div className="product-info">
                             <p className="product-title">{product.name}</p>
@@ -249,7 +250,7 @@ const BestSellingProducts = () => {
                                       -{Math.round(((product.price - product.discountPrice) / product.price) * 100)}%
                                     </span>
                                   </div>
-                                  <p>{formatPrice(product.discountPrice)}</p>
+                                  
                                 </>
                               ) : (
                                 <p>{formatPrice(product.price)}</p>

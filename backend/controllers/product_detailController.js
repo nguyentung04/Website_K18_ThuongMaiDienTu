@@ -2,10 +2,11 @@ const connection = require("../config/database");
 
 exports.getAllProduct_Details = (req, res) => {
   connection.query(
-    `SELECT pr.*, prd.*, ct.name AS category
+    `SELECT pr.*, prm.*, pr_img.*, ct.name AS category
 FROM products pr
-INNER JOIN product_detail prd ON pr.id = prd.product_id
-INNER JOIN categories ct ON pr.category_id = ct.id;
+INNER JOIN product_meta prm ON pr.id = prm.product_id
+INNER JOIN product_images pr_img ON pr.id = pr_img.product_id
+INNER JOIN categories ct ON pr.category_id = ct.id
  `,
     (err, results) => {
       if (err) {
@@ -17,16 +18,15 @@ INNER JOIN categories ct ON pr.category_id = ct.id;
 };
 
 exports.getProductDetailById = (req, res) => {
-  // const productId = req.params.id;
-  const productDetailId = req.params.id;
+  const productId = req.params.id;
   connection.query(
-    `SELECT pr.*, prd.*, ct.name AS category
-FROM products pr
-INNER JOIN product_detail prd ON pr.id = prd.product_id
-INNER JOIN categories ct ON pr.category_id = ct.id
- WHERE prd.product_id = ?`,
-    [productDetailId],
-    // [productId],
+    `SELECT pr.*, prm.*, pr_img.*, ct.name AS category
+    FROM products pr
+    INNER JOIN product_meta prm ON pr.id = prm.product_id
+    INNER JOIN product_images pr_img ON pr.id = pr_img.product_id
+    INNER JOIN categories ct ON pr.category_id = ct.id
+    WHERE pr.id = ?`,
+    [productId],
     (err, results) => {
       if (err) {
         return res.status(500).json({ error: err.message });
@@ -38,6 +38,7 @@ INNER JOIN categories ct ON pr.category_id = ct.id
     }
   );
 };
+
 
 exports.updateProductDetail = (req, res) => {
   const productId = req.params.id; // Use product_id from the URL params
@@ -68,7 +69,7 @@ exports.updateProductDetail = (req, res) => {
 
   // Prepare the SQL query to update multiple fields
   const query = `
-    UPDATE product_detail
+    UPDATE products
     SET machineType = ?, identification = ?, thickness = ?, wireMaterial = ?, antiWater = ?, gender = ?, coler = ?
     WHERE product_id = ?;  -- Make sure to use product_id instead of id
   `;
@@ -114,7 +115,7 @@ exports.postProductDetail = (req, res) => {
 
   // Prepare the SQL query
   const query = `
-    INSERT INTO product_detail (machineType, identification, thickness, wireMaterial, antiWater, gender, coler, product_id) 
+    INSERT INTO products (machineType, identification, thickness, wireMaterial, antiWater, gender, coler, product_id) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `;
   const values = [
@@ -144,7 +145,7 @@ exports.getAllProduct_not_in_the_table = (req, res) => {
   connection.query(
     `SELECT p.*
 FROM products p
-LEFT JOIN product_detail pd ON p.id = pd.product_id
+LEFT JOIN products pd ON p.id = pd.product_id
 WHERE pd.product_id IS NULL;
 
  `,
@@ -156,3 +157,5 @@ WHERE pd.product_id IS NULL;
     }
   );
 };
+
+

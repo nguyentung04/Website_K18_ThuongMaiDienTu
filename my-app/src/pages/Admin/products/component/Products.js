@@ -21,6 +21,9 @@ import {
   useColorModeValue,
   useToast,
   Spinner,
+  Input,
+  List,
+  ListItem,
 } from "@chakra-ui/react";
 import { fetchProducts, deleteProduct } from "../../../../service/api/products";
 
@@ -28,6 +31,8 @@ const ProductsTable = () => {
   const [products, setProducts] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
   const cancelRef = useRef();
   const toast = useToast();
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
@@ -62,6 +67,29 @@ const ProductsTable = () => {
 
     getProducts();
   }, [toast]);
+
+  const handleInputChange = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    if (query !== "") {
+      const filteredSuggestions = products.filter((product) =>
+        product.name.toLowerCase().includes(query)
+      );
+      setSuggestions(filteredSuggestions);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion.name);
+    setSuggestions([]);
+  };
+
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const onClose = () => setIsOpen(false);
 
@@ -108,7 +136,57 @@ const ProductsTable = () => {
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
       <Flex mb={5} justify="space-between" align="center">
-        <Text fontSize="2xl" fontWeight="bold">Danh sách sản phẩm</Text>
+        <Box>
+          <Text fontSize="2xl" fontWeight="bold">Danh sách sản phẩm</Text>
+          <Flex align="center" mb={4}>
+            <Flex opacity={1}>
+              <Input
+                placeholder="Tìm kiếm tên sản phẩm..."
+                value={searchQuery}
+                onChange={handleInputChange}
+                variant="outline"
+                borderColor="#00aa9f"
+                color="black"
+                mr={2}
+                width="200px"
+              />
+              {suggestions.length > 0 && (
+                <List
+                  border="1px solid #ccc"
+                  borderRadius="md"
+                  bg="white"
+                  position="absolute"
+                  marginTop={10}
+                  width="200px"
+                  paddingLeft={0}
+                  zIndex={1000}
+                >
+                  {suggestions.map((suggestion) => (
+                    <ListItem
+                      key={suggestion.id}
+                      p={2}
+                      _hover={{ bg: "gray.200", cursor: "pointer" }}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                    >
+                      {suggestion.name}
+                    </ListItem>
+                  ))}
+                </List>
+              )}
+            </Flex>
+            <Button
+              fontFamily="math"
+              variant="solid"
+              colorScheme="teal"
+              bg="#00aa9f"
+              _hover={{ bg: "#32dfd4" }}
+              mr={4}
+            >
+              Tìm kiếm
+            </Button>
+          </Flex>
+
+        </Box>
         <Link to="admin/products/add">
           <Button
             bg="#1ba43b"
@@ -122,26 +200,23 @@ const ProductsTable = () => {
       </Flex>
 
       {error && <Text color="red.500">{error}</Text>}
-      {products.length === 0 && <Text color="gray.500">Không có sản phẩm nào để hiển thị.</Text>}
+      {filteredProducts.length === 0 && <Text color="gray.500">Không có sản phẩm nào để hiển thị.</Text>}
 
       <Table variant="simple">
         <Thead>
           <Tr>
             <Th>STT</Th>
-            <Th display="none">ID</Th>
             <Th>Ảnh</Th>
             <Th>Tên sản phẩm</Th>
             <Th>Loại sản phẩm</Th>
-            <Th>Mô tả</Th>
             <Th>Giá (VNĐ)</Th>
             <Th>Hoạt động</Th>
           </Tr>
         </Thead>
         <Tbody>
-          {products.map((product, index) => (
+          {filteredProducts.map((product, index) => (
             <Tr key={product.id} _hover={{ bg: hoverBgColor }}>
               <Td fontWeight="bold">{index + 1}</Td>
-              <Td display="none">{product.id}</Td>
               <Td>
                 <Img
                   src={`http://localhost:3000/uploads/products/${product.images}`}
@@ -152,47 +227,19 @@ const ProductsTable = () => {
                   alt={product.name}
                 />
               </Td>
-              <Td>
-                <Text fontWeight="bold">{product.name}</Text>
-              </Td>
-              <Td>
-                <Text>{product.category}</Text>
-              </Td>
-              <Td>
-                <Text>{product.description || "Không có mô tả"}</Text>
-              </Td>
-              <Td>
-                <Text>{formatCurrency(product.price)}</Text>
-              </Td>
+              <Td>{product.name}</Td>
+              <Td>{product.category}</Td>
+              <Td>{formatCurrency(product.price)}</Td>
               <Td>
                 <Link to={`admin/products/edit/${product.id}`}>
                   <Button colorScheme="blue" size="sm" mr={2}>Sửa</Button>
                 </Link>
-                <Button
-                  colorScheme="red"
-                  size="sm"
-                  onClick={() => handleDeleteClick(product)}
-                >
-                  Xóa
-                </Button>
+                <Button colorScheme="red" size="sm" onClick={() => handleDeleteClick(product)}>Xóa</Button>
               </Td>
             </Tr>
           ))}
         </Tbody>
       </Table>
-
-      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">Xác nhận xóa</AlertDialogHeader>
-            <AlertDialogBody>Bạn có chắc chắn muốn xóa sản phẩm này không?</AlertDialogBody>
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose}>Hủy</Button>
-              <Button colorScheme="red" onClick={handleConfirmDelete} ml={3}>Xóa</Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
     </Box>
   );
 };

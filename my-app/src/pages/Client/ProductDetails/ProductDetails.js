@@ -49,7 +49,7 @@ const ProductDetails = ({ user }) => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/api/product_detail/${id}`);
+        const response = await axios.get(`${BASE_URL}/api/order_items/${id}`);
         setProduct(response.data);
       } catch (error) {
         setError("Lỗi khi lấy dữ liệu sản phẩm");

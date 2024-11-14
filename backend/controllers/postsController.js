@@ -71,7 +71,7 @@ exports.deletePosts = (req, res) => {
 // Cập nhật bài đăng theo ID
 exports.updatePosts = (req, res) => {
   const postId = req.params.id; // Use 'postId' for clarity
-  const { title, avt, content, author_id, post_categories_id } = req.body;
+  const { title,avt, content, author_id, post_categories_id } = req.body;
 
   // Log received data to inspect
   console.log("Received data:", req.body);
@@ -91,7 +91,7 @@ exports.updatePosts = (req, res) => {
     SET title = ?, content = ?, avt = ?, author_id = ?, post_categories_id = ?
     WHERE id = ?;
   `;
-  const values = [title, content, avtValue, author_id, post_categories_id, postId];
+  const values = [title, content, avt, author_id, post_categories_id, postId];
 
   // Log the values to be updated
   console.log("SQL Values:", values);

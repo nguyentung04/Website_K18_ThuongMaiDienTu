@@ -40,7 +40,7 @@ exports.getOrderDetailById = (req, res) => {
 
   // Thực hiện truy vấn SQL
   connection.query(
-    `SELECT o.*, od.* FROM orders o JOIN order_items od ON o.id = od.order_id WHERE o.id = ?`, // Sử dụng dấu hỏi để bảo mật SQL Injection
+    `SELECT o.*, od.* , u.name AS name , p.name AS pr_name FROM orders o JOIN order_items od ON o.id = od.order_id JOIN users u ON u.id = o.user_id JOIN products p ON p.id = od.product_id WHERE o.id = ?`, // Sử dụng dấu hỏi để bảo mật SQL Injection
     [orderId], // Thay thế dấu hỏi bằng giá trị của orderId
     (err, results) => {
       if (err) {
@@ -80,4 +80,32 @@ exports.updateOrder_itemsDetailStatus = (req, res) => {
 
         res.status(200).json({ message: "Order status updated successfully" });
     });
+};
+
+
+exports.deleteOrder_items = (req, res) => {
+  const postId = req.params.id; // Sử dụng cách đặt tên camelCase nhất quán
+
+  // Chuẩn bị câu truy vấn SQL để xóa bài đăng
+  const query = "DELETE FROM order_items WHERE id = ?";
+
+  // Thực hiện câu truy vấn
+  connection.query(query, [postId], (err, results) => {
+    if (err) {
+      // Ghi lại lỗi và phản hồi bằng mã trạng thái 500
+      console.error("Lỗi truy vấn CSDL:", err);
+      return res
+        .status(500)
+        .json({ error: "Có lỗi xảy ra khi xóa bài đăng." });
+    }
+
+    // Kiểm tra nếu không có hàng nào bị ảnh hưởng (tức là không có bài đăng nào bị xóa)
+    if (results.affectedRows === 0) {
+      // Nếu không có hàng nào bị ảnh hưởng, trả về mã trạng thái 404
+      return res.status(404).json({ message: "Không tìm thấy bài đăng" });
+    }
+
+    // Phản hồi thành công khi bài đăng đã được xóa
+    res.status(200).json({ message: "Bài đăng đã được xóa thành công" });
+  });
 };

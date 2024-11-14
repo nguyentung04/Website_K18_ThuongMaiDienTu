@@ -88,11 +88,7 @@
 // app.listen(port, () => {
 //   console.log(`Server đã khởi chạy ${port}`);
 // });
-<<<<<<< HEAD
-
-=======
 // server.js
->>>>>>> bae40f60210a5cc4d28947e7e239daa3fa0e64dc
 require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
@@ -101,11 +97,8 @@ const passport = require("passport");
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
-<<<<<<< HEAD
 const jwt = require('jsonwebtoken');
 
-=======
->>>>>>> bae40f60210a5cc4d28947e7e239daa3fa0e64dc
 
 // Import Passport configuration
 require("./config/passport");
@@ -119,6 +112,7 @@ const comment = require("./routes/comment");
 const product_detailRoutes = require("./routes/product_detail/index");
 const order_itemsRoutes = require("./routes/order_items/index");
 
+const ordersRoutes = require("./routes/orders/index");
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -182,7 +176,6 @@ app.get("/api/auth/google", passport.authenticate("google", { scope: ["profile",
 app.get("/api/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/signin" }),
   (req, res) => {
-<<<<<<< HEAD
     // Lưu token và chuyển hướng về frontend mà không truyền username qua URL
     const token = generateToken(req.user); // Giả định rằng bạn có hàm `generateToken` tạo JWT từ thông tin user
     res.redirect(`http://localhost:3001?token=${token}`);
@@ -192,12 +185,6 @@ function generateToken(user) {
   return jwt.sign({ id: user.id, name: user.name }, process.env.JWT_SECRET, { expiresIn: '1h' });
 }
 
-=======
-    // Chuyển hướng về trang chính sau khi đăng nhập thành công
-    res.redirect("http://localhost:3001?username=" + req.user.name); // Đảm bảo URL này đúng với frontend của bạn
-  }
-);
->>>>>>> bae40f60210a5cc4d28947e7e239daa3fa0e64dc
 
 // Sử dụng các routes khác
 app.use("/api", Routes);

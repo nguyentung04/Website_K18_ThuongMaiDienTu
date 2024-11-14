@@ -42,7 +42,7 @@ const CheckoutForm = () => {
   useEffect(() => {
     const fetchCityData = async () => {
       try {
-        const citiesData = await fetchCities();
+        const citiesData = await fetchProvinces();
         setCities(citiesData);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách tỉnh/thành phố:", error);
@@ -68,7 +68,7 @@ const CheckoutForm = () => {
 
     setLoadingDistricts(true);
     try {
-      const districtsData = await fetchCitiesByDistricts(selectedProvince);
+      const districtsData = await fetchDistricts(selectedProvince);
       setDistricts(districtsData);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách quận/huyện:", error);

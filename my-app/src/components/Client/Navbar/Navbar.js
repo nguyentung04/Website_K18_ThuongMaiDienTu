@@ -17,35 +17,11 @@ const Navbar = () => {
 
   // Đăng xuất và xóa thông tin localStorage
   const handleLogout = () => {
-<<<<<<< HEAD
     localStorage.clear();
     navigate("/signin");
-=======
-    // Xóa tất cả dữ liệu liên quan đến phiên người dùng
-    localStorage.removeItem("token"); // Xóa token
-    localStorage.removeItem("username"); // Xóa tên đăng nhập
-    localStorage.removeItem("userData");
-    localStorage.removeItem("role");
-    localStorage.removeItem("id"); // Xóa ID người dùng
-    localStorage.removeItem("userEmail"); // Xóa email người dùng
-    localStorage.removeItem("userName"); // Xóa tên người dùng
-    localStorage.removeItem("user"); // Xóa tên người dùng
-    navigate("/signin");
-  };
-
-  const [activeLink, setActiveLink] = useState(
-    localStorage.getItem("activeLink") || ""
-  );
-
-  // Hàm xử lý khi nhấp vào link
-  const handleLinkClick = (link) => {
-    setActiveLink(link); // Cập nhật trạng thái `activeLink`
-    localStorage.setItem("activeLink", link); // Lưu giá trị vào localStorage
->>>>>>> bae40f60210a5cc4d28947e7e239daa3fa0e64dc
   };
   
 
-<<<<<<< HEAD
   const [activeLink, setActiveLink] = useState(localStorage.getItem("activeLink") || "");
 
   const handleLinkClick = (link) => {
@@ -53,8 +29,6 @@ const Navbar = () => {
     localStorage.setItem("activeLink", link);
   };
 
-=======
->>>>>>> bae40f60210a5cc4d28947e7e239daa3fa0e64dc
   useEffect(() => {
     const savedLink = localStorage.getItem("activeLink");
     if (savedLink) setActiveLink(savedLink);
@@ -62,7 +36,6 @@ const Navbar = () => {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-<<<<<<< HEAD
     const token = urlParams.get("token");
 
     if (token) {
@@ -82,16 +55,6 @@ const Navbar = () => {
   }, []);
   
   
-=======
-    const googleUsername = urlParams.get("username");
-  
-    if (googleUsername) {
-      localStorage.setItem("username", googleUsername);  
-    }
-  }, []);
-  
-
->>>>>>> bae40f60210a5cc4d28947e7e239daa3fa0e64dc
   return (
     <div className="stopnav">
       <nav className="Navbar ">

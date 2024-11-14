@@ -28,7 +28,7 @@ exports.orderByName = (req, res) => {
       od.*,       
       p.*         
     FROM orders o
-    JOIN order_detail od ON o.id = od.order_id
+    JOIN order_items od ON o.id = od.order_id
     JOIN products p ON od.product_id = p.id
     WHERE o.name = ?`, // Sử dụng dấu hỏi để bảo mật SQL Injection
     [name], // Thay thế dấu hỏi bằng giá trị của name
@@ -51,7 +51,7 @@ exports.orderByName1 = (req, res) => {
   }
 
   connection.query(
-    `SELECT o.*, od.*, p.* FROM orders o JOIN order_detail od ON o.id = od.order_id JOIN products p ON od.product_id = p.id WHERE od.user_id =  ?;`,
+    `SELECT o.*, od.*, p.* FROM orders o JOIN order_items od ON o.id = od.order_id JOIN products p ON od.product_id = p.id WHERE o.user_id =  ?;`,
     [id],
     (err, results) => {
       if (err) {
@@ -81,7 +81,7 @@ exports.orderDetail = (req, res) => {
       od.*,       
       p.*         
     FROM orders o
-    JOIN order_detail od ON o.id = od.order_id
+    JOIN order_items od ON o.id = od.order_id
     JOIN products p ON od.product_id = p.id
     WHERE o.id = ?;`,
     [id],
@@ -137,7 +137,7 @@ exports.deleteOrder = (req, res) => {
 
     // Xóa chi tiết đơn hàng trước
     connection.query(
-      "DELETE FROM order_detail WHERE order_id = ?",
+      "DELETE FROM order_items WHERE order_id = ?",
       [id],
       (err) => {
         if (err) {

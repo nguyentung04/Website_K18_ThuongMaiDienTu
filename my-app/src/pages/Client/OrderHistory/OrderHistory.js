@@ -80,8 +80,8 @@ const OrderHistory = () => {
                   className="product-image"
                 />
 
-                <div className="order-info">
-                  <span>{order.name}</span>
+                <div className="order-info mb-3">
+                  <span>{order.product_name}</span>
                   <span>
                     Tổng tiền:{" "}
                     <span className="span-price">

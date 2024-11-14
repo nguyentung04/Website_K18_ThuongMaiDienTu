@@ -13,9 +13,9 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import {
-  fetchCities,
-  fetchCitiesByDistricts,
-} from "../../../service/api/cities";
+  fetchProvinces,
+  fetchDistricts,
+} from "../../../service/api/city";
 
 const CheckoutForm = () => {
  
@@ -136,8 +136,8 @@ const CheckoutForm = () => {
   
       const orderData = {
         ...formData,
-        id_cities: formData.city,
-        id_districts: formData.province,
+        Provinces: formData.city,
+        Districts: formData.province,
         order_detail: orderItems,
         user_id: userId, // Thêm user_id vào dữ liệu đơn hàng
       };

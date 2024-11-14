@@ -1,4 +1,3 @@
-
 const connection = require("../config/database");
 
 //Minh Canh
@@ -42,7 +41,7 @@ exports.orderByName = (req, res) => {
   );
 };
 
-// Lấy toàn bộ đơn hàng theo id
+// Lấy toàn bộ đơn hàng theo  id người dùng 
 exports.orderByName1 = (req, res) => {
   const { id } = req.params;
 
@@ -67,7 +66,6 @@ exports.orderByName1 = (req, res) => {
     }
   );
 };
-
 
 exports.orderDetail = (req, res) => {
   const { id } = req.params;
@@ -101,32 +99,31 @@ exports.orderDetail = (req, res) => {
   );
 };
 
-
 // Lấy đơn hàng theo ID
-exports.getOrderById = (req, res) => {
-  const orderId = parseInt(req.params.id);
+// exports.getOrderById = (req, res) => {
+//   const orderId = parseInt(req.params.id);
 
-  connection.query(
-    `SELECT 
-      o.*, 
-      c.name AS city, 
-      d.name AS district 
-    FROM orders o
-    LEFT JOIN cities c ON o.id_cities = c.id
-    LEFT JOIN districts d ON o.id_districts = d.id
-    WHERE o.id = ?`,
-    [orderId],
-    (err, results) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      if (results.length === 0) {
-        return res.status(404).json({ error: "Order not found" });
-      }
-      res.status(200).json(results);
-    }
-  );
-};
+//   connection.query(
+//     `SELECT
+//       o.*,
+//       c.name AS city,
+//       d.name AS district
+//     FROM orders o
+//     LEFT JOIN cities c ON o.id_cities = c.id
+//     LEFT JOIN districts d ON o.id_districts = d.id
+//     WHERE o.id = ?`,
+//     [orderId],
+//     (err, results) => {
+//       if (err) {
+//         return res.status(500).json({ error: err.message });
+//       }
+//       if (results.length === 0) {
+//         return res.status(404).json({ error: "Order not found" });
+//       }
+//       res.status(200).json(results);
+//     }
+//   );
+// };
 
 // Xóa đơn hàng theo order_id
 exports.deleteOrder = (req, res) => {
@@ -178,17 +175,24 @@ exports.PostOrders = (req, res) => {
     name,
     phone,
     address,
-    id_cities,
-    id_districts,
+    Provinces,
+    Districts,
     paymentMethod,
     order_detail,
     user_id, // Thêm user_id vào đây
   } = req.body;
 
   // Kiểm tra log để đảm bảo user_id được truyền vào
-  console.log('User ID:', user_id);
+  console.log("User ID:", user_id);
 
-  if (!name || !phone || !address || !paymentMethod || !order_detail || !user_id) {
+  if (
+    !name ||
+    !phone ||
+    !address ||
+    !paymentMethod ||
+    !order_detail ||
+    !user_id
+  ) {
     return res.status(400).json({ error: "Thiếu thông tin cần thiết" });
   }
 
@@ -200,13 +204,13 @@ exports.PostOrders = (req, res) => {
 
     // Thêm đơn hàng vào bảng orders (không bao gồm user_id)
     const sql =
-      "INSERT INTO orders (name, phone, address, id_cities, id_districts, paymentMethod) VALUES (?, ?, ?, ?, ?, ?)";
+      "INSERT INTO orders (name, phone, address, Provinces, Districts, paymentMethod) VALUES (?, ?, ?, ?, ?, ?)";
     const values = [
       name,
       phone,
       address,
-      id_cities || null,
-      id_districts || null,
+      Provinces || null,
+      Districts || null,
       paymentMethod,
     ];
 
@@ -233,11 +237,11 @@ exports.PostOrders = (req, res) => {
       ]);
 
       // Kiểm tra log để đảm bảo dữ liệu order_detail chính xác
-      console.log('Order Details:', orderDetailValues);
+      console.log("Order Details:", orderDetailValues);
 
       connection.query(orderDetailSql, [orderDetailValues], (err) => {
         if (err) {
-          console.error('Lỗi khi thêm vào order_detail:', err); // Log chi tiết lỗi
+          console.error("Lỗi khi thêm vào order_detail:", err); // Log chi tiết lỗi
           return connection.rollback(() => {
             res.status(500).json({ error: "Lỗi khi thêm item vào đơn hàng" });
           });
@@ -246,7 +250,7 @@ exports.PostOrders = (req, res) => {
         // Cam kết giao dịch
         connection.commit((err) => {
           if (err) {
-            console.error('Lỗi khi cam kết giao dịch:', err); // Log chi tiết lỗi
+            console.error("Lỗi khi cam kết giao dịch:", err); // Log chi tiết lỗi
             return connection.rollback(() => {
               res.status(500).json({ error: "Lỗi khi cam kết giao dịch" });
             });

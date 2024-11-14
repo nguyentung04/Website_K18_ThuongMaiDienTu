@@ -117,8 +117,6 @@ const posts = require("./routes/posts");
 const post_categories = require("./routes/post_categories");
 const comment = require("./routes/comment");
 const product_detailRoutes = require("./routes/product_detail/index");
-const citiesRoutes = require("./routes/cities/citiesRoutes");
-const districtsController = require("./routes/districts/index");
 const order_itemsRoutes = require("./routes/order_items/index");
 
 const app = express();
@@ -206,11 +204,10 @@ app.use("/api", Routes);
 app.use("/api", commentsRoutes);
 app.use("/api", comment_detailRoutes);
 app.use("/api", product_detailRoutes);
-app.use("/api", citiesRoutes);
-app.use("/api", districtsController);
 app.use("/api", comment);
 app.use("/api", posts);
 app.use("/api", post_categories);
+app.use("/api", ordersRoutes);
 app.use("/api", order_itemsRoutes);
 
 // Khởi động server

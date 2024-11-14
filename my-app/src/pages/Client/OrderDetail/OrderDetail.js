@@ -36,11 +36,17 @@ const OrderDetail = () => {
   const handleCancelOrder = async (orderId) => {
     const username = localStorage.getItem("username");
 
-    if (username) {
-      // Hiện hộp thoại xác nhận
-      const isConfirmed = window.confirm(
-        "Bạn có chắc chắn muốn hủy đơn hàng này không?"
-      );
+    if (username && productToDelete) {
+      try {
+        const response = await axios.delete(
+          `${BASE_URL}/api/orders/${productToDelete}`,  // use productToDelete ID
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            data: { username },
+          }
+        );
 
       if (isConfirmed) {
         try {

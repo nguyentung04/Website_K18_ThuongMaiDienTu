@@ -16,22 +16,22 @@ import {
   ListItem,
 } from "@chakra-ui/react";
 import {
-  fetchProductReviews, // Cập nhật import để phù hợp với API mới
-  updateProductReviewCounts, // Cập nhật import để phù hợp với API mới
-} from "../../../../service/api/comments"; // Đảm bảo đường dẫn API đúng
+  fetchProductReviews,
+  updateProductReviewCounts,
+} from "../../../../service/api/comments";
 import { Link } from "react-router-dom";
 
 const CommentPage = () => {
-  const [reviews, setReviews] = useState([]); // Đổi tên biến để phản ánh bảng mới
+  const [reviews, setReviews] = useState([]);
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
 
-  const [searchQuery, setSearchQuery] = useState(""); // Lưu chuỗi tìm kiếm
-  const [suggestions, setSuggestions] = useState([]); // Lưu gợi ý
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
     const getReviews = async () => {
       try {
-        const data = await fetchProductReviews(); // Gọi API mới
+        const data = await fetchProductReviews();
         if (data) {
           setReviews(data);
         }
@@ -44,8 +44,8 @@ const CommentPage = () => {
 
   const handleUpdateCounts = async () => {
     try {
-      await updateProductReviewCounts(); // Gọi API cập nhật số lượng bình luận
-      const updatedReviews = await fetchProductReviews(); // Tải lại dữ liệu mới
+      await updateProductReviewCounts();
+      const updatedReviews = await fetchProductReviews();
       setReviews(updatedReviews);
     } catch (error) {
       console.error("Error updating product review counts:", error);
@@ -56,9 +56,10 @@ const CommentPage = () => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
 
+    // Tìm kiếm dựa trên tên sản phẩm
     if (query !== "") {
       const filteredSuggestions = reviews.filter((review) =>
-        review.fullname.toLowerCase().includes(query)
+        review.name?.toLowerCase().includes(query)
       );
       setSuggestions(filteredSuggestions);
     } else {
@@ -67,12 +68,13 @@ const CommentPage = () => {
   };
 
   const handleSuggestionClick = (suggestion) => {
-    setSearchQuery(suggestion.fullname); // Cập nhật chuỗi tìm kiếm với tên đã chọn
-    setSuggestions([]); // Ẩn danh sách gợi ý sau khi chọn
+    setSearchQuery(suggestion.name); // Hiển thị tên sản phẩm đã chọn
+    setSuggestions([]);
   };
 
+  // Lọc danh sách đánh giá dựa trên tên sản phẩm
   const filteredReviews = reviews.filter((review) =>
-    review.fullname.toLowerCase().includes(searchQuery.toLowerCase())
+    review.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -85,7 +87,7 @@ const CommentPage = () => {
           <Flex align="center" mb={4}>
             <Flex opacity={1}>
               <Input
-                placeholder="Tìm kiếm..."
+                placeholder="Tìm kiếm tên sản phẩm..."
                 value={searchQuery}
                 onChange={handleInputChange}
                 variant="outline"
@@ -111,7 +113,7 @@ const CommentPage = () => {
                       _hover={{ bg: "gray.200", cursor: "pointer" }}
                       onClick={() => handleSuggestionClick(suggestion)}
                     >
-                      {suggestion.fullname}
+                      {suggestion.name}
                     </ListItem>
                   ))}
                 </List>
@@ -151,11 +153,11 @@ const CommentPage = () => {
               <Td fontWeight="bold">{index + 1}</Td>
               <Td>{review.fullname}</Td>
               <Td>{review.user_id}</Td>
-              <Td>{review.name}</Td> {/* Tên sản phẩm nếu có */}
-              <Td>{review.product_id}</Td> {/* ID sản phẩm */}
+              <Td>{review.name}</Td>
+              <Td>{review.product_id}</Td>
               <Td>{review.created_at}</Td>
               <Td>
-                <Link to={`admin/reviews/${review.id}`}>
+                <Link to={`admin/comments/${review.id}`}>
                   <Button colorScheme="blue" size="sm" mr={2}>
                     Chi tiết
                   </Button>

@@ -97,65 +97,6 @@ exports.loginAdmin = (req, res) => {
   );
 };
 
-<<<<<<< HEAD
-=======
-// Đăng ký người dùng mới
-// exports.register = (req, res) => {
-//   const { username, name, phone, email, password } = req.body;
-
-//   // Kiểm tra tên đăng nhập đã tồn tại
-//   connection.query(
-//     "SELECT * FROM users WHERE username = ?",
-//     [username],
-//     (err, results) => {
-//       if (err) {
-//         return res.status(500).json({ message: "Lỗi kết nối cơ sở dữ liệu" });
-//       }
-
-//       if (results.length > 0) {
-//         return res.status(400).json({ message: "Tên đăng nhập đã tồn tại" });
-//       }
-
-//       // Kiểm tra email đã tồn tại
-//       connection.query(
-//         "SELECT * FROM users WHERE email = ?",
-//         [email],
-//         (err, results) => {
-//           if (err) {
-//             return res
-//               .status(500)
-//               .json({ message: "Lỗi kết nối cơ sở dữ liệu" });
-//           }
-
-//           if (results.length > 0) {
-//             return res.status(400).json({ message: "Email đã tồn tại" });
-//           }
-
-//           // Mã hóa mật khẩu và lưu người dùng
-//           bcrypt.hash(password, 10, (err, hashedPassword) => {
-//             if (err) {
-//               return res.status(500).json({ message: "Lỗi mã hóa mật khẩu" });
-//             }
-
-//             connection.query(
-//               "INSERT INTO users (username, name, phone, email, password, status, createdAt) VALUES (?, ?, ?, ?, ?, '1', NOW())",
-//               [username, name, phone, email, hashedPassword],
-//               (err, results) => {
-//                 if (err) {
-//                   console.error("Lỗi khi lưu người dùng:", err);
-//                   return res.status(500).json({ message: "Lỗi khi lưu người dùng vào cơ sở dữ liệu" });
-//               }
-//                 res.status(200).json({ message: "Đăng ký thành công!" });
-//               }
-//             );
-//             console.log({ username, name, phone, email, hashedPassword });
-//           });
-//         }
-//       );
-//     }
-//   );
-// };
->>>>>>> bae40f60210a5cc4d28947e7e239daa3fa0e64dc
 exports.register = (req, res) => {
   const { username, name, phone, email, password } = req.body;
 

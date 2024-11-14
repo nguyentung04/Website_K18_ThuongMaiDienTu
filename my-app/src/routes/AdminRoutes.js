@@ -5,8 +5,6 @@ import ProductsRoutes from "../pages/Admin/products/router";
 import UserRoutes from "../pages/Admin/user/router";
 
 import ProductdetailRoutes from "../pages/Admin/productdetail/router";
-import DistrictsRoutes from "../pages/Admin/districts/router";
-import CitiesRoutes from "../pages/Admin/cities/router";
 import OrdersRoutes from "../pages/Admin/orders/router";
 import CategoryRoutes from "../pages/Admin/categories/router";
 import CommentsRoutes from "../pages/Admin/comments/router";
@@ -37,8 +35,6 @@ const AdminRoutes = () => {
         <Route path="productdetail/*" element={<ProductdetailRoutes />} />
         <Route path="posts/*" element={<PostsRoutes />} />
         <Route path="post_categories/*" element={<Post_categoriesRoutes />} />
-        <Route path="districts/*" element={<DistrictsRoutes />} />
-        <Route path="cities/*" element={<CitiesRoutes />} />
         <Route path="orders/*" element={<OrdersRoutes />} />
         <Route path="comments/*" element={<CommentsRoutes />} />
         <Route path="/" element={<Navigate to="dashboard" />} />{" "}

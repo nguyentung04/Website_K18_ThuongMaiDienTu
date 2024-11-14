@@ -18,8 +18,7 @@ const AddProduct = () => {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
-  const [discountPrice, setDiscountPrice] = useState(""); // Thêm trạng thái cho giá giảm
-  const [status, setStatus] = useState("");
+  const [stock, setStock] = useState("");
   const [description, setDescription] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -56,11 +55,9 @@ const AddProduct = () => {
     if (!category) newErrors.category = "Loại sản phẩm là bắt buộc.";
     if (!price || isNaN(price) || parseFloat(price) <= 0)
       newErrors.price = "Giá là bắt buộc và phải là số lớn hơn 0.";
-    if (discountPrice && (isNaN(discountPrice) || parseFloat(discountPrice) < 0 || parseFloat(discountPrice) >= parseFloat(price))) {
-      newErrors.discountPrice = "Giá giảm phải là số và nhỏ hơn giá gốc.";
-    }
     if (!description) newErrors.description = "Mô tả là bắt buộc.";
-    if (!status) newErrors.status = "Trạng thái là bắt buộc.";
+    if (!stock || isNaN(stock) || parseInt(stock) <= 0)
+      newErrors.stock = "Số lượng là bắt buộc và phải là số nguyên dương.";
     if (!imageFile) newErrors.image = "Ảnh sản phẩm là bắt buộc.";
 
     return newErrors;
@@ -84,7 +81,7 @@ const AddProduct = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost:3000/api/upload/products`,
+        "http://localhost:3000/api/upload/products",
         formData,
         {
           headers: {
@@ -107,10 +104,9 @@ const AddProduct = () => {
     const productData = {
       name,
       price,
-      discountPrice: discountPrice ? parseFloat(discountPrice) : 0, // Gán giá giảm
+      stock: parseInt(stock),
       description,
-      image: imageUrl,
-      status,
+      image_url: [imageUrl],
       category_id: category,
     };
 
@@ -177,16 +173,16 @@ const AddProduct = () => {
           {errors.price && <FormErrorMessage>{errors.price}</FormErrorMessage>}
         </FormControl>
 
-        <FormControl id="discountPrice" mb={4} isInvalid={errors.discountPrice}>
-          <FormLabel>Giá giảm (%)</FormLabel>
+        <FormControl id="stock" mb={4} isInvalid={errors.stock}>
+          <FormLabel>Số lượng</FormLabel>
           <Input
             type="number"
-            min="0"
-            max="100"
-            value={discountPrice}
-            onChange={(e) => setDiscountPrice(e.target.value)}
+            min="1"
+            step="1"
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
           />
-          {errors.discountPrice && <FormErrorMessage>{errors.discountPrice}</FormErrorMessage>}
+          {errors.stock && <FormErrorMessage>{errors.stock}</FormErrorMessage>}
         </FormControl>
 
         <FormControl id="description" mb={4} isInvalid={errors.description}>
@@ -197,18 +193,6 @@ const AddProduct = () => {
           />
           {errors.description && (
             <FormErrorMessage>{errors.description}</FormErrorMessage>
-          )}
-        </FormControl>
-        <FormControl id="status" mb={4} isInvalid={errors.status}>
-          <FormLabel>Trạng thái</FormLabel>
-          <Select value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option value="">Chọn trạng thái</option>
-            <option value="bán chạy">Bán chạy</option>
-            <option value="nổi bật">Nổi bật</option>
-            <option value="khuyến mãi">Khuyến mãi</option>
-          </Select>
-          {errors.status && (
-            <FormErrorMessage>{errors.status}</FormErrorMessage>
           )}
         </FormControl>
 

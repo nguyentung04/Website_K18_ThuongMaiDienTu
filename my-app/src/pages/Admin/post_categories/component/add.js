@@ -24,7 +24,6 @@ const AddCategoryPage = () => {
   const validate = () => {
     const newErrors = {};
     if (!name) newErrors.name = "Tên thương hiệu là bắt buộc.";
-    if (!description) newErrors.description = "Nội dung là bắt buộc.";
     return newErrors;
   };
 
@@ -37,6 +36,7 @@ const AddCategoryPage = () => {
     }
 
     const post_categoriesData = { name, description };
+    console.log(post_categoriesData);
 
     try {
       await addPost_categories(post_categoriesData); // Call the API to add category
@@ -74,7 +74,7 @@ const AddCategoryPage = () => {
           {errors.name && <FormErrorMessage>{errors.name}</FormErrorMessage>}
         </FormControl>
 
-        <FormControl id="description" mb={4} isInvalid={errors.description}>
+        <FormControl id="description" mb={4}>
           <FormLabel>Nội dung danh mục</FormLabel>
           <Input
             value={description}
@@ -82,7 +82,6 @@ const AddCategoryPage = () => {
             placeholder="Nhập nội dung danh mục"
             type="text"
           />
-          {errors.description && <FormErrorMessage>{errors.description}</FormErrorMessage>}
         </FormControl>
 
         <Button colorScheme="teal" type="submit">

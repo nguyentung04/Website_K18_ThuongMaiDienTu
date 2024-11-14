@@ -307,11 +307,11 @@
 }
 
 /* ======================================================= form xác nhận đổi mật khẩu ============================== */
-.change-password-form form {
+/* .change-password-form form {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-}
+} */
 
 .form-button {
     display: flex;

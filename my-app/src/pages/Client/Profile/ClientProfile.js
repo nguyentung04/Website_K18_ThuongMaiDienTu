@@ -1,171 +1,208 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { updateUser } from "../../../service/api/users";
 import "./ClientProfile.css";
-
-const BASE_URL = "http://localhost:3000";
 
 const Profile = () => {
   const [values, setValues] = useState({
-    avatar: "https://via.placeholder.com/150",
-    hoTen: "John Doe",
-    email: "john.doe@example.com",
-    matKhau: "password",
-    ngaySinh: "1990-01-01",
-    gioiTinh: "Nam",
-    soDienThoai: "+1234567890",
-    diaChi: "1234 Main St",
+    name: "",
+    email: "",
+    phone: "",
+    avatar: "",
+    matKhau: "", // Add matKhau if you need to display password
   });
 
   const [isEditing, setIsEditing] = useState({
-    hoTen: false,
+    name: false,
     email: false,
-    matKhau: false,
-    ngaySinh: false,
-    gioiTinh: false,
-    soDienThoai: false,
-    diaChi: false,
+    phone: false,
   });
-  const [deletePassword, setDeletePassword] = useState("");
-  const [showDeletePrompt, setShowDeletePrompt] = useState(false);
 
+  const [errors, setErrors] = useState({});
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
-  // State for changing password
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const [passwords, setPasswords] = useState({
     currentPassword: "",
     newPassword: "",
     confirmNewPassword: "",
   });
-  const [showChangePassword, setShowChangePassword] = useState(false);
-// Hàm chuyển đổi chế độ chỉnh sửa cho từng trường thông tin
-const handleEditClick = (field) => {
-  setIsEditing((prev) => {
-    // Đóng tất cả các trường đang chỉnh sửa và chỉ mở trường được click
-    const newState = Object.keys(prev).reduce((acc, key) => {
-      acc[key] = key === field ? !prev[field] : false; // Chỉ mở form chỉnh sửa của trường được chọn
-      return acc;
-    }, {});
-    return newState;
-  });
-};
 
-// Hàm xử lý khi có sự thay đổi giá trị trong các ô input
-const handleChange = (e, field) => {
-  // Cập nhật giá trị của trường đang chỉnh sửa vào state
-  setValues((prev) => ({ ...prev, [field]: e.target.value }));
-};
+  const navigate = useNavigate();
 
-// Hàm lưu thông tin cập nhật khi người dùng nhấn nút lưu
-const handleSave = async (field, e) => {
-  e.preventDefault(); // Ngăn không cho trang load lại
-  try {
-    const payload = { [field]: values[field] }; // Tạo payload với giá trị trường cần lưu
-    await axios.put(`${BASE_URL}/api/update_profile`, payload); // Gửi yêu cầu cập nhật profile tới API
-    alert("Thông tin đã được cập nhật thành công."); // Thông báo khi cập nhật thành công
-    setIsEditing((prev) => ({ ...prev, [field]: false })); // Đóng form chỉnh sửa sau khi lưu
-  } catch (error) {
-    console.error("Lỗi khi cập nhật thông tin", error); // Ghi log lỗi ra console
-    alert("Đã xảy ra lỗi khi cập nhật thông tin."); // Thông báo khi xảy ra lỗi
-  }
-};
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    const googleUser = JSON.parse(localStorage.getItem("googleUser"));
 
-// Hàm xử lý xóa tài khoản
-const handleDeleteAccount = async () => {
-  try {
-    // Xác thực mật khẩu trước khi xóa tài khoản
-    const response = await axios.post(`${BASE_URL}/api/validate_password`, {
-      password: deletePassword, // Gửi mật khẩu để xác thực
-    });
+    if (userData) {
+      setValues({
+        name: userData.name || "",
+        email: userData.email || "",
+        phone: userData.phone || "",
+        avatar: userData.avatar || "https://via.placeholder.com/150",
+      });
+    } else if (googleUser) {
+      setValues({
+        name: googleUser.name || "",
+        email: googleUser.email || "",
+        phone: googleUser.phone || "",
+        avatar: googleUser.avatar || "https://via.placeholder.com/150",
+      });
+    } else {
+      navigate("/signin");
+    }
+  }, [navigate]);
 
-    if (response.data.valid) { // Nếu mật khẩu hợp lệ
-      if (window.confirm("Bạn có chắc chắn muốn xóa tài khoản?")) { // Hiển thị thông báo xác nhận xóa tài khoản
-        await axios.delete(`${BASE_URL}/api/delete_account`); // Gửi yêu cầu xóa tài khoản
-        alert("Tài khoản đã được xóa thành công."); // Thông báo khi xóa thành công
-        window.location.href = "/login"; // Điều hướng về trang đăng nhập
+  const validateField = (field, value) => {
+    let error = "";
+    if (!value) {
+      error = `${
+        field === "name"
+          ? "Họ tên"
+          : field === "email"
+          ? "Email"
+          : "Số điện thoại"
+      } là bắt buộc.`;
+    } else if (field === "email" && !/\S+@\S+\.\S+/.test(value)) {
+      error = "Email không hợp lệ.";
+    } else if (field === "phone" && !/^\d{10}$/.test(value)) {
+      error = "Số điện thoại không hợp lệ.";
+    }
+    setErrors((prev) => ({ ...prev, [field]: error }));
+  };
+
+  const handleSave = async (field, e) => {
+    e.preventDefault();
+    if (errors[field]) return;
+
+    try {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData || !userData.id) {
+        throw new Error(
+          "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại."
+        );
       }
-    } else {
-      alert("Mật khẩu không đúng. Vui lòng thử lại."); // Thông báo nếu mật khẩu sai
+
+      const userId = userData.id;
+      const payload = { [field]: values[field] };
+      const response = await updateUser(userId, payload);
+
+      if (response) {
+        userData[field] = values[field];
+        localStorage.setItem("userData", JSON.stringify(userData));
+        alert("Thông tin đã được cập nhật thành công.");
+        setIsEditing((prev) => ({ ...prev, [field]: false }));
+      }
+    } catch (error) {
+      console.error("Lỗi khi cập nhật thông tin", error);
+      alert(error.message || "Đã xảy ra lỗi khi cập nhật thông tin.");
     }
-  } catch (error) {
-    console.error("Lỗi khi xác thực mật khẩu", error); // Ghi log lỗi ra console
-    alert("Đã xảy ra lỗi khi xác thực mật khẩu."); // Thông báo khi xảy ra lỗi
-  }
-};
+  };
 
-// Hàm xử lý khi người dùng đổi mật khẩu
-const handleChangePassword = async (e) => {
-  e.preventDefault(); // Ngăn không cho trang load lại
-  if (passwords.newPassword !== passwords.confirmNewPassword) {
-    alert("Mật khẩu mới không khớp. Vui lòng kiểm tra lại."); // Kiểm tra nếu mật khẩu mới và mật khẩu xác nhận không khớp
-    return;
-  }
+  const handleChange = (e, field) => {
+    const value = e.target.value;
+    setValues((prev) => ({ ...prev, [field]: value }));
+    validateField(field, value);
+  };
 
-  try {
-    // Gửi yêu cầu đổi mật khẩu tới API
-    const response = await axios.post(`${BASE_URL}/api/change_password`, {
-      currentPassword: passwords.currentPassword, // Mật khẩu hiện tại
-      newPassword: passwords.newPassword, // Mật khẩu mới
-    });
+  const handleEditClick = (field) => {
+    setIsEditing((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
+  };
 
-    if (response.data.success) { // Nếu đổi mật khẩu thành công
-      alert("Mật khẩu đã được thay đổi thành công."); // Thông báo thành công
-      setShowChangePassword(false); // Ẩn form đổi mật khẩu
-    } else {
-      alert("Mật khẩu hiện tại không đúng."); // Thông báo nếu mật khẩu hiện tại không đúng
+  const handleChangePassword = (e) => {
+    e.preventDefault();
+
+    const { currentPassword, newPassword, confirmNewPassword } = passwords;
+
+    // Clear previous errors
+    setErrors({});
+
+    // Validate passwords
+    let validationErrors = {};
+
+    if (!currentPassword) {
+      validationErrors.currentPassword = "Mật khẩu hiện tại là bắt buộc.";
     }
-  } catch (error) {
-    console.error("Lỗi khi đổi mật khẩu", error); // Ghi log lỗi ra console
-    alert("Đã xảy ra lỗi khi đổi mật khẩu."); // Thông báo khi xảy ra lỗi
-  }
-};
 
+    if (!newPassword) {
+      validationErrors.newPassword = "Mật khẩu mới là bắt buộc.";
+    } else if (newPassword.length < 6) {
+      // Check for minimum length or other password rules
+      validationErrors.newPassword = "Mật khẩu mới phải có ít nhất 6 ký tự.";
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      validationErrors.confirmNewPassword = "Mật khẩu xác nhận không khớp.";
+    }
+
+    // If any validation errors, stop the process
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    // If no errors, proceed to change the password
+    try {
+      // Implement password change logic here (for example, send a request to the backend)
+      // For now, we'll simulate with an alert
+      alert("Password change functionality is not implemented yet.");
+
+      // Close the change password form after submission
+      setShowChangePassword(false);
+    } catch (error) {
+      console.error("Error changing password:", error);
+      alert("Đã xảy ra lỗi khi thay đổi mật khẩu.");
+    }
+  };
 
   return (
     <div className="Profile">
       <div className="profile-container">
         <div className="profile-container1">
           <img src={values.avatar} alt="Avatar" className="avatar" />
-          <h3>{values.hoTen}</h3>
+          <h3>{values.name}</h3>
           <p>{values.email}</p>
         </div>
-        <button className="logout-button">Đăng xuất</button>
+        <button className="logout-button" onClick={() => navigate("/login")}>
+          Đăng xuất
+        </button>
       </div>
 
       <div className="personal-info">
         {Object.entries(values)
           .filter(([key]) => key !== "avatar")
           .map(([key, value]) => (
-            <div key={key} className="info-item">
+            <div key={key} className="info-item d-flex justify-content-between">
               <label>
-                {key === "hoTen" && "Họ và tên :"}
-                {key === "email" && "Email :"}
-                {key === "matKhau" && "Mật khẩu : "}
-                {key === "ngaySinh" && "Ngày sinh :"}
-                {key === "gioiTinh" && "Giới tính :"}
-                {key === "soDienThoai" && "Số điện thoại :"}
-                {key === "diaChi" && "Địa chỉ :"}
+                {key === "name"
+                  ? "Họ và tên :"
+                  : key === "email"
+                  ? "Email :"
+                  : key === "phone"
+                  ? "Số điện thoại :"
+                  : ""}
               </label>
-
               {isEditing[key] ? (
                 <form
                   className={`edit-form ${isEditing[key] ? "open" : ""}`}
                   onSubmit={(e) => handleSave(key, e)}
                 >
+                  
                   <input
-                    type={
-                      key === "matKhau"
-                        ? "password"
-                        : key === "email"
-                        ? "email"
-                        : key === "ngaySinh"
-                        ? "date"
-                        : "text"
-                    }
+                    type="text"
                     value={value}
                     onChange={(e) => handleChange(e, key)}
+                    className={errors[key] ? "input-error" : ""}
                   />
                   <div className="button-form">
-                    <button type="submit" className="button-form-save">
+                    <button
+                      type="submit"
+                      className="button-form-save"
+                      disabled={!!errors[key]}
+                    >
                       Lưu
                     </button>
                     <button
@@ -186,7 +223,6 @@ const handleChangePassword = async (e) => {
                         : "********"
                       : value}
                   </span>
-
                   {key === "matKhau" && (
                     <button
                       onClick={() => setIsPasswordVisible(!isPasswordVisible)}
@@ -199,10 +235,10 @@ const handleChangePassword = async (e) => {
                   )}
                 </div>
               )}
+              {errors[key] && <span className="error-text">{errors[key]}</span>}
             </div>
           ))}
 
-        {/* đổi mật khẩu */}
         <button
           className="change-password-button"
           onClick={() => setShowChangePassword(true)}
@@ -213,13 +249,12 @@ const handleChangePassword = async (e) => {
         {showChangePassword && (
           <div className="change-password-form">
             <form onSubmit={handleChangePassword}>
-              <div className="change-password-form-checkin">
+              <div className="change-password-form-checkin d-flex justify-content-between">
                 <label>Mật khẩu hiện tại:</label>
-                <div className="change-password-form-input">
+                <div class="d-flex flex-column">
                   <input
                     className="Present-password"
                     type="password"
-                    style={{ marginLeft: " 106px" }}
                     value={passwords.currentPassword}
                     onChange={(e) =>
                       setPasswords({
@@ -228,13 +263,15 @@ const handleChangePassword = async (e) => {
                       })
                     }
                   />
+                  {errors.currentPassword && (
+                    <span className="error-text">{errors.currentPassword}</span>
+                  )}
                 </div>
               </div>
-              <div className="change-password-form-checkin">
+              <div className="change-password-form-checkin d-flex justify-content-between">
                 <label>Mật khẩu mới:</label>
-                <div className="change-password-form-input">
+                <div class="d-flex flex-column ">
                   <input
-                    style={{ marginLeft: " 112px" }}
                     className="new-password"
                     type="password"
                     value={passwords.newPassword}
@@ -245,15 +282,15 @@ const handleChangePassword = async (e) => {
                       })
                     }
                   />
+                  {errors.newPassword && (
+                    <span className="error-text">{errors.newPassword}</span>
+                  )}
                 </div>
               </div>
-
-              <div className="change-password-form-checkin">
-                {" "}
+              <div className="change-password-form-checkin d-flex justify-content-between">
                 <label>Xác nhận mật khẩu mới:</label>
-                <div className="change-password-form-input">
+                <div class="d-flex flex-column mb-3">
                   <input
-                    style={{ marginLeft: " 55px" }}
                     className="new-confirm-password"
                     type="password"
                     value={passwords.confirmNewPassword}
@@ -264,55 +301,25 @@ const handleChangePassword = async (e) => {
                       })
                     }
                   />
+                  {errors.confirmNewPassword && (
+                    <span className="error-text">
+                      {errors.confirmNewPassword}
+                    </span>
+                  )}
                 </div>
               </div>
-            </form>
-            <div className="form-button">
-              <button className="button-form-save" type="submit">
-                Đổi mật khẩu
-              </button>
-              <button
-                className="button-form-cancel"
-                onClick={() => setShowChangePassword(false)}
-              >
-                Hủy
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* xóa tài khoản  */}
-        <button
-          onClick={() => setShowDeletePrompt(true)}
-          className="delete-button"
-        >
-          Xóa tài khoản
-        </button>
-
-        {showDeletePrompt && (
-          <div className="delete-prompt">
-            <label>Xác thực mật khẩu:</label>
-            <div className="delete-prompt-from">
-              <input
-                type="password"
-                value={deletePassword}
-                onChange={(e) => setDeletePassword(e.target.value)}
-              />
-              <div className="btn">
-                <button
-                  className="button-form-save"
-                  onClick={handleDeleteAccount}
-                >
-                  Đồng ý
+              <div className="form-button">
+                <button className="button-form-save" type="submit">
+                  Đổi mật khẩu
                 </button>
                 <button
                   className="button-form-cancel"
-                  onClick={() => setShowDeletePrompt(false)}
+                  onClick={() => setShowChangePassword(false)}
                 >
                   Hủy
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         )}
       </div>

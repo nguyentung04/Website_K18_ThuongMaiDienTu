@@ -18,7 +18,7 @@ import {
   AlertDialogBody,
   AlertDialogFooter,
   useToast,
-  Img, // Thêm Img để hiển thị logo
+  Img,
 } from "@chakra-ui/react";
 import { fetchCategories, deleteCategory } from "../../../../service/api/Category";
 import { Link } from "react-router-dom";
@@ -96,9 +96,10 @@ const CategoryPage = () => {
           <Tr>
             <Th>STT</Th>
             <Th display="none">ID</Th>
-            <Th>Logo</Th> {/* Cột logo mới */}
+            <Th>Logo</Th>
             <Th>Tên danh mục</Th>
-            <Th>Actions</Th>
+            <Th>Mô tả</Th> {/* Thêm cột mới cho mô tả */}
+            <Th>Hành động</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -108,14 +109,15 @@ const CategoryPage = () => {
               <Td display="none">{category.id}</Td>
               <Td>
                 <Img
-                  src={`http://localhost:3000/uploads/categories/${category.logo}`} // Đường dẫn đến logo
-                  boxSize="50px" // Kích thước của logo
+                  src={`http://localhost:3000/uploads/categories/${category.logo}`}
+                  boxSize="50px"
                   objectFit="cover"
-                  borderRadius="full" // Làm tròn nếu muốn
+                  borderRadius="full"
                   alt={category.name}
                 />
               </Td>
               <Td>{category.name}</Td>
+              <Td>{category.description}</Td> {/* Hiển thị mô tả */}
               <Td>
                 <Link to={`admin/Category/edit/${category.id}`}>
                   <Button colorScheme="blue" size="sm" mr={2}>

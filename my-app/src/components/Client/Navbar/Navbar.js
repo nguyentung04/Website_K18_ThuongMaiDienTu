@@ -1,19 +1,21 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./Navbar.css";
 import { CgChevronDown } from "react-icons/cg";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { FaShoppingCart } from "react-icons/fa";
 import { CartContext } from "../componentss/Cart_Context";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import "./Navbar.css";
+import { jwtDecode } from "jwt-decode";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const username = localStorage.getItem("username");
-  const isLoggedIn = !!username;
+  const [username, setUsername] = useState(localStorage.getItem("username"));
+  const [avatar, setAvatar] = useState("https://via.placeholder.com/150");
+  const isLoggedIn = !!username;  // Kiểm tra người dùng đã đăng nhập chưa
   const { getTotalUniqueItems } = useContext(CartContext);
 
+  // Đăng xuất và xóa thông tin localStorage
   const handleLogout = () => {
     // Xóa tất cả dữ liệu liên quan đến phiên người dùng
     localStorage.removeItem("token"); // Xóa token
@@ -29,29 +31,42 @@ const Navbar = () => {
 
     // Chuyển hướng người dùng về trang đăng nhập
     navigate("/signin");
-};
+  };
+  
 
-  /** ======================== đổi màu chữ sao khi click ( navbar ) ===================== */
+  const [activeLink, setActiveLink] = useState(localStorage.getItem("activeLink") || "");
 
-  // Lấy giá trị `activeLink` từ localStorage hoặc đặt mặc định là chuỗi rỗng
-  const [activeLink, setActiveLink] = useState(
-    localStorage.getItem("activeLink") || ""
-  );
-
-  // Hàm xử lý khi nhấp vào link
   const handleLinkClick = (link) => {
-    setActiveLink(link); // Cập nhật trạng thái `activeLink`
-    localStorage.setItem("activeLink", link); // Lưu giá trị vào localStorage
+    setActiveLink(link);
+    localStorage.setItem("activeLink", link);
   };
 
-  // Sử dụng `useEffect` để đặt lại `activeLink` khi trang được tải lại
   useEffect(() => {
     const savedLink = localStorage.getItem("activeLink");
-    if (savedLink) {
-      setActiveLink(savedLink);
-    }
+    if (savedLink) setActiveLink(savedLink);
   }, []);
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+
+    if (token) {
+      localStorage.setItem("token", token);
+      const decodedUser = jwtDecode(token);
+      if (decodedUser && decodedUser.name) {
+        localStorage.setItem("username", decodedUser.name);
+        setUsername(decodedUser.name);
+      }
+      if (decodedUser && decodedUser.avatar) {
+        setAvatar(decodedUser.avatar);  // Lưu avatar vào state nếu có
+      }
+  
+      // Xóa `token` khỏi URL để bảo mật
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, []);
+  
+  
   return (
     <div className="stopnav">
       <nav className="Navbar ">
@@ -64,40 +79,32 @@ const Navbar = () => {
             <img src="" alt="Logo" className="logo-image" />
           </Link>
           <div className="navbar-links">
-
-            
-          <Link
+            <Link
               to="/"
-              className={`nav-link-trend ${
-                activeLink === "/" ? "active-link" : ""
-              }`}
+              className={`nav-link-trend ${activeLink === "/" ? "active-link" : ""
+                }`}
               onClick={() => handleLinkClick("/")}
             >
               Trang chủ
             </Link>
-            
             <Link
               to="/about"
-              className={`nav-link-introduce ${
-                activeLink === "/about" ? "active-link" : ""
-              }`}
+              className={`nav-link-introduce ${activeLink === "/about" ? "active-link" : ""
+                }`}
               onClick={() => handleLinkClick("/about")}
             >
               Giới thiệu
             </Link>
-
             <div className="dropdown">
               <Link
                 to="/products"
-                className={`dropbtn ${
-                  activeLink === "/menu" ? "active-link" : ""
-                }`}
+                className={`dropbtn ${activeLink === "/menu" ? "active-link" : ""
+                  }`}
                 onClick={() => handleLinkClick("/menu")}
               >
                 Menu <CgChevronDown />
               </Link>
               <div className="dropdown-content">
-                {/* Existing Dropdown Sections */}
                 <div className="dropdown-section">
                   <h4>Hãng Phổ biến</h4>
                   <hr />
@@ -289,9 +296,8 @@ const Navbar = () => {
             <div className="dropdown">
               <Link
                 to="/men"
-                className={`nav-link-trend ${
-                  activeLink === "/men" ? "active-link" : ""
-                }`}
+                className={`nav-link-trend ${activeLink === "/men" ? "active-link" : ""
+                  }`}
                 onClick={() => handleLinkClick("/men")}
               >
                 Nam
@@ -446,9 +452,8 @@ const Navbar = () => {
             <div className="dropdown">
               <Link
                 to="/women"
-                className={`nav-link-trend ${
-                  activeLink === "/women" ? "active-link" : ""
-                }`}
+                className={`nav-link-trend ${activeLink === "/women" ? "active-link" : ""
+                  }`}
                 onClick={() => handleLinkClick("/women")}
               >
                 Nữ <CgChevronDown />
@@ -622,9 +627,8 @@ const Navbar = () => {
 
             <Link
               to="/premium"
-              className={`nav-link-trend ${
-                activeLink === "/premium" ? "active-link" : ""
-              }`}
+              className={`nav-link-trend ${activeLink === "/premium" ? "active-link" : ""
+                }`}
               onClick={() => handleLinkClick("/premium")}
             >
               Cũ cao cấp

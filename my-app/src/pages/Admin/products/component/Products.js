@@ -20,6 +20,7 @@ import {
   AlertDialogOverlay,
   useColorModeValue,
   useToast,
+  Spinner,
 } from "@chakra-ui/react";
 import { fetchProducts, deleteProduct } from "../../../../service/api/products";
 
@@ -30,36 +31,37 @@ const ProductsTable = () => {
   const cancelRef = useRef();
   const toast = useToast();
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const getProducts = async () => {
       setLoading(true);
+      setError(null);
       try {
         const data = await fetchProducts();
-        console.log(data); // Kiểm tra log dữ liệu trả về từ API
-        if (data) {
+        if (Array.isArray(data)) {
           setProducts(data);
+        } else {
+          throw new Error("Invalid data format");
         }
       } catch (error) {
-        setError("Failed to fetch products.");
+        const errorMessage = error.response?.data?.error || "Failed to fetch products.";
+        setError(errorMessage);
         toast({
-          title: "Error fetching products",
-          description: "Failed to fetch product list.",
+          title: "Lỗi khi tải sản phẩm",
+          description: errorMessage,
           status: "error",
           duration: 5000,
           isClosable: true,
         });
-        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
+
     getProducts();
   }, [toast]);
-
-
 
   const onClose = () => setIsOpen(false);
 
@@ -85,37 +87,28 @@ const ProductsTable = () => {
       }
     } catch (error) {
       toast({
-        title: "Error deleting product",
-        description: "Failed to delete the product.",
+        title: "Lỗi xóa sản phẩm",
+        description: "Không thể xóa sản phẩm.",
         status: "error",
         duration: 5000,
         isClosable: true,
       });
-      console.error("Failed to delete product:", error);
     }
-    setIsOpen(false); // Close the dialog
+    setIsOpen(false);
   };
 
-  // Hàm tính toán giá sau khi trừ giá khuyến mãi
-  const calculateDiscountedPrice = (price, discountPercentage) => {
-    if (discountPercentage && discountPercentage > 0 && discountPercentage <= 100) {
-      const discountedPrice = price - (price * (discountPercentage / 100));
-      return discountedPrice;
-    }
-    return price; // Nếu không có khuyến mãi, trả về giá gốc
-  };
-
-  // Hàm format giá trị VNĐ
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
   };
 
+  if (loading) {
+    return <Spinner size="xl" />;
+  }
+
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
       <Flex mb={5} justify="space-between" align="center">
-        <Text fontSize="2xl" fontWeight="bold">
-          Danh sách sản phẩm
-        </Text>
+        <Text fontSize="2xl" fontWeight="bold">Danh sách sản phẩm</Text>
         <Link to="admin/products/add">
           <Button
             bg="#1ba43b"
@@ -128,6 +121,9 @@ const ProductsTable = () => {
         </Link>
       </Flex>
 
+      {error && <Text color="red.500">{error}</Text>}
+      {products.length === 0 && <Text color="gray.500">Không có sản phẩm nào để hiển thị.</Text>}
+
       <Table variant="simple">
         <Thead>
           <Tr>
@@ -136,10 +132,8 @@ const ProductsTable = () => {
             <Th>Ảnh</Th>
             <Th>Tên sản phẩm</Th>
             <Th>Loại sản phẩm</Th>
+            <Th>Mô tả</Th>
             <Th>Giá (VNĐ)</Th>
-            <Th>Khuyến mãi (%)</Th>
-            <Th>Giá sau khuyến mãi</Th>
-            <Th>Trạng thái</Th>
             <Th>Hoạt động</Th>
           </Tr>
         </Thead>
@@ -149,44 +143,30 @@ const ProductsTable = () => {
               <Td fontWeight="bold">{index + 1}</Td>
               <Td display="none">{product.id}</Td>
               <Td>
-                <Box display="flex" alignItems="center" justifyContent="center">
-                  <Img
-                    src={`http://localhost:3000/uploads/products/${product.image}`}
-                    boxSize="100px"
-                    objectFit="cover"
-                    borderRadius={"22px"}
-                    alt={product.name}
-                  />
-                </Box>
+                <Img
+                  src={`http://localhost:3000/uploads/products/${product.images}`}
+                  width="100px"
+                  height="100px"
+                  objectFit="cover"
+                  borderRadius="22px"
+                  alt={product.name}
+                />
               </Td>
               <Td>
-                <Box display="flex" alignItems="center">
-                  <Box>
-                    <Text fontWeight="bold">{product.name}</Text>
-                  </Box>
-                </Box>
+                <Text fontWeight="bold">{product.name}</Text>
               </Td>
               <Td>
                 <Text>{product.category}</Text>
               </Td>
               <Td>
+                <Text>{product.description || "Không có mô tả"}</Text>
+              </Td>
+              <Td>
                 <Text>{formatCurrency(product.price)}</Text>
               </Td>
               <Td>
-                <Text>{Math.round(product.discountPrice)}%</Text>
-              </Td>
-
-              <Td>
-                <Text>{formatCurrency(calculateDiscountedPrice(product.price, product.discountPrice))}</Text>
-              </Td>
-              <Td>
-                <Text>{product.status}</Text>
-              </Td>
-              <Td>
                 <Link to={`admin/products/edit/${product.id}`}>
-                  <Button colorScheme="blue" size="sm" mr={2}>
-                    Sửa
-                  </Button>
+                  <Button colorScheme="blue" size="sm" mr={2}>Sửa</Button>
                 </Link>
                 <Button
                   colorScheme="red"
@@ -201,28 +181,14 @@ const ProductsTable = () => {
         </Tbody>
       </Table>
 
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-      >
+      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
         <AlertDialogOverlay>
           <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Xác nhận xóa
-            </AlertDialogHeader>
-
-            <AlertDialogBody>
-              Bạn có chắc chắn muốn xóa sản phẩm này không?
-            </AlertDialogBody>
-
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">Xác nhận xóa</AlertDialogHeader>
+            <AlertDialogBody>Bạn có chắc chắn muốn xóa sản phẩm này không?</AlertDialogBody>
             <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose}>
-                Hủy
-              </Button>
-              <Button colorScheme="red" onClick={handleConfirmDelete} ml={3}>
-                Xóa
-              </Button>
+              <Button ref={cancelRef} onClick={onClose}>Hủy</Button>
+              <Button colorScheme="red" onClick={handleConfirmDelete} ml={3}>Xóa</Button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialogOverlay>

@@ -2,7 +2,7 @@ const connection = require("../config/database");
 
 // Lấy tất cả bài đăng
 exports.getAllpost_categories = (req, res) => {
-    connection.query("SELECT * FROM post_categories", (err, results) => {
+    connection.query("SELECT * FROM post_categories ", (err, results) => {
       if (err) {
         // Trả về lỗi nếu có sự cố khi truy vấn CSDL
         return res.status(500).json({ error: err.message });
@@ -72,13 +72,13 @@ exports.deletePost_categories = (req, res) => {
 // Cập nhật bài đăng theo ID
 exports.updatePost_categories  = (req, res) => {
   const Post_categoriesId = req.params.id; // Sử dụng 'postId' để dễ hiểu hơn
-  const { name, description} = req.body; // Nhận dữ liệu từ body
+  const { name} = req.body; // Nhận dữ liệu từ body
 
   // Log dữ liệu nhận được để kiểm tra
   console.log("Dữ liệu nhận được:", req.body);
 
   // Kiểm tra nếu thiếu trường bắt buộc
-  if (!name || !description || !Post_categoriesId) {
+  if (!name  || !Post_categoriesId) {
     return res.status(400).json({ error: "Tất cả các trường (name, description) và ID bài đăng là bắt buộc." });
   }
 
@@ -87,10 +87,10 @@ exports.updatePost_categories  = (req, res) => {
   // Chuẩn bị câu truy vấn SQL để cập nhật bài đăng
   const query = `
     UPDATE post_categories
-    SET name = ?, description = ?
+    SET name = ?
     WHERE id = ?;
   `;
-  const values = [name, description, Post_categoriesId];
+  const values = [name, Post_categoriesId];
 
   // Thực hiện câu truy vấn
   connection.query(query, values, (err, results) => {
@@ -112,7 +112,7 @@ exports.postPost_categories  = (req, res) => {
   const {  name, description } = req.body;
 
   // Kiểm tra dữ liệu đầu vào
-  if (! name || !description) {
+  if (! name ) {
     return res.status(400).json({ message: "Tất cả các trường ( name, description) là bắt buộc" });
   }
 

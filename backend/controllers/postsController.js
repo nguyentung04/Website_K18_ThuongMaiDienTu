@@ -70,41 +70,45 @@ exports.deletePosts = (req, res) => {
 
 // Cập nhật bài đăng theo ID
 exports.updatePosts = (req, res) => {
-    const postId = req.params.id; // Sử dụng 'postId' để dễ hiểu hơn
-    const { title, avt, content, author_id, post_categories_id } = req.body; // Nhận dữ liệu từ body
+  const postId = req.params.id; // Use 'postId' for clarity
+  const { title,avt, content, author_id, post_categories_id } = req.body;
 
-    // Log dữ liệu nhận được để kiểm tra
-    console.log("Dữ liệu nhận được:", req.body);
+  // Log received data to inspect
+  console.log("Received data:", req.body);
 
-    // Kiểm tra nếu thiếu trường bắt buộc
-    if (!title || !content || !author_id || !post_categories_id || !postId) {
-      return res.status(400).json({ error: "Tất cả các trường (title, content, author_id, post_categories_id) và ID bài đăng là bắt buộc." });
+  // Check for required fields
+  if (!title || !content || !author_id || !post_categories_id || !postId) {
+    return res.status(400).json({
+      error: "All fields (title, content, author_id, post_categories_id) and post ID are required.",
+    });
+  }
+
+
+
+  // Prepare SQL query to update the post
+  const query = `
+    UPDATE posts
+    SET title = ?, content = ?, avt = ?, author_id = ?, post_categories_id = ?
+    WHERE id = ?;
+  `;
+  const values = [title, content, avt, author_id, post_categories_id, postId];
+
+  // Log the values to be updated
+  console.log("SQL Values:", values);
+
+  // Execute query
+  connection.query(query, values, (err, results) => {
+    if (err) {
+      console.error("Database query error:", err); // Log the error
+      return res.status(500).json({ error: "Database query error", details: err.message });
     }
 
-    // Nếu không có ảnh đại diện (avt), gán giá trị null
-    const avtValue = avt || null;
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: "Post not found" });
+    }
 
-    // Chuẩn bị câu truy vấn SQL để cập nhật bài đăng
-    const query = `
-      UPDATE posts
-      SET title = ?, content = ?, avt = ?, author_id = ?, post_categories_id = ?
-      WHERE id = ?;
-    `;
-    const values = [title, content, avtValue, author_id, post_categories_id, postId];
-
-    // Thực hiện câu truy vấn
-    connection.query(query, values, (err, results) => {
-      if (err) {
-        console.error("Lỗi truy vấn CSDL:", err); // Ghi lại lỗi vào console
-        return res.status(500).json({ error: "Lỗi truy vấn CSDL", details: err.message });
-      }
-
-      if (results.affectedRows === 0) {
-        return res.status(404).json({ message: "Không tìm thấy bài đăng" });
-      }
-
-      res.status(200).json({ message: "Bài đăng đã được cập nhật thành công" });
-    });
+    res.status(200).json({ message: "Post successfully updated" });
+  });
 };
 
 // Tạo mới bài đăng

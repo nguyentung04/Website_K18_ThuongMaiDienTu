@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -23,12 +22,11 @@ const EditProduct = () => {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
-  const [status, setStatus] = useState("");
+  const [stock, setStock] = useState("");
   const [image, setImage] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [categories, setCategories] = useState([]);
   const [description, setDescription] = useState("");
-  const [discountPrice, setDiscountPrice] = useState("");
   const [errors, setErrors] = useState({});
   const toast = useToast();
   const navigate = useNavigate();
@@ -44,19 +42,18 @@ const EditProduct = () => {
           setCategory(data.category_id || "");
           setPrice(data.price || "");
           setDescription(data.description || "");
-          setStatus(data.status || "");
           setImage(data.image || "");
-          setDiscountPrice(data.discountPrice || "");
+          setStock(data.stock || "");
         }
       } catch (error) {
         toast({
           title: "Lỗi khi tải sản phẩm.",
           description: "Không thể lấy thông tin chi tiết sản phẩm.",
-          status: "Lỗi",
+          status: "error",
           duration: 5000,
           isClosable: true,
         });
-        console.error("Không thể tải sản phẩm:", error);
+        console.error("Failed to fetch product:", error);
       }
     };
 
@@ -68,13 +65,13 @@ const EditProduct = () => {
         }
       } catch (error) {
         toast({
-          title: "Có lỗi khi tìm danh mục.",
-          description: "Không tìm được danh mục.",
-          status: "lỗi",
+          title: "Lỗi khi tải danh mục.",
+          description: "Không thể lấy danh mục sản phẩm.",
+          status: "error",
           duration: 5000,
           isClosable: true,
         });
-        console.error("Không thể tìm được danh mục:", error);
+        console.error("Failed to fetch categories:", error);
       }
     };
 
@@ -84,53 +81,45 @@ const EditProduct = () => {
 
   const validateForm = () => {
     const newErrors = {};
-  
     if (!name) newErrors.name = "Tên sản phẩm là bắt buộc.";
     if (!category) newErrors.category = "Loại sản phẩm là bắt buộc.";
-    if (!price || isNaN(price)) {
-      newErrors.price = "Giá là bắt buộc và phải là số.";
-    } else if (price <= 0) {
-      newErrors.price = "Giá phải lớn hơn 0.";
-    }
-    if (!image) newErrors.image = "Ảnh sản phẩm là bắt buộc.";
-    if (description.length < 10) newErrors.description = "Mô tả phải ít nhất 10 ký tự.";
-    if (!discountPrice) newErrors.discountPrice = "% giảm giá bắt buộc phải nhập!!!"
+    if (!price || isNaN(price) || parseFloat(price) <= 0)
+      newErrors.price = "Giá là bắt buộc và phải là số lớn hơn 0.";
+    if (!description) newErrors.description = "Mô tả là bắt buộc.";
+    if (!stock || isNaN(stock) || parseInt(stock) <= 0)
+      newErrors.stock = "Số lượng là bắt buộc và phải là số nguyên dương.";
     return newErrors;
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
-
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
-    } else {
-      setErrors({});
+    }
+
+    const formData = new FormData();
+    if (imageFile) {
+      formData.append("file", imageFile);
     }
 
     let imageUrl = image;
-
     if (imageFile) {
-      const formData = new FormData();
-      formData.append("file", imageFile);
-
       try {
         const response = await axios.post(
-          `http://localhost:3000/api/upload/products`,
+          "http://localhost:3000/api/upload/products",
           formData,
           {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
+            headers: { "Content-Type": "multipart/form-data" },
           }
         );
         imageUrl = response.data.filePath;
+        setImage(imageUrl); // Cập nhật hiển thị ảnh mới trên giao diện
       } catch (error) {
         toast({
-          title: "Image Upload Error",
-          description: "Failed to upload image.",
+          title: "Lỗi tải hình ảnh lên",
+          description: "Không tải được hình ảnh.",
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -138,32 +127,32 @@ const EditProduct = () => {
         return;
       }
     }
+    
 
     const productData = {
       name,
-      price,
+      price: parseFloat(price),
+      stock: parseInt(stock),
       description,
       image: imageUrl,
-      status,
-      discountPrice,
       category_id: category,
     };
 
     try {
       await updateProduct(id, productData);
       toast({
-        title: "Thông báo",
-        description: "Cập nhật sản phẩm thành công!!!",
+        title: "Sản phẩm đã được cập nhật.",
+        description: "Cập nhật sản phẩm thành công.",
         status: "success",
         duration: 5000,
         isClosable: true,
       });
       navigate("/admin/products");
     } catch (error) {
-      console.error("Update error:", error);
+      console.error("Update product error:", error);
       toast({
-        title: "Error updating product.",
-        description: error.message,
+        title: "Lỗi cập nhật sản phẩm.",
+        description: "Không thể cập nhật sản phẩm. Vui lòng thử lại.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -175,7 +164,7 @@ const EditProduct = () => {
     setImageFile(e.target.files[0]);
   };
 
-  if (!product) return <p>Loading...</p>;
+  if (!product) return <div>Loading...</div>;
 
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
@@ -190,11 +179,11 @@ const EditProduct = () => {
           <Select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
+            placeholder="Chọn loại sản phẩm"
           >
-            <option value="">Chọn loại sản phẩm</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
               </option>
             ))}
           </Select>
@@ -206,22 +195,24 @@ const EditProduct = () => {
           <FormLabel>Giá</FormLabel>
           <Input
             type="number"
+            min="0.01"
+            step="0.01"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
           />
           {errors.price && <FormErrorMessage>{errors.price}</FormErrorMessage>}
         </FormControl>
-
-        <FormControl id="discountPrice" mb={4} isInvalid={errors.discountPrice}>
-          <FormLabel>Giảm Giá (%)</FormLabel>
+        <FormControl id="stock" mb={4} isInvalid={errors.stock}>
+          <FormLabel>Số lượng</FormLabel>
           <Input
             type="number"
-            value={discountPrice}
-            onChange={(e) => setDiscountPrice(e.target.value)}
+            min="1"
+            step="1"
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
           />
-          {errors.discountPrice && <FormErrorMessage>{errors.discountPrice}</FormErrorMessage>}
+          {errors.stock && <FormErrorMessage>{errors.stock}</FormErrorMessage>}
         </FormControl>
-
         <FormControl id="description" mb={4} isInvalid={errors.description}>
           <FormLabel>Mô tả</FormLabel>
           <Input
@@ -232,26 +223,13 @@ const EditProduct = () => {
             <FormErrorMessage>{errors.description}</FormErrorMessage>
           )}
         </FormControl>
-        <FormControl id="status" mb={4} isInvalid={errors.status}>
-          <FormLabel>Trạng thái</FormLabel>
-          <Select value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option value="">Chọn trạng thái</option>
-            <option value="bán chạy">Bán chạy</option>
-            <option value="nổi bật">Nổi bật</option>
-            <option value="khuyến mãi">Khuyến mãi</option>
-          </Select>
-          {errors.status && (
-            <FormErrorMessage>{errors.status}</FormErrorMessage>
-          )}
-        </FormControl>
-
-        <FormControl id="image" mb={4} isInvalid={errors.image}>
+        <FormControl id="image" mb={4}>
           <FormLabel>Ảnh sản phẩm</FormLabel>
           <Input type="file" onChange={handleImageChange} />
-          {errors.image && <FormErrorMessage>{errors.image}</FormErrorMessage>}
+          {image && <img src={image} alt="Current product" width="100" />}
         </FormControl>
         <Button type="submit" colorScheme="blue">
-          Đồng ý
+          Cập nhật sản phẩm
         </Button>
       </form>
     </Box>

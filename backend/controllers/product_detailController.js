@@ -2,10 +2,11 @@ const connection = require("../config/database");
 
 exports.getAllProduct_Details = (req, res) => {
   connection.query(
-    `SELECT pr.*, prd.*, ct.name AS category
+    `SELECT pr.*, prm.*, pr_img.*, ct.name AS category
 FROM products pr
-INNER JOIN product_detail prd ON pr.id = prd.product_id
-INNER JOIN categories ct ON pr.category_id = ct.id;
+INNER JOIN product_meta prm ON pr.id = prm.product_id
+INNER JOIN product_images pr_img ON pr.id = pr_img.product_id
+INNER JOIN categories ct ON pr.category_id = ct.id
  `,
     (err, results) => {
       if (err) {
@@ -20,11 +21,12 @@ exports.getProductDetailById = (req, res) => {
   // const productId = req.params.id;
   const productDetailId = req.params.id;
   connection.query(
-    `SELECT pr.*, prd.*, ct.name AS category
+    `SELECT pr.*, prm.*, pr_img.*, ct.name AS category
 FROM products pr
-INNER JOIN product_detail prd ON pr.id = prd.product_id
+INNER JOIN product_meta prm ON pr.id = prm.product_id
+INNER JOIN product_images pr_img ON pr.id = pr_img.product_id
 INNER JOIN categories ct ON pr.category_id = ct.id
- WHERE prd.product_id = ?`,
+WHERE pr.id =?`,
     [productDetailId],
     // [productId],
     (err, results) => {

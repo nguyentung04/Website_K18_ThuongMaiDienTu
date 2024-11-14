@@ -106,7 +106,7 @@ const AddProduct = () => {
       price,
       stock: parseInt(stock),
       description,
-      images: [imageUrl],
+      image_url: [imageUrl],
       category_id: category,
     };
 

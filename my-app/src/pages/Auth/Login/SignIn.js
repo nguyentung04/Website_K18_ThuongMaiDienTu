@@ -15,6 +15,7 @@ const SignIn = () => {
 
   const navigate = useNavigate();
 
+<<<<<<< HEAD
   // Xử lý đăng nhập Google
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:3000/api/auth/google";
@@ -23,6 +24,17 @@ const SignIn = () => {
   // Gửi yêu cầu đăng nhập
   const handleSubmit = (e) => {
     e.preventDefault();
+=======
+  const handleGoogleLogin = () => {
+    // Chuyển hướng người dùng đến URL xác thực Google
+    window.location.href = "http://localhost:3000/api/auth/google";
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Ngăn chặn sự kiện mặc định của form để trang không bị tải lại
+
+    // Gửi yêu cầu đăng nhập đến server
+>>>>>>> bae40f60210a5cc4d28947e7e239daa3fa0e64dc
     fetch("http://localhost:3000/api/login", {
       method: "POST",
       headers: {
@@ -31,11 +43,18 @@ const SignIn = () => {
       body: JSON.stringify({ username, password }),
     })
       .then(response => {
+<<<<<<< HEAD
         if (!response.ok) throw new Error('Đăng nhập không thành công');
+=======
+        if (!response.ok) {
+          throw new Error('Đăng nhập không thành công');
+        }
+>>>>>>> bae40f60210a5cc4d28947e7e239daa3fa0e64dc
         return response.json();
       })
       .then(data => {
         if (data.token) {
+<<<<<<< HEAD
           localStorage.setItem('token', data.token);
           localStorage.setItem('username', username);
           localStorage.setItem('userData', JSON.stringify(data.user)); // Lưu thông tin người dùng
@@ -51,6 +70,32 @@ const SignIn = () => {
         setError('Có lỗi xảy ra');
         setShowErrorModal(true);
         setTimeout(() => setShowErrorModal(false), 2000);
+=======
+          // Lưu token và thông tin người dùng vào localStorage
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('username', username);
+          localStorage.setItem('userData', JSON.stringify(data.user));
+
+          setShowSuccessModal(true);
+          setTimeout(() => {
+            navigate('/'); // Chuyển hướng sau 2-3 giây
+          }, 2000);
+        } else {
+          setError(data.message || 'Đăng nhập thất bại');
+          setShowErrorModal(true);
+          setTimeout(() => {
+            setShowErrorModal(false);
+          }, 2000);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        setError('Có lỗi xảy ra');
+        setShowErrorModal(true);
+        setTimeout(() => {
+          setShowErrorModal(false);
+        }, 2000);
+>>>>>>> bae40f60210a5cc4d28947e7e239daa3fa0e64dc
       });
   };
 

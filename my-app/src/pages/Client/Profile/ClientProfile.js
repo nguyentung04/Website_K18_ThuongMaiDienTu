@@ -41,8 +41,12 @@ const Profile = () => {
         avatar: googleUser.avatar || "https://via.placeholder.com/150",
       });
     } else {
+<<<<<<< HEAD
       // Nếu không có thông tin người dùng, chuyển hướng về trang đăng nhập
       navigate("/signin");
+=======
+      navigate("/login");
+>>>>>>> bae40f60210a5cc4d28947e7e239daa3fa0e64dc
     }
   }, [navigate]);
 
@@ -112,14 +116,27 @@ const Profile = () => {
         <button className="logout-button" onClick={() => navigate("/login")}>
           Đăng xuất
         </button>
+<<<<<<< HEAD
         <div className="profile-info">
           <h4>Thông tin cá nhân</h4>
           {["name", "email", "phone"].map((key) => (
             <div className="profile-info-item" key={key}>
               <label>
                 {key === "name" ? "Họ tên" : key === "email" ? "Email" : "Số điện thoại"}:
+=======
+      </div>
+
+      <div className="personal-info">
+        {Object.entries(values)
+          .filter(([key]) => key !== "avatar")
+          .map(([key, value]) => (
+            <div key={key} className="info-item">
+              <label>
+                {key === "name" ? "Họ và tên :" : key === "email" ? "Email :" : key === "phone" ? "Số điện thoại :" : ""}
+>>>>>>> bae40f60210a5cc4d28947e7e239daa3fa0e64dc
               </label>
               {isEditing[key] ? (
+<<<<<<< HEAD
                 <input
                   type="text"
                   value={values[key]}
@@ -127,6 +144,35 @@ const Profile = () => {
                 />
               ) : (
                 <span>{values[key]}</span>
+=======
+                <form
+                  className={`edit-form ${isEditing[key] ? "open" : ""}`}
+                  onSubmit={(e) => handleSave(key, e)}
+                >
+                  <input
+                    type="text"
+                    value={value}
+                    onChange={(e) => handleChange(e, key)}
+                  />
+                  <div className="button-form">
+                    <button type="submit" className="button-form-save">
+                      Lưu
+                    </button>
+                    <button
+                      type="button"
+                      className="button-form-cancel"
+                      onClick={() => handleEditClick(key)}
+                    >
+                      Hủy
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="info-item-actions">
+                  <span>{value}</span>
+                  <button onClick={() => handleEditClick(key)}>Sửa</button>
+                </div>
+>>>>>>> bae40f60210a5cc4d28947e7e239daa3fa0e64dc
               )}
               {isEditing[key] ? (
                 <button
@@ -146,7 +192,10 @@ const Profile = () => {
               {errors[key] && <span className="error-text">{errors[key]}</span>}
             </div>
           ))}
+<<<<<<< HEAD
         </div>
+=======
+>>>>>>> bae40f60210a5cc4d28947e7e239daa3fa0e64dc
       </div>
     </div>
   );

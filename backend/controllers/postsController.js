@@ -91,7 +91,7 @@ exports.updatePosts = (req, res) => {
     SET title = ?, content = ?, avt = ?, author_id = ?, post_categories_id = ?
     WHERE id = ?;
   `;
-  const values = [title, content, avt, author_id, post_categories_id, postId];
+  const values = [title, content, avtValue, author_id, post_categories_id, postId];
 
   // Log the values to be updated
   console.log("SQL Values:", values);
@@ -113,19 +113,19 @@ exports.updatePosts = (req, res) => {
 
 // Tạo mới bài đăng
 exports.postPosts = (req, res) => {
-    const { title, avt, content, author_id , post_categories_id } = req.body;
+    const { title, avt, content, author_id, post_categories_id} = req.body;
 
     // Kiểm tra dữ liệu đầu vào
-    if (!title || !content || !author_id  || !post_categories_id  ) {
-      return res.status(400).json({ message: "Tất cả các trường (title, content, author_id , post_categories_id ) là bắt buộc" });
+    if (!title || !content || !author_id || !post_categories_id ) {
+      return res.status(400).json({ message: "Tất cả các trường (title, content, author_id, post_categories_id) là bắt buộc" });
     }
 
     // Chuẩn bị câu truy vấn SQL để tạo bài đăng
     const query = `
-      INSERT INTO posts(title, content, avt, author_id , post_categories_id ) 
+      INSERT INTO posts(title, content, avt, author_id, post_categories_id) 
       VALUES (?, ?, ?, ?, ?);
     `;
-    const values = [title || "", content || "", avt || "", author_id  || "" , post_categories_id  || ""];
+    const values = [title || "", content || "", avt || "", author_id || "", post_categories_id || ""];
 
     // Thực hiện câu truy vấn
     connection.query(query, values, (err, results) => {

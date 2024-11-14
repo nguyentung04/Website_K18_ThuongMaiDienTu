@@ -139,7 +139,7 @@ const CommentPage = () => {
             <Th>STT</Th>
             <Th>Họ tên khách hàng</Th>
             <Th>ID khách hàng</Th>
-            <Th>Tên sản phẩm</Th>
+            <Th>Sản phẩm</Th>
             <Th>ID sản phẩm</Th>
             <Th>Thời gian</Th>
             <Th>Hành động</Th>
@@ -151,7 +151,7 @@ const CommentPage = () => {
               <Td fontWeight="bold">{index + 1}</Td>
               <Td>{review.fullname}</Td>
               <Td>{review.user_id}</Td>
-              <Td>{review.name}</Td> {/* Tên sản phẩm nếu có */}
+              <Td>{review.product_name}</Td> {/* Tên sản phẩm nếu có */}
               <Td>{review.product_id}</Td> {/* ID sản phẩm */}
               <Td>{review.created_at}</Td>
               <Td>

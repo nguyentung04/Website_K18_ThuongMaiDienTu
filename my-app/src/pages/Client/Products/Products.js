@@ -30,7 +30,6 @@ import { HeartIcon } from "../../../components/icon/icon";
 import { color } from "framer-motion";
 import CustomCheckbox from "./component/CustomCheckbox";
 import Slideshow from "./component/Slideshow/Slideshow";
-import axios from "axios";
 
 const BASE_URL = "http://localhost:3000"; // Adjust this if needed
 
@@ -176,11 +175,12 @@ const Products = () => {
     };
   }, []);
 
-  const handleOpenModal = (product) => {
-    setSelectedProduct(product);
-    setIsOpen(true);
-  };
-  const handleCloseModal = () => setIsOpen(false);
+    const handleOpenModal = (product) => {
+      setSelectedProduct(product);
+      setIsOpen(true);
+    };
+    const handleCloseModal = () => setIsOpen(false);
+  const [likedProducts, setLikedProducts] = useState([]);
   const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
   const increaseQuantity = () => setQuantity(quantity + 1);
 
@@ -192,38 +192,6 @@ const Products = () => {
   const handleSubmitModel = (e) => {
     e.preventDefault();
     // Form validation and submit logic
-  };
-
-  const handleAddToCartAndOpenModal = (e, product) => {
-    e.stopPropagation();
-    addToCart(product);
-    handleOpenModal(product);
-  };
-
-  const addToCart = (product) => {
-    if (product) {
-      const details = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        description: product.description,
-        image: product.image,
-        quantity: quantity,
-      };
-
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const existingProductIndex = cart.findIndex(
-        (item) => item.id === product.id
-      );
-
-      if (existingProductIndex !== -1) {
-        cart[existingProductIndex].quantity += quantity;
-      } else {
-        cart.push(details);
-      }
-
-      localStorage.setItem("cart", JSON.stringify(cart));
-    }
   };
 
   const formatPrice = (price) => {
@@ -247,47 +215,13 @@ const Products = () => {
   };
 
   // ============================================= thích sản phẩm ============================
-  // const toggleLike = (productId) => {
-  //   setLikedProducts(
-  //     (prevLiked) =>
-  //       prevLiked.includes(productId)
-  //         ? prevLiked.filter((id) => id !== productId) // Unlike
-  //         : [...prevLiked, productId] // Like
-  //   );
-  // };
-  const [likedProducts, setLikedProducts] = useState(() => {
-    const storedLiked = localStorage.getItem("likedProducts");
-    return storedLiked ? JSON.parse(storedLiked) : [];
-  });
-
-  const [likeCounts, setLikeCounts] = useState({});
-
-  const toggleLike = async (productId) => {
-    const userId = JSON.parse(localStorage.getItem("userData")).id;
-
-    try {
-      const isLiked = likedProducts.includes(productId);
-      const response = await axios.post(
-        `${BASE_URL}/api/product_likes/${productId}`,
-        { userId, action: isLiked ? "remove" : "add" }
-      );
-
-      setLikedProducts((prevLiked) => {
-        const updatedLiked = isLiked
-          ? prevLiked.filter((id) => id !== productId)
-          : [...prevLiked, productId];
-
-        localStorage.setItem("likedProducts", JSON.stringify(updatedLiked));
-        return updatedLiked;
-      });
-
-      setLikeCounts((prevCounts) => ({
-        ...prevCounts,
-        [productId]: response.data.likeCount,
-      }));
-    } catch (error) {
-      console.error("Error updating likes:", error);
-    }
+  const toggleLike = (productId) => {
+    setLikedProducts(
+      (prevLiked) =>
+        prevLiked.includes(productId)
+          ? prevLiked.filter((id) => id !== productId) // Unlike
+          : [...prevLiked, productId] // Like
+    );
   };
 
   // ======================================thương hiệu==========================================
@@ -693,6 +627,7 @@ const Products = () => {
       {/* ============================================================ SLIDER ============================================= */}
       <Slideshow />
 
+    
       <section className="featured-products  container">
         <h2>Đồng hồ nam đẹp - cao cấp</h2>
         {/* ==================================== NÚT DANH MỤC VÀ SẮP XẾP ======================================== */}
@@ -780,7 +715,7 @@ const Products = () => {
                 }}
                 key={product.id}
               >
-                {/* <button
+                <button
                   className="like-icon"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -796,22 +731,13 @@ const Products = () => {
                       }
                     />
                   </span>
-                </button> */}
-                <button
-                  className="like-icon"
-                  onClick={() => toggleLike(product.id)}
-                >
-                  <HeartIcon
-                    size="24px"
-                    color={
-                      likedProducts.includes(product.id) ? "#b29c6e" : "white"
-                    }
-                  />
                 </button>
-
                 <button
                   className="add-to-cart-icon"
-                  onClick={(e) => handleAddToCartAndOpenModal(e, product)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenModal(product);
+                  }}
                 >
                   <span style={{ color: "white" }}>
                     <FaShoppingCart
@@ -828,7 +754,7 @@ const Products = () => {
                 <div className="swiper-slide swiper-slide-active">
                   <div className="product-box h-100 bg-gray relative">
                     <a
-                      href={`/product/${product.id}`} // phải có link thì mới có hiện con trỏ bàn tay nhấn
+                    href={`/product/${product.id}`}// phải có link thì mới có hiện con trỏ bàn tay nhấn
                       className="plain"
                       onClick={() =>
                         (window.location.href = `/product/${product.id}`)
@@ -910,76 +836,77 @@ const Products = () => {
                 class="filter-options"
                 filters={brands}
               ></FilterItem>
-              <hr />
+                  <hr />
             </div>
-
+        
             <div class="filter-col">
               <FilterItem title="Loại máy" filters={loaiMayArray}></FilterItem>
-              <hr />
+            <hr />
             </div>
-
+   
             <div class="filter-col">
               <FilterItem
                 title=" Chất liệu dây"
                 class="filter-options"
                 filters={dayArray}
               ></FilterItem>
-              <hr />
+            <hr />
             </div>
-
+   
             <div class="filter-col">
               <FilterItem
                 title="Màu sắc "
                 class="filter-options"
                 filters={mauSacArray}
               ></FilterItem>
-              <hr />
+            <hr />
             </div>
-
+   
             <div class="filter-col">
               <FilterItem
                 title="Đường kính "
                 class="filter-options"
                 filters={duongKinhArray}
               ></FilterItem>
-              <hr />
+            <hr />
             </div>
-
+   
             <div class="filter-col">
               <FilterItem
                 title="Style "
                 class="filter-options"
                 filters={styleArray}
               ></FilterItem>
-              <hr />
+            <hr />
             </div>
-
+   
             <div class="filter-col">
               <FilterItem
                 title="Tính năng "
                 class="filter-options"
                 filters={chucNangArray}
               ></FilterItem>
-              <hr />
+            <hr />
             </div>
-
+   
             <div class="filter-col">
               <FilterItem
                 title="Độ chống nước "
                 class="filter-options"
                 filters={chongNuocArray}
               ></FilterItem>
-              <hr />
+            <hr />
             </div>
-
+   
             <div class="filter-col">
               <FilterItem
                 title="Khoảng giá "
                 class="filter-options "
                 filters={giaArray}
               ></FilterItem>
-              <hr />
+            <hr />
             </div>
+   
           </div>
           <div class="offcanvas-footer reset-bar">
             <div class="secondary-bar d-flex">

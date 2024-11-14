@@ -25,7 +25,7 @@ import OrderModal from "../components/Client/orderModel/orderModel.js";
 
 const ClientRoutes = () => {
   return (
-    <Routes >
+    <Routes>
       <Route element={<ClientLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/profile" element={<Profile />} />

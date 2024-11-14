@@ -16,16 +16,16 @@ const ClientLayout = () => {
     /^\/orders\/\d+$/.test(location.pathname);
 
   return (
-    <main style={ {fontFamily:"math"}}>
+    <>
       {" "}
       <CartProvider>
         <Navbar />
       </CartProvider>
-      <main className="p-2 g-col-6"  >
+      <main>
         <Outlet /> {/* Outlet sẽ hiển thị các trang con */}
       </main>
       {!shouldHideFooter && <Footer />}
-    </main>
+    </>
   );
 };
 

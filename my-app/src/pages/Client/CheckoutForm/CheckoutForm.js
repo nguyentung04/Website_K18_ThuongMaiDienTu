@@ -13,8 +13,8 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import {
-  fetchProvinces,
-  fetchDistricts,
+  fetchCities,
+  fetchCitiesByDistricts,
 } from "../../../service/api/cities";
 
 const CheckoutForm = () => {
@@ -42,17 +42,15 @@ const CheckoutForm = () => {
   useEffect(() => {
     const fetchCityData = async () => {
       try {
-        const citiesData = await fetchProvinces();
+        const citiesData = await fetchCities();
         setCities(citiesData);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách tỉnh/thành phố:", error);
       }
     };
- 
+
     fetchCityData();
   }, []);
- 
-  
   const [userId, setUserId] = useState(null);
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("userData"));
@@ -60,7 +58,6 @@ const CheckoutForm = () => {
       setUserId(userData.id);
     }
   }, []);
-  
   const handleProvinceChange = async (e) => {
     const selectedProvince = e.target.value;
     setFormData({
@@ -71,7 +68,7 @@ const CheckoutForm = () => {
 
     setLoadingDistricts(true);
     try {
-      const districtsData = await fetchDistricts(selectedProvince);
+      const districtsData = await fetchCitiesByDistricts(selectedProvince);
       setDistricts(districtsData);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách quận/huyện:", error);

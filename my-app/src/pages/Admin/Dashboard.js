@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Flex, Text, Spinner, Box, Table, Thead, Tbody, Tr, Th, Td } from '@chakra-ui/react';
+import { Flex, Text, Spinner, Box, Select } from '@chakra-ui/react';
 import { Bar } from 'react-chartjs-2';
 import Sidebar from '../../components/Admin/Sidebar';
 import Navbar from '../../components/Admin/Navbar';
@@ -15,6 +15,8 @@ const Dashboard = () => {
   const [userCounts, setUserCounts] = useState({});
   const [locations, setLocations] = useState([]);
   const [loadingLocations, setLoadingLocations] = useState(true);
+  const [selectedProvince, setSelectedProvince] = useState('');
+  const [districts, setDistricts] = useState([]);
 
   useEffect(() => {
     const getUsers = async () => {
@@ -32,7 +34,6 @@ const Dashboard = () => {
     const getLocations = async () => {
       try {
         const data = await fetchDistricts();
-        console.log("District Data:", data);
         setLocations(data);
       } catch (error) {
         console.error("Failed to fetch locations:", error);
@@ -45,9 +46,19 @@ const Dashboard = () => {
     getLocations();
   }, []);
 
+  useEffect(() => {
+    // Cập nhật danh sách quận/huyện khi thay đổi Tỉnh/Thành phố
+    if (selectedProvince) {
+      const province = locations.find(loc => loc.name === selectedProvince);
+      setDistricts(province ? province.districts : []);
+    } else {
+      setDistricts([]);
+    }
+  }, [selectedProvince, locations]);
+
   const countUsersForLastFourMonths = (users) => {
-    const currentMonth = new Date().getMonth(); 
-    const currentYear = new Date().getFullYear(); 
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
 
     const counts = {};
 
@@ -58,9 +69,9 @@ const Dashboard = () => {
     }
 
     users.forEach(user => {
-      const userDate = new Date(user.createdAt); 
-      const userMonth = userDate.getMonth(); 
-      const userYear = userDate.getFullYear(); 
+      const userDate = new Date(user.createdAt);
+      const userMonth = userDate.getMonth();
+      const userYear = userDate.getFullYear();
 
       for (let i = 0; i < 4; i++) {
         const monthIndex = currentMonth - i < 0 ? 12 + (currentMonth - i) : currentMonth - i;
@@ -122,7 +133,6 @@ const Dashboard = () => {
       <Flex>
         <Sidebar />
         <Flex ml={{ base: 0, md: "250px" }} direction="column" flex="1" p={4} bg="#f7fafc">
-      
           <Flex direction="column" p={4} mt="60px" gap={8}>
             <Flex direction="column" flex="1" mb={8}>
               <Text fontSize="2xl" fontWeight="bold">Thống kê người dùng</Text>
@@ -143,22 +153,22 @@ const Dashboard = () => {
               {loadingLocations ? (
                 <Spinner />
               ) : (
-                <Table variant="simple" mt={4} overflowX="auto">
-                  <Thead>
-                    <Tr>
-                      <Th>Tỉnh/Thành phố</Th>
-                      <Th>Quận/Huyện</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
+                <>
+                  <Select
+                    placeholder="Chọn Tỉnh/Thành phố"
+                    onChange={(e) => setSelectedProvince(e.target.value)}
+                    mb={4}
+                  >
                     {locations.map((location, index) => (
-                      <Tr key={index}>
-                        <Td>{location.name}</Td>
-                        <Td>{location.districts.join(', ')}</Td> 
-                      </Tr>
+                      <option key={index} value={location.name}>{location.name}</option>
                     ))}
-                  </Tbody>
-                </Table>
+                  </Select>
+                  <Select placeholder="Chọn Quận/Huyện" isDisabled={!selectedProvince}>
+                    {districts.map((district, index) => (
+                      <option key={index} value={district}>{district}</option>
+                    ))}
+                  </Select>
+                </>
               )}
             </Flex>
           </Flex>

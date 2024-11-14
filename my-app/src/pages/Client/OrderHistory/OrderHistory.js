@@ -23,9 +23,9 @@ const OrderHistory = () => {
           const user_id = decodedToken.id; // Kiểm tra trường user_id từ token
 
           const response = await axios.get(
-            `${BASE_URL}/api/orders`, // Đảm bảo endpoint chính xác
+            `${BASE_URL}/api/orderByName1/${user_id}`, // Đảm bảo endpoint chính xác
             {
-              headers: {  
+              headers: {
                 Authorization: `Bearer ${token}`,
               },
             }
@@ -69,7 +69,7 @@ const OrderHistory = () => {
           orders.map((order) => (
             <div className="order-card" key={order.order_id}>
               <div className="order-header">
-                <strong>Đơn hàng: #{order.id}</strong>
+                <strong>Đơn hàng: #{order.order_id}</strong>
                 <span className="order-status">Đã nhận hàng</span>
               </div>
               <Divider />
@@ -81,17 +81,17 @@ const OrderHistory = () => {
                 />
 
                 <div className="order-info">
-                  <span>{order.users}</span>
+                  <span>{order.name}</span>
                   <span>
                     Tổng tiền:{" "}
                     <span className="span-price">
-                      {formatCurrency(order.total_amount)}
+                      {formatCurrency(order.total)}
                     </span>
                   </span>
                 </div>
               </div>
-              <div className="order-actions mt-2">
-                <Link to={`/orders/${order.id}`} className="detail-button">
+              <div className="order-actions">
+                <Link to={`/orders/${order.order_id}`} className="detail-button">
                   Xem chi tiết
                 </Link>
               </div>

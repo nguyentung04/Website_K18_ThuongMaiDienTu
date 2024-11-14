@@ -28,6 +28,15 @@ exports.login = (req, res) => {
 
     // Tạo token và gửi về cho client
     const token = jwt.sign({ id: user.id }, 'your_jwt_secret', { expiresIn: '1h' });
-    res.status(200).json({ token });
+    res.status(200).json({
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }
+    });    
   });
+  
 };

@@ -34,13 +34,3 @@ export const updateOrderDetailStatus = async (orderId, statuss) => {
       throw error;
     }
   };
-  
-  export const deleteOrder_items = async (id) => {
-    try {
-      const response = await axios.delete(`${BASE_URL}/order_items/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error("Error deleting order:", error);
-      throw error;
-    }
-  };

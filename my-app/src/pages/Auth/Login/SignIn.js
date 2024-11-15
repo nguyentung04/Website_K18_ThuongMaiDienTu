@@ -97,10 +97,10 @@ const SignIn = () => {
               <label htmlFor="rememberMe">Ghi nhớ đăng nhập</label>
             </div>
 
-            <button type="submit" className="btn-submit">Đăng nhập</button>
+            <button type="submit" className="btn-submit ">Đăng nhập</button>
           </form>
 
-          <button type="button" className="btn-submit google-login" onClick={handleGoogleLogin}>
+          <button type="button" className="btn-submit google-login mt-3" onClick={handleGoogleLogin}>
             Đăng nhập bằng Google
           </button>
 

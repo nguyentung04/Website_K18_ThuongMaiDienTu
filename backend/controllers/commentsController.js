@@ -140,7 +140,7 @@ exports.postReplyByReviewDetailID = async (req, res) => {
     }
 
     const checkDetailQuery = `
-      SELECT * FROM review_detail WHERE id = ?;
+      SELECT * FROM product_reviews WHERE id = ?;
     `;
     const [rows] = await connection.promise().query(checkDetailQuery, [detail_id]);
 

@@ -15,7 +15,6 @@ import "./ProductDetails.css";
 import ProductSimilar from "./../Home/component/ProductSimilar/ProductSimilar";
 import Reviews from "./../Home/component/Reviews/Reviews";
 const BASE_URL = "http://localhost:3000";
-
 const ProductDetails = ({ user }) => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -49,7 +48,7 @@ const ProductDetails = ({ user }) => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/api/order_items/${id}`);
+        const response = await axios.get(`${BASE_URL}/api/product_detail/${id}`);
         setProduct(response.data);
       } catch (error) {
         setError("Lỗi khi lấy dữ liệu sản phẩm");
@@ -59,7 +58,6 @@ const ProductDetails = ({ user }) => {
     };
     fetchProduct();
   }, [id]);
-  console.log(product);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -354,7 +352,7 @@ const ProductDetails = ({ user }) => {
 
         {/* Reviews Section */}
         <div ref={evaluateRef} className="home-banchay">
-          <Reviews productId={id} user={user} userData={userData} />
+          <Reviews productId={id} user={user} userData={userData}/>
         </div>
 
         <div ref={similarProductsRef} className="home-banchay">

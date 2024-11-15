@@ -134,10 +134,12 @@ const EditProduct = () => {
       price: parseFloat(price),
       stock: parseInt(stock),
       description,
-      image: imageUrl,
+      images: imageUrl,
       category_id: category,
     };
 
+    console.log(productData);
+    
     try {
       await updateProduct(id, productData);
       toast({

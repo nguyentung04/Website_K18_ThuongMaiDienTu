@@ -15,7 +15,6 @@ import "./ProductDetails.css";
 import ProductSimilar from "./../Home/component/ProductSimilar/ProductSimilar";
 import Reviews from "./../Home/component/Reviews/Reviews";
 const BASE_URL = "http://localhost:3000";
-
 const ProductDetails = ({ user }) => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -49,7 +48,9 @@ const ProductDetails = ({ user }) => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/api/order_items/${id}`);
+        const response = await axios.get(
+          `${BASE_URL}/api/product_detail/${id}`
+        );
         setProduct(response.data);
       } catch (error) {
         setError("Lỗi khi lấy dữ liệu sản phẩm");
@@ -59,7 +60,8 @@ const ProductDetails = ({ user }) => {
     };
     fetchProduct();
   }, [id]);
-  console.log(product);
+
+  console.log(id);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -246,6 +248,7 @@ const ProductDetails = ({ user }) => {
                 <button
                   onClick={scrollToSpecifications}
                   className="scroll-button parameter"
+                  style={{display: "none"}}
                 >
                   THÔNG SỐ
                 </button>
@@ -285,7 +288,7 @@ const ProductDetails = ({ user }) => {
             </button>
           </div>
         </div>
-        <div ref={specificationsRef} className="bg-gray">
+        <div ref={specificationsRef} className="bg-gray" style={{display: "none"}}>
           <div className="m-product-specification">
             <div className="m-product-specification__list">
               <div className="m-product-specification__name_full">

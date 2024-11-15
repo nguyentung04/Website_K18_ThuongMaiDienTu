@@ -81,11 +81,11 @@ const OrderHistory = () => {
                 />
 
                 <div className="order-info mb-3">
-                  <span>{order.product_name}</span>
+                  <span>{order.name}</span>
                   <span>
                     Tổng tiền:{" "}
                     <span className="span-price">
-                      {formatCurrency(order.total)}
+                      {formatCurrency(order.total_amount)}
                     </span>
                   </span>
                 </div>

@@ -53,7 +53,7 @@ exports.updateReviewCounts = async (req, res) => {
       UPDATE product_reviews r
       SET r.count = (
         SELECT COUNT(*)
-        FROM review_detail rd
+        FROM product_reviews rd
         WHERE rd.review_id = r.id
       );
     `;
@@ -75,7 +75,7 @@ exports.getReviewsByProductID = async (req, res) => {
     const selectQuery = `
       SELECT r.id AS review_id, u.username, rd.content, rd.rating, rd.created_at, rd.id
       FROM product_reviews r
-      JOIN review_detail rd ON r.id = rd.review_id
+      JOIN product_reviews rd ON r.id = rd.review_id
       JOIN users u ON r.user_id = u.id
       WHERE r.product_id = ?
       ORDER BY r.created_at ASC;

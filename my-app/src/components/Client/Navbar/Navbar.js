@@ -64,7 +64,7 @@ const Navbar = () => {
             className="navbar-logo"
             onClick={() => handleLinkClick("/")}
           >
-            <img src="/assets//logo/logo.png" alt="Logo" className="logo-image" />
+            <img src="/assets//logo/logodongho.png" alt="Logo" className="logo-image" />
           </Link>
           <div className="navbar-links">
             <Link

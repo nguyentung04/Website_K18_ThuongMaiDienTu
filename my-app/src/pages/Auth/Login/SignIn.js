@@ -39,6 +39,7 @@ const SignIn = () => {
           localStorage.setItem('token', data.token);
           localStorage.setItem('username', username);
           localStorage.setItem('userData', JSON.stringify(data.user)); // Lưu thông tin người dùng
+          localStorage.setItem('userId', data.users.id);
           setShowSuccessModal(true);
           setTimeout(() => navigate('/'), 2000);
         } else {
@@ -96,10 +97,10 @@ const SignIn = () => {
               <label htmlFor="rememberMe">Ghi nhớ đăng nhập</label>
             </div>
 
-            <button type="submit" className="btn-submit">Đăng nhập</button>
+            <button type="submit" className="btn-submit ">Đăng nhập</button>
           </form>
 
-          <button type="button" className="btn-submit google-login" onClick={handleGoogleLogin}>
+          <button type="button" className="btn-submit google-login mt-3" onClick={handleGoogleLogin}>
             Đăng nhập bằng Google
           </button>
 

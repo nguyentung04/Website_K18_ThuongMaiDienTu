@@ -757,7 +757,7 @@ const Products = () => {
                     href={`/product/${product.id}`}// phải có link thì mới có hiện con trỏ bàn tay nhấn
                       className="plain"
                       onClick={() =>
-                        (window.location.href = `/product/${product.id}`)
+                        (window.location.href = `/product_detail/${product.id}`)
                       }
                     >
                       <div className="product-item">

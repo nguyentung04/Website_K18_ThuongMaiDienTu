@@ -48,7 +48,9 @@ const ProductDetails = ({ user }) => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/api/product_detail/${id}`);
+        const response = await axios.get(
+          `${BASE_URL}/api/product_detail/${id}`
+        );
         setProduct(response.data);
       } catch (error) {
         setError("Lỗi khi lấy dữ liệu sản phẩm");
@@ -244,6 +246,7 @@ const ProductDetails = ({ user }) => {
                 <button
                   onClick={scrollToSpecifications}
                   className="scroll-button parameter"
+                  style={{display: "none"}}
                 >
                   THÔNG SỐ
                 </button>
@@ -283,7 +286,7 @@ const ProductDetails = ({ user }) => {
             </button>
           </div>
         </div>
-        <div ref={specificationsRef} className="bg-gray">
+        <div ref={specificationsRef} className="bg-gray" style={{display: "none"}}>
           <div className="m-product-specification">
             <div className="m-product-specification__list">
               <div className="m-product-specification__name_full">

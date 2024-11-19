@@ -4,21 +4,19 @@ import "./CheckoutForm.css";
 import {
   Box,
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Input,
   Select,
+  Spinner,
   Textarea,
   useToast,
 } from "@chakra-ui/react";
-import {
-  fetchProvinces,
-  fetchDistricts,
-} from "../../../service/api/city";
+import { fetchProvinces, fetchDistricts } from "../../../service/api/city";
 
 const CheckoutForm = () => {
- 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -30,6 +28,8 @@ const CheckoutForm = () => {
     paymentMethod: "COD",
   });
 
+  const [locations, setLocations] = useState([]);
+  const [loadingLocations, setLoadingLocations] = useState(true);
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
   const [cities, setCities] = useState([]);
@@ -38,40 +38,67 @@ const CheckoutForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
 
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    const fetchCityData = async () => {
+    // Fetch locations once the component mounts
+    const getLocations = async () => {
       try {
-        const citiesData = await fetchProvinces();
-        setCities(citiesData);
+        const data = await fetchDistricts();
+        setLocations(data);
       } catch (error) {
-        console.error("Lỗi khi lấy danh sách tỉnh/thành phố:", error);
+        console.error("Failed to fetch locations:", error);
+      } finally {
+        setLoadingLocations(false);
       }
     };
 
-    fetchCityData();
+    getLocations();
   }, []);
-  const [userId, setUserId] = useState(null);
+
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    if (userData && userData.id) {
-      setUserId(userData.id);
+    // Retrieve userId from localStorage once when the component mounts
+    const userData = localStorage.getItem("userData");
+  
+    if (userData) {
+      try {
+        const parsedUserData = JSON.parse(userData);
+        if (parsedUserData && parsedUserData.id) {
+          setUserId(parsedUserData.id); // Set the userId if found
+        } else {
+          console.error("No user id found in localStorage.");
+        }
+      } catch (error) {
+        console.error("Error parsing user data from localStorage", error);
+      }
+    } else {
+      console.log("No user data found in localStorage.");
     }
   }, []);
+
+  useEffect(() => {
+    // Update the list of districts based on the selected city
+    if (cities) {
+      const province = locations.find((loc) => loc.name === cities);
+      setDistricts(province ? province.districts : []);
+    } else {
+      setDistricts([]);
+    }
+  }, [cities, locations]);
+
   const handleProvinceChange = async (e) => {
     const selectedProvince = e.target.value;
     setFormData({
       ...formData,
       province: selectedProvince,
-      city: "", // Reset city khi province thay đổi
     });
 
     setLoadingDistricts(true);
     try {
-      const districtsData = await fetchDistricts(selectedProvince);
+      const districtsData = await fetchDistricts();
       setDistricts(districtsData);
     } catch (error) {
-      console.error("Lỗi khi lấy danh sách quận/huyện:", error);
+      console.error("Error fetching districts:", error);
     } finally {
       setLoadingDistricts(false);
     }
@@ -103,8 +130,6 @@ const CheckoutForm = () => {
       newErrors.email = "Địa chỉ email không hợp lệ";
     if (!formData.phone || !phoneRegex.test(formData.phone))
       newErrors.phone = "Số điện thoại không hợp lệ";
-    if (!formData.province) newErrors.province = "Tỉnh là bắt buộc";
-    if (!formData.city) newErrors.city = "Quận/Huyện là bắt buộc";
     if (!formData.address) newErrors.address = "Địa chỉ nhận hàng là bắt buộc";
     if (!formData.paymentMethod)
       newErrors.paymentMethod = "Chọn phương thức thanh toán";
@@ -115,9 +140,9 @@ const CheckoutForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!validateForm()) return;
-  
+
     setIsSubmitting(true);
     try {
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -125,25 +150,24 @@ const CheckoutForm = () => {
         alert("Giỏ hàng trống. Không thể đặt hàng.");
         return;
       }
-  
+
       const orderItems = cart.map((item) => ({
-        
         product_id: item.id,
         quantity: item.quantity,
         price: parseFloat(item.price),
         total: parseFloat(item.price) * item.quantity,
       }));
-  
+
       const orderData = {
         ...formData,
         Provinces: formData.city,
         Districts: formData.province,
         order_detail: orderItems,
-        user_id: userId, // Thêm user_id vào dữ liệu đơn hàng
+        user_id: userId, // Ensure userId is included in the order data
       };
-  
-      console.log(orderData); // In ra dữ liệu đơn hàng để kiểm tra
-  
+
+      console.log(orderData); // Check the order data
+
       const response = await fetch("http://localhost:3000/api/orders", {
         method: "POST",
         headers: {
@@ -151,9 +175,9 @@ const CheckoutForm = () => {
         },
         body: JSON.stringify(orderData),
       });
-  
+
       const data = await response.json();
-  
+
       if (data.message === "Đặt hàng thành công!") {
         localStorage.removeItem("cart");
         toast({
@@ -165,12 +189,11 @@ const CheckoutForm = () => {
         });
         navigate("/");
         setFormData({
-
           name: "",
           email: "",
           phone: "",
           city: "",
-          province: "",
+          districts: "",
           address: "",
           note: "",
           paymentMethod: "COD",
@@ -179,7 +202,7 @@ const CheckoutForm = () => {
         throw new Error("Có lỗi xảy ra. Vui lòng thử lại.");
       }
     } catch (error) {
-      console.error("Lỗi khi gửi đơn hàng:", error);
+      console.error("Error submitting order:", error);
       toast({
         title: "Lỗi",
         description: error.message,
@@ -236,52 +259,52 @@ const CheckoutForm = () => {
               <FormErrorMessage>{errors.phone}</FormErrorMessage>
             </FormControl>
           </Box>
+
           <Box display="flex" flexDirection="row" mb={3} gap={2}>
-            <FormControl mb={3} isInvalid={errors.province}>
-              <FormLabel htmlFor="province">Tỉnh/Thành phố</FormLabel>
-              <Select
-                className="custom-input"
-                id="province"
-                name="province"
-                placeholder="Chọn tỉnh/thành phố"
-                onChange={handleProvinceChange}
-                value={formData.province}
-              >
-                {cities.map((city) => (
-                  <option key={city.id} value={city.id}>
-                    {city.name}
-                  </option>
-                ))}
-              </Select>
-              <FormErrorMessage>{errors.province}</FormErrorMessage>
-            </FormControl>
+            {loadingLocations ? (
+              <Spinner />
+            ) : (
+              <Flex>
+                <FormControl mb={3} isInvalid={errors.province}>
+                  <FormLabel htmlFor="province">Tỉnh/Thành phố</FormLabel>
+                  <Select
+                    className="custom-input"
+                    id="province"
+                    name="province"
+                    value={formData.province}
+                    placeholder="Chọn Tỉnh/Thành phố"
+                    onChange={handleProvinceChange}
+                    mb={4}
+                  >
+                    {locations.map((location, index) => (
+                      <option key={index} value={location.name}>
+                        {location.name}
+                      </option>
+                    ))}
+                  </Select>
+                </FormControl>
 
-            <FormControl mb={3} isInvalid={errors.city}>
-              <FormLabel htmlFor="city">Quận/Huyện</FormLabel>
-              <Select
-                className="custom-input"
-                id="city"
-                name="city"
-                placeholder="Chọn quận/huyện"
-                value={formData.city}
-                onChange={handleCityChange}
-                isDisabled={!formData.province || loadingDistricts}
-              >
-                {districts.map((district) => (
-                  <option key={district.id} value={district.id}>
-                    {district.name}
-                  </option>
-                ))}
-              </Select>
-              <FormErrorMessage>{errors.city}</FormErrorMessage>
-            </FormControl>
+                <FormControl mb={3} isInvalid={errors.city}>
+                  <FormLabel htmlFor="city">Quận/Huyện</FormLabel>
+                  <Select
+                    className="custom-input"
+                    id="city"
+                    name="city"
+                    value={formData.city}
+                    placeholder="Chọn Quận/Huyện"
+                    isDisabled={!formData.province}
+                    onChange={handleCityChange}
+                  >
+                    {districts.map((district, index) => (
+                      <option key={index} value={district}>
+                        {district}
+                      </option>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Flex>
+            )}
           </Box>
-
-          
-
-        
-
-         
 
           <FormControl mb={3} isInvalid={errors.address}>
             <FormLabel htmlFor="address">Địa chỉ cụ thể</FormLabel>

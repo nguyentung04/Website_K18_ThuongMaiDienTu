@@ -99,8 +99,7 @@ const Review = ({
             review.replies.map((reply) => (
               <div key={reply.id} className="reply">
                 <h3>{reply.username}</h3>
-                <div className="cmt-rep">
-                  <p className="review-content">{reply.content}</p>
+                <div className="cmt-rep"> <p className="review-content">{reply.content}</p>
                   <p className="review-date">{formatDate(reply.created_at)}</p>
                 </div>
               </div>
@@ -124,7 +123,8 @@ const Reviews = ({ productId }) => {
   const [showReplies, setShowReplies] = useState({});
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
-  const userId = JSON.parse(localStorage.getItem("userData")).id;
+  const userId = JSON.parse(localStorage.getItem("userData"))
+  // .id;
 
   const fetchReplyCount = async (reviewId) => {
     try {
@@ -205,8 +205,7 @@ const Reviews = ({ productId }) => {
         );
 
         const replyCount = await fetchReplyCount(response.data.id);
-
-        setReviews((prev) => [
+           setReviews((prev) => [
           { ...response.data, replyCount: replyCount },
           ...prev,
         ]);
@@ -314,8 +313,7 @@ const Reviews = ({ productId }) => {
         );
       } else {
         setMessage(response.data.message);
-      }
-    } catch (error) {
+      }} catch (error) {
       console.error("Lỗi khi lấy phản hồi:", error);
       setMessage("Có lỗi xảy ra khi lấy phản hồi.");
     }

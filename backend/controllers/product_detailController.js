@@ -110,7 +110,7 @@ exports.postProductDetail = (req, res) => {
 
   // Validate input
   if (!machineType || !identification || !thickness || !wireMaterial || !antiWater || !gender || !coler || !product_id) {
-    return res.status(400).json({ message: "All fields are required" });
+return res.status(400).json({ message: "All fields are required" });
   }
 
   // Prepare the SQL query
@@ -157,5 +157,3 @@ WHERE pd.product_id IS NULL;
     }
   );
 };
-
-

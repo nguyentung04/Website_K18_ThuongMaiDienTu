@@ -51,7 +51,8 @@ const ProductsTable = () => {
           throw new Error("Invalid data format");
         }
       } catch (error) {
-        const errorMessage = error.response?.data?.error || "Failed to fetch products.";
+        const errorMessage =
+          error.response?.data?.error || "Failed to fetch products.";
         setError(errorMessage);
         toast({
           title: "Lỗi khi tải sản phẩm",
@@ -67,6 +68,7 @@ const ProductsTable = () => {
 
     getProducts();
   }, [toast]);
+  console.log(products);
 
   const handleInputChange = (e) => {
     const query = e.target.value.toLowerCase();
@@ -126,7 +128,10 @@ const ProductsTable = () => {
   };
 
   const formatCurrency = (value) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(value);
   };
 
   if (loading) {
@@ -137,7 +142,9 @@ const ProductsTable = () => {
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
       <Flex mb={5} justify="space-between" align="center">
         <Box>
-          <Text fontSize="2xl" fontWeight="bold">Danh sách sản phẩm</Text>
+          <Text fontSize="2xl" fontWeight="bold">
+            Danh sách sản phẩm
+          </Text>
           <Flex align="center" mb={4}>
             <Flex opacity={1}>
               <Input
@@ -185,7 +192,6 @@ const ProductsTable = () => {
               Tìm kiếm
             </Button>
           </Flex>
-
         </Box>
         <Link to="admin/products/add">
           <Button
@@ -198,10 +204,10 @@ const ProductsTable = () => {
           </Button>
         </Link>
       </Flex>
-
       {error && <Text color="red.500">{error}</Text>}
-      {filteredProducts.length === 0 && <Text color="gray.500">Không có sản phẩm nào để hiển thị.</Text>}
-
+      {filteredProducts.length === 0 && (
+        <Text color="gray.500">Không có sản phẩm nào để hiển thị.</Text>
+      )}
       <Table variant="simple">
         <Thead>
           <Tr>
@@ -232,14 +238,46 @@ const ProductsTable = () => {
               <Td>{formatCurrency(product.price)}</Td>
               <Td>
                 <Link to={`admin/products/edit/${product.id}`}>
-                  <Button colorScheme="blue" size="sm" mr={2}>Sửa</Button>
+                  <Button colorScheme="blue" size="sm" mr={2}>
+                    Sửa
+                  </Button>
                 </Link>
-                <Button colorScheme="red" size="sm" onClick={() => handleDeleteClick(product)}>Xóa</Button>
+                <Button
+                  colorScheme="red"
+                  size="sm"
+                  onClick={() => handleDeleteClick(product)}
+                >
+                  Xóa
+                </Button>
               </Td>
             </Tr>
           ))}
         </Tbody>
-      </Table>
+      </Table>{" "}
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Xác nhận xóa
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              Bạn có chắc chắn muốn xóa sản phẩm này không?
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onClose}>
+                Hủy
+              </Button>
+              <Button colorScheme="red" onClick={handleConfirmDelete} ml={3}>
+                Xóa
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   );
 };

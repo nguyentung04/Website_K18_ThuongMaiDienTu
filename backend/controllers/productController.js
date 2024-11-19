@@ -1,4 +1,3 @@
-
 const connection = require("../config/database");
 
 // Lấy tất cả sản phẩm với tổng số sản phẩm theo từng tháng
@@ -138,8 +137,6 @@ exports.getAllProductsAdmin = (req, res) => {
     }
     res.status(200).json(results);
   });
- 
-
 };
 
 // Lấy sản phẩm theo ID cho admin
@@ -195,63 +192,75 @@ exports.addProduct = (req, res) => {
     // Thêm hình ảnh cho sản phẩm nếu có
     if (images && images.length > 0) {
       const imageValues = images.map((image_url) => [productId, image_url]);
-      const imageQuery = `INSERT INTO product_images (product_id, image_url,is_primary) VALUES ?`; // Use VALUES ? for bulk insert
+      const imageQuery = `INSERT INTO product_images (product_id, image_url) VALUES ?`; // Use VALUES ? for bulk insert
 
       connection.query(imageQuery, [imageValues], (err) => {
         if (err) {
           return res.status(500).json({ error: err.message });
         }
-        res.status(201).json({ message: "Sản phẩm đã được thêm thành công", productId });
+        res
+          .status(201)
+          .json({ message: "Sản phẩm đã được thêm thành công", productId });
       });
     } else {
-      res.status(201).json({ message: "Sản phẩm đã được thêm thành công", productId });
+      res
+        .status(201)
+        .json({ message: "Sản phẩm đã được thêm thành công", productId });
     }
   });
 };
 
-
 // Cập nhật sản phẩm
+
 exports.updateProduct = (req, res) => {
   const productId = req.params.id;
-  const { name, description, price, stock, category_id, images } = req.body; // Lấy images từ body
+  const { name, description, price, stock, category_id, images } = req.body;
 
-  // Cập nhật thông tin sản phẩm
-  const query = `
-    UPDATE products 
-    SET name = ?, description = ?, price = ?, stock = ?, category_id = ?, updated_at = NOW() 
-    WHERE id = ?;
-  `;
-  const productData = [name, description, price, stock, category_id, productId];
-
-  connection.query(query, productData, (err) => {
+  // Transaction để đảm bảo tính toàn vẹn
+  connection.beginTransaction((err) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
-
-    // Cập nhật hình ảnh nếu có
-    if (images && images.length > 0) {
-      // Xóa các ảnh cũ
-      const deleteImagesQuery = `DELETE FROM product_images WHERE product_id = ?`;
-      connection.query(deleteImagesQuery, [productId], (err) => {
+  
+    // Update product_images
+    connection.query(
+      "UPDATE product_images SET product_id = ?, image_url = ? WHERE product_id = ?;", 
+      [productId, images, productId], // Assuming `productId` and `imageUrl` are passed in the request body
+      (err) => {
         if (err) {
-          return res.status(500).json({ error: err.message });
+          return connection.rollback(() => {
+            res.status(500).json({ error: err.message });
+          });
         }
-
-        // Thêm các ảnh mới
-        const imageValues = images.map((image_url) => [productId, image_url]);
-        const imageQuery = `INSERT INTO product_images (product_id, image_url) VALUES ?`;
-
-        connection.query(imageQuery, [imageValues], (err) => {
-          if (err) {
-            return res.status(500).json({ error: err.message });
+  
+        // Update products
+        connection.query(
+          `UPDATE products 
+          SET name = ?, description = ?, price = ?, stock = ?, category_id = ?, updated_at = NOW() 
+          WHERE id = ?;`,
+          [name, description, price, stock, category_id, productId], // Assuming these variables are passed in the request body
+          (err) => {
+            if (err) {
+              return connection.rollback(() => {
+                res.status(500).json({ error: err.message });
+              });
+            }
+  
+            // Commit the transaction
+            connection.commit((err) => {
+              if (err) {
+                return connection.rollback(() => {
+                  res.status(500).json({ error: err.message });
+                });
+              }
+              res.status(200).json({ message: "Product updated successfully" });
+            });
           }
-          res.status(200).json({ message: "Sản phẩm đã được cập nhật thành công" });
-        });
-      });
-    } else {
-      res.status(200).json({ message: "Sản phẩm đã được cập nhật thành công" });
-    }
+        );
+      }
+    );
   });
+  
 };
 
 // Xóa sản phẩm

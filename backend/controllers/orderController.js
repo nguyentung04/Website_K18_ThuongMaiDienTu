@@ -99,6 +99,7 @@ exports.orderDetail = (req, res) => {
   );
 };
 
+
 // Lấy đơn hàng theo ID
 // exports.getOrderById = (req, res) => {
 //   const orderId = parseInt(req.params.id);

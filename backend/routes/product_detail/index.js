@@ -18,6 +18,7 @@ router.post('/product_detail', product_detailController.postProductDetail);
 
 // Cập nhật chi tiết sản phẩm
 router.put("/product_detail/:id", product_detailController.updateProductDetail);
+// router.delete("/product_detail/:id", product_detailController.product_detail);
 
 // // Xóa chi tiết sản phẩm
 // router.delete("/product_detail/:id", product_detailController.deleteProductDetail);

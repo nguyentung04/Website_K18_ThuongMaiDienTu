@@ -134,7 +134,7 @@ const OrderDetail = () => {
           </div>
           <div>
             <div className="info-section-time">Thời gian nhận:</div>
-            {new Date(order_items[0].date).toLocaleString()}
+            {new Date(order_items[0].created_at).toLocaleString()}
           </div>
         </div>
         <div className="info-section-paymentMethod">
@@ -151,12 +151,13 @@ const OrderDetail = () => {
       <div className="product-info">
         <h3>THÔNG TIN SẢN PHẨM</h3>
         {order_items.map((item) => (
-          <div key={item.id} className="product-card">
+          <div key={item.id} className="product-card  ">
+          
+            <div className=" d-flex justify-content-between  align-items-center">
             <img
               src={`${BASE_URL}/uploads/products/${item.image}`}
               alt={item.name}
             />
-            <div className="product-details d-flex justify-content-between align-self-center">
               <h4>{item.pr_name}</h4>
               <p>
                 <strong>Giá:</strong>{" "}

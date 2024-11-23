@@ -140,9 +140,9 @@ const CommentPage = () => {
           <Tr>
             <Th>STT</Th>
             <Th>Họ tên khách hàng</Th>
-            <Th>ID khách hàng</Th>
-            <Th>Tên sản phẩm</Th>
-            <Th>ID sản phẩm</Th>
+            <Th display={"none"}>ID khách hàng</Th>
+            <Th>Tên sản phẩm</Th> 
+            <Th display={"none"}>ID sản phẩm</Th>
             <Th>Thời gian</Th>
             <Th>Hành động</Th>
           </Tr>
@@ -152,9 +152,9 @@ const CommentPage = () => {
             <Tr key={review.id} _hover={{ bg: hoverBgColor }}>
               <Td fontWeight="bold">{index + 1}</Td>
               <Td>{review.fullname}</Td>
-              <Td>{review.user_id}</Td>
+              <Td display={"none"}>{review.user_id}</Td>
               <Td>{review.name}</Td>
-              <Td>{review.product_id}</Td>
+              <Td display={"none"}>{review.product_id}</Td>
               <Td>{review.created_at}</Td>
               <Td>
                 <Link to={`admin/comments/${review.id}`}>

@@ -77,3 +77,7 @@ export const forgotPassword = async (email) => {
   }
 };
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 01280a7c640a109e33f29b590fe7f02775030ba3

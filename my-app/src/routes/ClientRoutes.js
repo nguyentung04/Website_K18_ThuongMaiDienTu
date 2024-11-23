@@ -19,6 +19,7 @@ import ClientLayout from "../layout/Clientlayout";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import OrderModal from "../components/Client/orderModel/orderModel.js";
+import GoogleProfile from "../pages/Client/GoogleProfile/GoogleProfile.js";
 
 
 
@@ -44,6 +45,7 @@ const ClientRoutes = () => {
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/google-profile" element={<GoogleProfile />} />
     </Routes>
   );
 };

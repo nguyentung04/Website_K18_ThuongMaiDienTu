@@ -173,8 +173,8 @@ exports.deleteOrder = (req, res) => {
 // Thêm đơn hàng (POST Orders)
 exports.PostOrders = (req, res) => {
   const {
-    name,
-    phone,
+    total_amount,
+    // phone,
     address,
     Provinces,
     Districts,
@@ -187,8 +187,8 @@ exports.PostOrders = (req, res) => {
   console.log("User ID:", user_id);
 
   if (
-    !name ||
-    !phone ||
+    total_amount,
+    // !phone ||
     !address ||
     !paymentMethod ||
     !order_detail ||
@@ -205,11 +205,12 @@ exports.PostOrders = (req, res) => {
 
     // Thêm đơn hàng vào bảng orders (không bao gồm user_id)
     const sql =
-      "INSERT INTO orders (name, phone, address, Provinces, Districts, paymentMethod) VALUES (?, ?, ?, ?, ?, ?)";
+      "INSERT INTO orders (user_id,  shipping_address, Provinces, Districts, total_amount,payment_method) VALUES (?,?,  ?, ?, ?, ?)";
     const values = [
-      name,
-      phone,
+      user_id,
+      // phone,
       address,
+      total_amount,
       Provinces || null,
       Districts || null,
       paymentMethod,
@@ -227,7 +228,7 @@ exports.PostOrders = (req, res) => {
 
       // Chèn vào bảng order_detail và thêm user_id
       const orderDetailSql =
-        "INSERT INTO order_detail (order_id, product_id, quantity, price, total, user_id) VALUES ?";
+        "INSERT INTO order_detail (order_id, product_id, quantity, price, user_id) VALUES ?";
       const orderDetailValues = order_detail.map((item) => [
         orderId,
         item.product_id,

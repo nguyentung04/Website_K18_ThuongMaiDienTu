@@ -18,6 +18,7 @@ const post_categories = require("./routes/post_categories");
 const comment = require("./routes/comment");
 const product_detailRoutes = require("./routes/product_detail/index");
 const order_itemsRoutes = require("./routes/order_items/index");
+const cart = require("./routes/cart/index");
 
 const ordersRoutes = require("./routes/orders/index");
 const app = express();
@@ -105,6 +106,7 @@ app.use("/api", posts);
 app.use("/api", post_categories);
 app.use("/api", ordersRoutes);
 app.use("/api", order_itemsRoutes);
+app.use("/api", cart);
 
 app.listen(port, () => {
   console.log(`Server đã khởi chạy trên cổng ${port}`);

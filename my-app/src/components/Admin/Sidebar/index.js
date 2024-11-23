@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Stack,
@@ -35,7 +35,7 @@ const Sidebar = () => {
   const linkColor = useColorModeValue("gray.500", "gray.400");
   const activeBg = useColorModeValue("white");
   const activeColor = useColorModeValue("#32dfd4", "white");
-
+  const [isOrderOpen, setOrderOpen] = useState(false);
   const getLinkStyles = ({ isActive }) => ({
     textDecoration: "none",
     color: isActive ? activeColor : linkColor,
@@ -47,7 +47,7 @@ const Sidebar = () => {
     <>
       {!isMobile && (
         <Box
-          width="250px"
+          width="300px"
           height="100vh"
           bg={sidebarBgColor}
           color="#5a5757"
@@ -303,35 +303,69 @@ const Sidebar = () => {
                 </Button>
               )}
             </NavLink>
-            <NavLink to="/admin/orders">
-              {({ isActive }) => (
-                <Button
-                  fontFamily="math"
-                  justifyContent="flex-start"
-                  alignItems="center"
-                  bg={isActive ? activeBg : "inherit"}
-                  color={isActive ? activeColor : linkColor}
-                  fontWeight={isActive ? "bold" : "normal"}
-                  _hover={{ bg: activeBg, textDecoration: "none" }}
-                  _active={{ bg: activeBg, color: activeColor }}
-                  mb="0.5px"
-                  mx="auto"
-                  ps="16px"
-                  py="12px"
-                  borderRadius="15px"
-                  w="100%"
-                  height="50px"
-                  leftIcon={
-                    <InvoiceIcon
-                      boxSize={5}
+             {/* Nút Đơn hàng */}
+             <Button
+              fontFamily="math"
+              justifyContent="flex-start"
+              alignItems="center"
+              bg="inherit"
+              color={linkColor}
+              _hover={{ bg: activeBg, textDecoration: "none" }}
+              _active={{ bg: activeBg, color: activeColor }}
+              mb="0.5px"
+              mx="auto"
+              ps="16px"
+              py="12px"
+              borderRadius="15px"
+              w="100%"
+              height="50px"
+              leftIcon={<InvoiceIcon boxSize={5} color={linkColor} />}
+              onClick={() => setOrderOpen(!isOrderOpen)}
+            >
+              Đơn hàng
+            </Button>
+            {isOrderOpen && (
+              <Stack spacing={2} pl={8}>
+                <NavLink to="/admin/orders/paid">
+                  {({ isActive }) => (
+                    <Button
+                      justifyContent="flex-start"
+                      alignItems="center"
+                      bg={isActive ? activeBg : "inherit"}
                       color={isActive ? activeColor : linkColor}
-                    />
-                  }
-                >
-                  Đơn hàng
-                </Button>
-              )}
-            </NavLink>
+                      fontWeight={isActive ? "bold" : "normal"}
+                      _hover={{ bg: activeBg, textDecoration: "none" }}
+                      _active={{ bg: activeBg, color: activeColor }}
+                      borderRadius="15px"
+                      w="100%"
+                      height="40px"
+                      // fontSize="xl"
+                    >
+                      Đơn hàng đã thanh toán
+                    </Button>
+                  )}
+                </NavLink>
+                <NavLink to="/admin/orders/unpaid">
+                  {({ isActive }) => (
+                    <Button
+                      justifyContent="flex-start"
+                      alignItems="center"
+                      bg={isActive ? activeBg : "inherit"}
+                      color={isActive ? activeColor : linkColor}
+                      fontWeight={isActive ? "bold" : "normal"}
+                      _hover={{ bg: activeBg, textDecoration: "none" }}
+                      _active={{ bg: activeBg, color: activeColor }}
+                      borderRadius="15px"
+                      w="100%"
+                      height="40px"
+                      // fontSize="xl"
+                    >
+                      Đơn hàng chưa thanh toán
+                    </Button>
+                  )}
+                </NavLink>
+              </Stack>
+            )}
           </Stack>
         </Box>
       )}

@@ -762,7 +762,7 @@ const Products = () => {
                     >
                       <div className="product-item">
                         <img
-                          src={`${BASE_URL}/uploads/products/${product.image}`}
+                          src={`${BASE_URL}/uploads/products/${product.images}`}
                           alt={product.name}
                           className="product-image img-fluid"
                         />

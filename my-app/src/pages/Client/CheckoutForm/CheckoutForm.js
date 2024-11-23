@@ -37,8 +37,8 @@ const CheckoutForm = () => {
   const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
-
-  const [userId, setUserId] = useState(null);
+  const [user, setUser] = useState(null); 
+  // const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     // Fetch locations once the component mounts
@@ -56,26 +56,46 @@ const CheckoutForm = () => {
     getLocations();
   }, []);
 
-  useEffect(() => {
-    // Retrieve userId from localStorage once when the component mounts
-    const userData = localStorage.getItem("userData");
+  // useEffect(() => {
+  //   // Retrieve userId from localStorage once when the component mounts
+  //   const userData = localStorage.getItem("userData");
   
+  //   if (userData) {
+  //     try {
+  //       const parsedUserData = JSON.parse(userData);
+  //       if (parsedUserData && parsedUserData.id) {
+  //         setUserId(parsedUserData.id); // Set the userId if found
+  //       } else {
+  //         console.error("No user id found in localStorage.");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error parsing user data from localStorage", error);
+  //     }
+  //   } else {
+  //     console.log("No user data found in localStorage.");
+  //   }
+  // }, []);
+  useEffect(() => {
+    // Lấy thông tin người dùng từ localStorage
+    const userData = localStorage.getItem("userData");
     if (userData) {
       try {
-        const parsedUserData = JSON.parse(userData);
-        if (parsedUserData && parsedUserData.id) {
-          setUserId(parsedUserData.id); // Set the userId if found
-        } else {
-          console.error("No user id found in localStorage.");
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser); // Lưu thông tin người dùng
+        if (parsedUser && parsedUser.name) {
+          // Cập nhật formData với thông tin người dùng
+          setFormData((prevData) => ({
+            ...prevData,
+            name: parsedUser.name,
+            email: parsedUser.email || "",
+            phone: parsedUser.phone || "",
+          }));
         }
       } catch (error) {
-        console.error("Error parsing user data from localStorage", error);
+        console.error("Lỗi khi phân tích dữ liệu người dùng từ localStorage", error);
       }
-    } else {
-      console.log("No user data found in localStorage.");
     }
   }, []);
-
   useEffect(() => {
     // Update the list of districts based on the selected city
     if (cities) {
@@ -163,10 +183,10 @@ const CheckoutForm = () => {
         Provinces: formData.city,
         Districts: formData.province,
         order_detail: orderItems,
-        user_id: userId, // Ensure userId is included in the order data
+          user_id: user?.id, // Ensure userId is included in the order data
       };
 
-      console.log(orderData); // Check the order data
+      console.log(orderData, user); // Check the order data
 
       const response = await fetch("http://localhost:3000/api/orders", {
         method: "POST",

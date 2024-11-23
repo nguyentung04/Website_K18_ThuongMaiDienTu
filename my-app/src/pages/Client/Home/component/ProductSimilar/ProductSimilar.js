@@ -154,6 +154,7 @@ const ProductSimilar = ({ categoryId }) => {
       currency: "VND",
     }).format(price);
   };
+console.log(similarProducts);
 
   return (
     <div className="best_selling_products">
@@ -194,26 +195,14 @@ const ProductSimilar = ({ categoryId }) => {
                     </button>
                     <a href={`/product/${product.id}`} className="plain">
                       <div className="product-image">
-                        <img src={`${BASE_URL}/uploads/products/${product.image_url}`} alt={product.name} />
+                        <img src={`${BASE_URL}/uploads/products/${product.images}`} alt={product.name} />
                       </div>
                       <div className="product-info">
                         <p className="product-title">{product.name}</p>
                         <div className="product-price">
-                          {product.discountPrice ? (
-                            <>
-                              <div className="itproduct__discount">
-                                <p style={{ textDecoration: "line-through", color: "gray" }}>
-                                  {formatPrice(product.price)}{" "}
-                                </p>
-                                <span style={{ marginLeft: "8px" }}>
-                                  -{Math.round(((product.price - product.discountPrice) / product.price) * 100)}%
-                                </span>
-                              </div>
-                              <p>{formatPrice(product.discountPrice)}</p>
-                            </>
-                          ) : (
+                         
                             <p>{formatPrice(product.price)}</p>
-                          )}
+                      
                         </div>
                       </div>
                     </a>

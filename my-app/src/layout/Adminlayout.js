@@ -20,7 +20,7 @@ const AdminLayout = () => {
       <Flex>
         <Sidebar />
         <Flex
-          ml={{ base: 0, md: "250px" }}
+          ml={{ base: 0, md: "300px" }}
           direction="column"
           flex="1" // Corrected this line
           p={4}

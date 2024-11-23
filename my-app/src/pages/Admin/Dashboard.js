@@ -136,7 +136,7 @@ const Dashboard = () => {
       <Flex>
         <Sidebar />
         <Flex
-          ml={{ base: 0, md: "250px" }}
+          // ml={{ base: 0, md: "250px" }}
           direction="column"
           flex="1"
           p={4}
@@ -161,7 +161,7 @@ const Dashboard = () => {
               )}
             </Flex>
 
-            <Flex direction="column" flex="1">
+            <Flex direction="column" flex="1" style={{display:"none"}}>
               <Text fontSize="2xl" fontWeight="bold">
                 Tỉnh Thành và Quận Huyện
               </Text>

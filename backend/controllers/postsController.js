@@ -2,7 +2,7 @@ const connection = require("../config/database");
 
 // Lấy tất cả bài đăng
 exports.getAllposts = (req, res) => {
-    connection.query("SELECT * FROM posts", (err, results) => {
+    connection.query("SELECT ps.*, u.name AS auth_name FROM posts ps JOIN users u ON u.id = ps.`author_id`", (err, results) => {
       if (err) {
         // Trả về lỗi nếu có sự cố khi truy vấn CSDL
         return res.status(500).json({ error: err.message });

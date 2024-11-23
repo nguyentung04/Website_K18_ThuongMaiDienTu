@@ -48,7 +48,7 @@ const Profile = () => {
         avatar: googleUser.avatar || "https://via.placeholder.com/150",
       });
     } else {
-      navigate("/signin");
+      navigate("/profile");
     }
   }, [navigate]);
 

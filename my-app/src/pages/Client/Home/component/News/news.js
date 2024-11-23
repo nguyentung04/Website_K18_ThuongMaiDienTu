@@ -3,7 +3,7 @@ import "./news.css";
 import axios from "axios";
 import { fetchPosts } from "../../../../../service/api/posts"; // Ensure this imports correctly
 import { useToast } from "@chakra-ui/react";
-
+const BASE_URL = "http://localhost:3000";
 // Helper function to truncate text if too long
 const truncateText = (text, maxLength) => {
   if (!text) return ""; // Return an empty string if text is undefined
@@ -62,7 +62,7 @@ const NewsGrid = () => {
           {posts.map((news) => (
             <div className="news-card" key={news.id}>
               <div className="news-img">
-                <img src={news.avt} alt={news.title} className="news-image" />
+                <img src={`${BASE_URL}/uploads/posts/${news.avt}`} alt={news.title} className="news-image" />
               </div>
               <div className="news-content">
                 <div className="news-content-title">
@@ -70,7 +70,7 @@ const NewsGrid = () => {
                 </div>
                 <small className="news-content-time">
                   <p>{new Date(news.created_at).toLocaleDateString()}</p> {/* Format date */}
-                  <p>{news.author_id}</p>
+                  <p>{news.auth_name}</p>
                 </small>
                 <p>{truncateText(news.content, 100)}</p>
               </div>

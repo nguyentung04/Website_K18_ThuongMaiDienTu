@@ -70,30 +70,57 @@ const CustomSlider = () => {
     handleOpenModal(product);
   };
 
-  const addToCart = (product) => {
+  // const addToCart = (product) => {
+  //   if (product) {
+  //     const details = {
+  //       id: product.id,
+  //       name: product.name,
+  //       price: product.price,
+  //       description: product.description,
+  //       image: product.image,
+  //       quantity: quantity,
+  //     };
+
+  //     const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  //     const existingProductIndex = cart.findIndex((item) => item.id === product.id);
+
+  //     if (existingProductIndex !== -1) {
+  //       cart[existingProductIndex].quantity += quantity;
+  //     } else {
+  //       cart.push(details);
+  //     }
+
+  //     localStorage.setItem("cart", JSON.stringify(cart));
+  //   }
+  // };
+  const addToCart = async (product) => {
     if (product) {
-      const details = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        description: product.description,
-        image: product.image,
-        quantity: quantity,
-      };
-
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const existingProductIndex = cart.findIndex((item) => item.id === product.id);
-
-      if (existingProductIndex !== -1) {
-        cart[existingProductIndex].quantity += quantity;
-      } else {
-        cart.push(details);
+      try {
+        const user = JSON.parse(localStorage.getItem("user")); // Lấy thông tin người dùng từ localStorage
+        if (!user) {
+          console.error("Người dùng chưa đăng nhập");
+          return;
+        }
+  
+        const cartItem = {
+          user_id: user.id, // Lấy ID người dùng
+          product_id: product.id,
+          quantity: quantity,
+        };
+  
+        const response = await axios.post("http://localhost:3000/api/cart", cartItem);
+  
+        if (response.status === 200) {
+          console.log("Thêm vào giỏ hàng thành công", response.data);
+        } else {
+          console.error("Thêm vào giỏ hàng thất bại", response);
+        }
+      } catch (error) {
+        console.error("Lỗi khi thêm vào giỏ hàng:", error);
       }
-
-      localStorage.setItem("cart", JSON.stringify(cart));
     }
   };
-
+  
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",

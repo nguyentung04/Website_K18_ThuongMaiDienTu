@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { updateUser } from "../../../service/api/users";
+import { updatePassword, updateUser } from "../../../service/api/users";
 import "./ClientProfile.css";
 
 const Profile = () => {
@@ -9,7 +9,7 @@ const Profile = () => {
     email: "",
     phone: "",
     avatar: "",
-    matKhau: "", // Add matKhau if you need to display password
+    matKhau: "",
   });
 
   const [isEditing, setIsEditing] = useState({
@@ -30,9 +30,10 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Kiểm tra trong localStorage xem có thông tin người dùng không
     const userData = JSON.parse(localStorage.getItem("userData"));
     const googleUser = JSON.parse(localStorage.getItem("googleUser"));
-
+  
     if (userData) {
       setValues({
         name: userData.name || "",
@@ -44,24 +45,25 @@ const Profile = () => {
       setValues({
         name: googleUser.name || "",
         email: googleUser.email || "",
-        phone: googleUser.phone || "",
+        phone: googleUser.phone || "Không có số điện thoại",
         avatar: googleUser.avatar || "https://via.placeholder.com/150",
       });
     } else {
       navigate("/profile");
     }
   }, [navigate]);
+  
+
 
   const validateField = (field, value) => {
     let error = "";
     if (!value) {
-      error = `${
-        field === "name"
-          ? "Họ tên"
-          : field === "email"
+      error = `${field === "name"
+        ? "Họ tên"
+        : field === "email"
           ? "Email"
           : "Số điện thoại"
-      } là bắt buộc.`;
+        } là bắt buộc.`;
     } else if (field === "email" && !/\S+@\S+\.\S+/.test(value)) {
       error = "Email không hợp lệ.";
     } else if (field === "phone" && !/^\d{10}$/.test(value)) {
@@ -112,52 +114,53 @@ const Profile = () => {
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
-  const handleChangePassword = (e) => {
+  const handleChangePassword = async (e) => {
     e.preventDefault();
-
     const { currentPassword, newPassword, confirmNewPassword } = passwords;
-
-    // Clear previous errors
+  
     setErrors({});
-
-    // Validate passwords
+  
     let validationErrors = {};
-
+  
     if (!currentPassword) {
       validationErrors.currentPassword = "Mật khẩu hiện tại là bắt buộc.";
     }
-
+  
     if (!newPassword) {
       validationErrors.newPassword = "Mật khẩu mới là bắt buộc.";
     } else if (newPassword.length < 6) {
-      // Check for minimum length or other password rules
       validationErrors.newPassword = "Mật khẩu mới phải có ít nhất 6 ký tự.";
     }
-
+  
     if (newPassword !== confirmNewPassword) {
       validationErrors.confirmNewPassword = "Mật khẩu xác nhận không khớp.";
     }
-
-    // If any validation errors, stop the process
+  
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-
-    // If no errors, proceed to change the password
+  
     try {
-      // Implement password change logic here (for example, send a request to the backend)
-      // For now, we'll simulate with an alert
-      alert("Password change functionality is not implemented yet.");
-
-      // Close the change password form after submission
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData || !userData.id) {
+        throw new Error(
+          "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại."
+        );
+      }
+        await updatePassword(userData.id, passwords); 
+  
+      alert("Mật khẩu đã được thay đổi thành công.");
       setShowChangePassword(false);
     } catch (error) {
       console.error("Error changing password:", error);
-      alert("Đã xảy ra lỗi khi thay đổi mật khẩu.");
+      alert(
+        error.response?.data?.message || "Đã xảy ra lỗi khi thay đổi mật khẩu."
+      );
     }
   };
-
+  
+  
   return (
     <div className="Profile">
       <div className="profile-container">
@@ -180,17 +183,17 @@ const Profile = () => {
                 {key === "name"
                   ? "Họ và tên :"
                   : key === "email"
-                  ? "Email :"
-                  : key === "phone"
-                  ? "Số điện thoại :"
-                  : ""}
+                    ? "Email :"
+                    : key === "phone"
+                      ? "Số điện thoại :"
+                      : ""}
               </label>
               {isEditing[key] ? (
                 <form
                   className={`edit-form ${isEditing[key] ? "open" : ""}`}
                   onSubmit={(e) => handleSave(key, e)}
                 >
-                  
+
                   <input
                     type="text"
                     value={value}

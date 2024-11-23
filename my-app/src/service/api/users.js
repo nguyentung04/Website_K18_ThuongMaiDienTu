@@ -22,24 +22,7 @@ export const deleteUser = async (id) => {
   }
 };
 
-// export const updateUser = async (id, userData) => {
-//   try {
-//     // Log the User data being sent for debugging
-//     console.log("Updating User:", { id, userData });
 
-//     // Perform the PUT request to update the User
-//     const response = await axios.put(`${BASE_URL}/Users/${id}`, userData, {
-//       headers: { "Content-Type": "application/json" }, // Correct header for JSON data
-//     });
-
-//     // Return the response data
-//     return response.data;
-//   } catch (error) {
-//     // Log and throw the error for proper error handling
-//     console.error("Failed to update product:", error);
-//     throw error;
-//   }
-// };
 
 export const updateUser = async (id, userData) => {
   try {
@@ -71,4 +54,27 @@ export const addUser = async (userData) => {
     throw error;
   }
 };
+
+export const updatePassword = (userId, passwords) => {
+  axios.put(`http://localhost:3000/api/users/${userId}/password`, passwords, {
+    headers: { "Content-Type": "application/json" },
+  })
+  .then(response => {
+    console.log('Password updated successfully:', response.data);
+  })
+  .catch(error => {
+    console.error('Failed to update password:', error.response.data);
+  });
+};
+
+export const forgotPassword = async (email) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/forgot-password`, { email });
+    return response.data;
+  } catch (error) {
+    console.error("Error requesting password reset:", error);
+    throw error.response?.data || { message: "Unknown error occurred" };
+  }
+};
+
 

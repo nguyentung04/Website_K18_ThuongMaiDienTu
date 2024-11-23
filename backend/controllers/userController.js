@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const connection = require("../config/database");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -24,18 +23,6 @@ exports.login = (req, res) => {
     "SELECT * FROM users WHERE username = ?",
     [username],
     (err, results) => {
-=======
-  const connection = require("../config/database");
-  const jwt = require("jsonwebtoken");
-  const bcrypt = require("bcrypt");
-  const nodemailer = require('nodemailer');
-  const crypto = require('crypto');
-
-  //Minh Cảnh
-  // Lấy tất cả người dùng
-  exports.getAllUsers = (req, res) => {
-    connection.query("SELECT id, name, username, email, phone, status, role, createdAt FROM users", (err, results) => {
->>>>>>> 01280a7c640a109e33f29b590fe7f02775030ba3
       if (err) {
         return res.status(500).json({ error: err.message });
       }
@@ -345,7 +332,6 @@ exports.login = (req, res) => {
     });
   };
 
-<<<<<<< HEAD
 exports.updatePassword = async (req, res) => {
   const userId = req.params.id;
   const { currentPassword, newPassword } = req.body;
@@ -443,65 +429,3 @@ exports.resetPassword = (req, res) => {
     }
   );
 };
-=======
-
-  exports.forgotPassword = (req, res) => {
-    const { email } = req.body;
-
-    connection.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
-      if (err) return res.status(500).json({ message: 'Lỗi cơ sở dữ liệu', error: err });
-      if (results.length === 0) return res.status(404).json({ message: 'Không tìm thấy email' });
-
-      const token = crypto.randomBytes(32).toString('hex');
-      const expiration = new Date(Date.now() + 3600000);
-
-      connection.query(
-        'UPDATE users SET resetToken = ?, resetTokenExpires = ? WHERE email = ?',
-        [token, expiration, email],
-        (err) => {
-          if (err) return res.status(500).json({ message: 'Không lưu được', error: err });
-
-          // Cấu hình Nodemailer
-          const transporter = nodemailer.createTransport({
-            service: 'Gmail',
-            auth: {
-              user: process.env.EMAIL_USER,
-              pass: process.env.EMAIL_PASS,
-            },
-          });
-
-          transporter.sendMail(mailOptions, (err, info) => {
-            if (err) return res.status(500).json({ message: 'Không gửi được email', error: err });
-
-            res.status(200).json({ message: 'Đã gửi thành công', info });
-          });
-        }
-      );
-    });
-  };
-
-  exports.resetPassword = (req, res) => {
-    const { token, newPassword } = req.body;
-
-    connection.query(
-      'SELECT * FROM users WHERE resetToken = ? AND resetTokenExpires > NOW()',
-      [token],
-      (err, results) => {
-        if (err) return res.status(500).json({ message: 'Database error', error: err });
-        if (results.length === 0) return res.status(400).json({ message: 'Không hợp lệ' });
-
-        const hashedPassword = bcrypt.hashSync(newPassword, 10);
-
-        connection.query(
-          'UPDATE users SET password = ?, resetToken = NULL, resetTokenExpires = NULL WHERE resetToken = ?',
-          [hashedPassword, token],
-          (err) => {
-            if (err) return res.status(500).json({ message: 'Cập nhaat thất bại', error: err });
-
-            res.status(200).json({ message: 'Cập nhật maatj khẩu thành công' });
-          }
-        );
-      }
-    );
-  };
->>>>>>> 01280a7c640a109e33f29b590fe7f02775030ba3

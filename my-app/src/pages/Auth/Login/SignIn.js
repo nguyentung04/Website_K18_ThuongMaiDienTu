@@ -23,15 +23,15 @@ const SignIn = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get("token");
-  
+
     if (!token) {
       console.log("Token không tồn tại.");
       return;
     }
-  
+
     // Lưu token vào localStorage
     localStorage.setItem("token", token);
-  
+
     // Gửi request để lấy thông tin người dùng từ Google
     fetch("http://localhost:3000/api/auth/google/profile", {
       method: "GET",
@@ -54,7 +54,7 @@ const SignIn = () => {
         console.error("Lỗi khi lấy thông tin người dùng:", err);
       });
   }, [navigate]);
-    
+
 
 
   // Gửi yêu cầu đăng nhập qua hệ thống
@@ -133,7 +133,7 @@ const SignIn = () => {
               <label htmlFor="rememberMe">Ghi nhớ đăng nhập</label>
             </div>
 
-            <button type="submit" className="btn-submit">Đăng nhập</button>
+            <button type="submit" className="btn-submit mb-3">Đăng nhập</button>
           </form>
 
           <button type="button" className="btn-submit google-login" onClick={handleGoogleLogin}>

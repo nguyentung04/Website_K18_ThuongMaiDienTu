@@ -76,7 +76,7 @@ const SignIn = () => {
           localStorage.setItem('token', data.token);
           localStorage.setItem('username', username);
           localStorage.setItem('userData', JSON.stringify(data.user)); // Lưu thông tin người dùng
-          localStorage.removeItem("googleUser");  // Xóa googleUser nếu đăng nhập thành công qua hệ thống
+          localStorage.setItem('userId', data.users.id);
           setShowSuccessModal(true);
           setTimeout(() => navigate('/'), 2000);
         } else {

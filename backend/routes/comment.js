@@ -3,11 +3,6 @@ const router = express.Router();
 const commentController = require("../controllers/commentsController"); // Giữ nguyên như yêu cầu
 const commentDetailController = require("../controllers/comment_detailController"); // Đổi tên cho rõ ràng hơn
 
-// // Lấy tất cả các chi tiết bình luận
-// router.get("/comment_detail", commentDetailController.getAllCommentDetail); // Đổi tên hàm
-// router.get("/comment_detail/:id", commentDetailController.getCommentDetailById); // Đổi tên hàm
-// router.delete("/comment_detail/:id", commentDetailController.deleteCommentDetail); // Đổi tên hàm
-
 // Lấy tất cả đánh giá theo product_id
 router.get('/product/reviews/:product_id', commentController.getReviewsByProductID); // Sửa lại cho đúng
 // Thêm đánh giá cho sản phẩm

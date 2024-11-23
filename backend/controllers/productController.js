@@ -195,7 +195,7 @@ exports.addProduct = (req, res) => {
     // Thêm hình ảnh cho sản phẩm nếu có
     if (images && images.length > 0) {
       const imageValues = images.map((image_url) => [productId, image_url]);
-      const imageQuery = `INSERT INTO product_images (product_id, image_url,is_primary) VALUES ?`; // Use VALUES ? for bulk insert
+      const imageQuery = `INSERT INTO product_images (product_id, image_url) VALUES ?`; // Use VALUES ? for bulk insert
 
       connection.query(imageQuery, [imageValues], (err) => {
         if (err) {

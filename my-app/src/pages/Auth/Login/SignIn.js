@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SuccessModal from '../../../components/Modals/SuccessModal';
 import ErrorModal from '../../../components/Modals/ErrorModal';
@@ -17,10 +17,47 @@ const SignIn = () => {
 
   // Xử lý đăng nhập Google
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3000/api/auth/google";
+    window.location.href = "http://localhost:3000/api/auth/google"; // Điều hướng tới Google OAuth
   };
 
-  // Gửi yêu cầu đăng nhập
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+  
+    if (!token) {
+      console.log("Token không tồn tại.");
+      return;
+    }
+  
+    // Lưu token vào localStorage
+    localStorage.setItem("token", token);
+  
+    // Gửi request để lấy thông tin người dùng từ Google
+    fetch("http://localhost:3000/api/auth/google/profile", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,  // Gửi token vào header
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.user) {
+          // Lưu thông tin người dùng vào localStorage
+          localStorage.setItem("googleUser", JSON.stringify(data.user));
+          // Điều hướng đến trang chủ
+          navigate("/");
+        } else {
+          console.error("Không tìm thấy thông tin người dùng");
+        }
+      })
+      .catch((err) => {
+        console.error("Lỗi khi lấy thông tin người dùng:", err);
+      });
+  }, [navigate]);
+    
+
+
+  // Gửi yêu cầu đăng nhập qua hệ thống
   const handleSubmit = (e) => {
     e.preventDefault();
     fetch("http://localhost:3000/api/login", {
@@ -39,7 +76,7 @@ const SignIn = () => {
           localStorage.setItem('token', data.token);
           localStorage.setItem('username', username);
           localStorage.setItem('userData', JSON.stringify(data.user)); // Lưu thông tin người dùng
-          localStorage.setItem('userId', data.users.id);
+          localStorage.removeItem("googleUser");  // Xóa googleUser nếu đăng nhập thành công qua hệ thống
           setShowSuccessModal(true);
           setTimeout(() => navigate('/'), 2000);
         } else {
@@ -54,7 +91,6 @@ const SignIn = () => {
         setTimeout(() => setShowErrorModal(false), 2000);
       });
   };
-
 
   return (
     <div className="signin-container">
@@ -97,10 +133,10 @@ const SignIn = () => {
               <label htmlFor="rememberMe">Ghi nhớ đăng nhập</label>
             </div>
 
-            <button type="submit" className="btn-submit ">Đăng nhập</button>
+            <button type="submit" className="btn-submit">Đăng nhập</button>
           </form>
 
-          <button type="button" className="btn-submit google-login mt-3" onClick={handleGoogleLogin}>
+          <button type="button" className="btn-submit google-login" onClick={handleGoogleLogin}>
             Đăng nhập bằng Google
           </button>
 

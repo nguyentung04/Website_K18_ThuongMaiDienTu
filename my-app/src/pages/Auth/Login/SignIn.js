@@ -23,15 +23,15 @@ const SignIn = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get("token");
-  
+
     if (!token) {
       console.log("Token không tồn tại.");
       return;
     }
-  
+
     // Lưu token vào localStorage
     localStorage.setItem("token", token);
-  
+
     // Gửi request để lấy thông tin người dùng từ Google
     fetch("http://localhost:3000/api/auth/google/profile", {
       method: "GET",
@@ -54,7 +54,7 @@ const SignIn = () => {
         console.error("Lỗi khi lấy thông tin người dùng:", err);
       });
   }, [navigate]);
-    
+
 
 
   // Gửi yêu cầu đăng nhập qua hệ thống
@@ -76,7 +76,7 @@ const SignIn = () => {
           localStorage.setItem('token', data.token);
           localStorage.setItem('username', username);
           localStorage.setItem('userData', JSON.stringify(data.user)); // Lưu thông tin người dùng
-          localStorage.setItem('userId', data.users.id);
+          localStorage.removeItem("googleUser");  // Xóa googleUser nếu đăng nhập thành công qua hệ thống
           setShowSuccessModal(true);
           setTimeout(() => navigate('/'), 2000);
         } else {
@@ -133,10 +133,10 @@ const SignIn = () => {
               <label htmlFor="rememberMe">Ghi nhớ đăng nhập</label>
             </div>
 
-            <button type="submit" className="btn-submit ">Đăng nhập</button>
+            <button type="submit" className="btn-submit mb-3">Đăng nhập</button>
           </form>
 
-          <button type="button" className="btn-submit google-login mt-3" onClick={handleGoogleLogin}>
+          <button type="button" className="btn-submit google-login" onClick={handleGoogleLogin}>
             Đăng nhập bằng Google
           </button>
 

@@ -2,7 +2,7 @@
     padding: 40px; /* Padding xung quanh slider */
     box-sizing: border-box; /* Đảm bảo padding không làm thay đổi kích thước tổng thể của slider */
     width: calc(100% - 80px); /* Đảm bảo slider có chiều rộng bằng bề ngang của trang trừ đi padding */
-   width: 1800px; /* Tùy chỉnh theo kích thước mong muốn nếu cần */
+   width: 1600px; /* Tùy chỉnh theo kích thước mong muốn nếu cần */
     position: relative; /* Để sử dụng z-index nếu cần */
     top: -20px; /* Di chuyển slider gần hơn với navbar */
   }

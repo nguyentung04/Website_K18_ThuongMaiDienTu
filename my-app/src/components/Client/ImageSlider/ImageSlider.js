@@ -5,9 +5,9 @@ import { Autoplay } from "swiper/modules";
 
 // Đường dẫn tới hình ảnh trong thư mục public
 const images = [
-  "/assets/slider2.jpg",
-  "/assets/slider3.jpg",
-  "/assets/slider4.png",
+  "/assets/banner-trang-chu.jpg",
+  "/assets/banner.jpg",
+  "/assets/slider4.jpg",
   // Thêm các hình ảnh khác nếu cần
 ];
 

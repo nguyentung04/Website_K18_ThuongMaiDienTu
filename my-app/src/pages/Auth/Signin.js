@@ -57,7 +57,7 @@ const SignIn = () => {
           navigate('/'); // Hoặc một trang khác dành cho người dùng
         }
       } else {
-        setError(data.message || 'Đăng nhập thất bại');
+        setError(data.message || 'Tên đăng nhập hoặc mật khẩu không đúng');
       }
     } catch (error) {
       console.error('Error:', error);

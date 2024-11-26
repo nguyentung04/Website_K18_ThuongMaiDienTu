@@ -43,6 +43,7 @@ exports.getCartById = (req, res) => {
         u.name AS user_name, -- Tên người dùng
         pr.name AS product_name, -- Tên sản phẩm
         pr.price AS product_price, -- Giá sản phẩm
+        pr.id AS product_id,
         SUM(c_i.quantity) AS total_quantity, -- Tổng số lượng sản phẩm
         SUM(c_i.quantity * pr.price) AS total_price, -- Tổng giá trị (số lượng * giá sản phẩm)
         MIN(ca.created_at) AS first_added, -- Ngày thêm đầu tiên
@@ -58,7 +59,7 @@ exports.getCartById = (req, res) => {
     WHERE 
         ca.user_id = ? -- Lọc theo cart_id
     GROUP BY 
-        pr.name, pr.price, u.name; -- Nhóm theo sản phẩm, giá và người dùng
+       pr.id, pr.name, pr.price, u.name; -- Nhóm theo sản phẩm, giá và người dùng
     `,
     [cartId], // Sử dụng tham số hóa để bảo vệ khỏi SQL Injection
     (err, results) => {
@@ -70,28 +71,21 @@ exports.getCartById = (req, res) => {
           .json({ error: "Có lỗi xảy ra khi lấy dữ liệu giỏ hàng." });
       }
 
-      if (results.length === 0) {
-        // Nếu không tìm thấy dữ liệu nào cho cart_id, trả về 404
-        return res
-          .status(404)
-          .json({ message: "Không tìm thấy giỏ hàng với ID này." });
-      }
-
       // Trả về kết quả là danh sách sản phẩm trong giỏ hàng
       res.status(200).json(results);
     }
   );
 };
 
-
 // // Xóa bài đăng theo ID
 exports.deleteCartItem = (req, res) => {
-  const { id} = req.body;
+  const { id } = req.body;
 
   // Kiểm tra dữ liệu đầu vào
-  if (!id ) {
+  if (!id) {
     return res.status(400).json({
-      error: "Dữ liệu đầu vào không hợp lệ. Vui lòng cung cấp cart_id và product_id.",
+      error:
+        "Dữ liệu đầu vào không hợp lệ. Vui lòng cung cấp cart_id và product_id.",
     });
   }
 
@@ -122,6 +116,34 @@ exports.deleteCartItem = (req, res) => {
   });
 };
 
+// // Xóa bài đăng theo user_id
+exports.deleteCartUser_id = (req, res) => {
+  const { user_id } = req.params; // Lấy user_id từ params
+
+  // Kiểm tra nếu user_id không tồn tại
+  if (!user_id) {
+    return res.status(400).json({
+      error: "Dữ liệu đầu vào không hợp lệ. Vui lòng cung cấp user_id.",
+    });
+  }
+
+  // Thực hiện xóa giỏ hàng dựa trên user_id
+  const query = "DELETE FROM cart WHERE user_id = ?";
+  connection.query(query, [user_id], (err, results) => {
+    if (err) {
+      console.error("Lỗi truy vấn CSDL:", err);
+      return res.status(500).json({ error: "Có lỗi xảy ra khi xóa giỏ hàng." });
+    }
+
+    if (results.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy giỏ hàng để xóa." });
+    }
+
+    res.status(200).json({ message: "Giỏ hàng đã được xóa thành công." });
+  });
+};
 
 // =========================================================================================================================
 // // Cập nhật giỏ hàng
@@ -139,7 +161,8 @@ exports.updateCartItems = (req, res) => {
   for (const item of cart_items) {
     if (!item.product_id || !item.quantity || !item.price) {
       return res.status(400).json({
-        error: "Sản phẩm không hợp lệ. Mỗi sản phẩm cần có product_id, quantity và price.",
+        error:
+          "Sản phẩm không hợp lệ. Mỗi sản phẩm cần có product_id, quantity và price.",
       });
     }
   }
@@ -158,7 +181,7 @@ exports.updateCartItems = (req, res) => {
       // Câu lệnh SQL để cập nhật sản phẩm
       const updateQuery =
         "UPDATE cart_items SET quantity = ?, price = ?, total = ? WHERE cart_id = ? AND product_id = ?";
-      
+
       // Trả về một promise cho từng sản phẩm
       return new Promise((resolve, reject) => {
         connection.query(
@@ -206,8 +229,6 @@ exports.updateCartItems = (req, res) => {
   });
 };
 
-
-
 // =======================================================================================================
 exports.postCart = (req, res) => {
   const { user_id, cart_items } = req.body;
@@ -223,7 +244,8 @@ exports.postCart = (req, res) => {
   for (const item of cart_items) {
     if (!item.product_id || !item.quantity || !item.price) {
       return res.status(400).json({
-        error: "Sản phẩm không hợp lệ. Mỗi sản phẩm cần có product_id, quantity và price.",
+        error:
+          "Sản phẩm không hợp lệ. Mỗi sản phẩm cần có product_id, quantity và price.",
       });
     }
   }
@@ -289,5 +311,3 @@ exports.postCart = (req, res) => {
     });
   });
 };
-
-

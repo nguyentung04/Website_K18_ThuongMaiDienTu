@@ -308,11 +308,11 @@ const FeaturedProducts = () => {
   };
   
 
-  const userId = JSON.parse(localStorage.getItem("userData"))?.id;
-  if (!userId) {
-    alert("Vui lòng đăng nhập để sử dụng tính năng này.");
-    return;
-  }
+  // const userId = JSON.parse(localStorage.getItem("userData"))?.id;
+  // if (!userId) {
+  //   alert("Vui lòng đăng nhập để sử dụng tính năng này.");
+  //   return;
+  // }
 
   // =================================================================================
   const formatPrice = (price) => {

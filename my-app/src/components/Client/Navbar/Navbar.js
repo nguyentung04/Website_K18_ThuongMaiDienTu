@@ -22,7 +22,7 @@ const Navbar = () => {
     localStorage.removeItem("username"); // Xóa tên đăng nhập
     localStorage.removeItem("userData");
     localStorage.removeItem("role");
-    localStorage.removeItem("id"); // Xóa ID người dùng
+    // localStorage.removeItem("id"); // Xóa ID người dùng
     localStorage.removeItem("userEmail"); // Xóa email người dùng
     localStorage.removeItem("userName"); // Xóa tên người dùng
     localStorage.removeItem("user"); // Xóa tên người dùng

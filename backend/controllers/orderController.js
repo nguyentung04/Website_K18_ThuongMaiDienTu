@@ -174,7 +174,7 @@ exports.deleteOrder = (req, res) => {
 exports.PostOrders = (req, res) => {
   const {
     total_amount,
-    // phone,
+
     address,
     Provinces,
     Districts,
@@ -186,16 +186,17 @@ exports.PostOrders = (req, res) => {
   // Kiểm tra log để đảm bảo user_id được truyền vào
   console.log("User ID:", user_id);
 
-  if (
-    total_amount,
-    // !phone ||
-    !address ||
-    !paymentMethod ||
-    !order_detail ||
-    !user_id
-  ) {
+  if (!total_amount || !address || !paymentMethod || !order_detail || !user_id) {
+    console.error("Thiếu thông tin cần thiết:", {
+      total_amount,
+      address,
+      paymentMethod,
+      order_detail,
+      user_id,
+    });
     return res.status(400).json({ error: "Thiếu thông tin cần thiết" });
   }
+  
 
   // Bắt đầu giao dịch để đảm bảo toàn vẹn dữ liệu
   connection.beginTransaction((err) => {
@@ -205,16 +206,17 @@ exports.PostOrders = (req, res) => {
 
     // Thêm đơn hàng vào bảng orders (không bao gồm user_id)
     const sql =
-      "INSERT INTO orders (user_id,  shipping_address, Provinces, Districts, total_amount,payment_method) VALUES (?,?,  ?, ?, ?, ?)";
-    const values = [
-      user_id,
-      // phone,
-      address,
-      total_amount,
-      Provinces || null,
-      Districts || null,
-      paymentMethod,
-    ];
+    "INSERT INTO orders (user_id, shipping_address, Provinces, Districts, total_amount, payment_method) VALUES (?, ?, ?, ?, ?, ?)";
+  const values = [
+    user_id,
+    address,
+    Provinces || null,
+    Districts || null,
+    total_amount,
+    paymentMethod,
+  ];
+  
+
 
     connection.query(sql, values, (err, results) => {
       if (err) {
@@ -228,15 +230,14 @@ exports.PostOrders = (req, res) => {
 
       // Chèn vào bảng order_detail và thêm user_id
       const orderDetailSql =
-        "INSERT INTO order_detail (order_id, product_id, quantity, price, user_id) VALUES ?";
-      const orderDetailValues = order_detail.map((item) => [
-        orderId,
-        item.product_id,
-        item.quantity,
-        item.price,
-        item.price * item.quantity,
-        user_id, // Thêm user_id vào mỗi dòng của order_detail
-      ]);
+      "INSERT INTO order_items (	order_id	, product_id, total_quantity, total_price) VALUES ?";
+    const orderDetailValues = order_detail.map((item) => [
+      orderId,
+      item.product_id,
+      item.total_quantity,
+      item.total_price,
+    ]);
+    
 
       // Kiểm tra log để đảm bảo dữ liệu order_detail chính xác
       console.log("Order Details:", orderDetailValues);

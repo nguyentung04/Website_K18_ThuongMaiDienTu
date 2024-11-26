@@ -4,134 +4,115 @@ import "./CheckoutForm.css";
 import {
   Box,
   Button,
-  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Input,
   Select,
-  Spinner,
   Textarea,
   useToast,
 } from "@chakra-ui/react";
-import { fetchProvinces, fetchDistricts } from "../../../service/api/city";
+import { jwtDecode } from "jwt-decode"; // Import thư viện
+import axios from "axios";
 
 const CheckoutForm = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    phone: "",
     city: "",
     province: "",
     address: "",
     note: "",
     paymentMethod: "COD",
   });
-
+  const [cart, setCart] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [loadingLocations, setLoadingLocations] = useState(true);
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
-  const [cities, setCities] = useState([]);
   const [districts, setDistricts] = useState([]);
-  const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
-  const [user, setUser] = useState(null); 
-  // const [userId, setUserId] = useState(null);
+  const [user, setUser] = useState(null);
+  const BASE_URL = "http://localhost:3000"; // Cập nhật đúng URL của server
 
   useEffect(() => {
-    // Fetch locations once the component mounts
-    const getLocations = async () => {
+    const fetchUserAndCart = async () => {
       try {
-        const data = await fetchDistricts();
-        setLocations(data);
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("Token không tồn tại. Vui lòng đăng nhập.");
+
+        // Giải mã token để lấy user_id và thông tin người dùng
+        const decodedToken = jwtDecode(token);
+        const { id: user_id, name, email } = decodedToken;
+
+        // Cập nhật thông tin người dùng vào formData
+        setUser({ id: user_id, name, email });
+        setFormData((prev) => ({
+          ...prev,
+          name: name || "",
+          email: email || "",
+        }));
+
+        // Gọi API để lấy giỏ hàng theo user_id
+        const response = await axios.get(`${BASE_URL}/api/cart/${user_id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const cartData = response.data || [];
+        setCart(cartData); // Lưu giỏ hàng vào state
+        localStorage.setItem("cart", JSON.stringify(cartData)); // Đồng bộ giỏ hàng vào localStorage
       } catch (error) {
-        console.error("Failed to fetch locations:", error);
-      } finally {
-        setLoadingLocations(false);
+        console.error("Lỗi khi lấy thông tin người dùng và giỏ hàng:", error);
+        toast({
+          title: "Lỗi",
+          description: "Không thể tải dữ liệu. Vui lòng thử lại.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        navigate("/login"); // Điều hướng về trang đăng nhập nếu lỗi xác thực
       }
     };
 
-    getLocations();
+    fetchUserAndCart();
   }, []);
 
-  // useEffect(() => {
-  //   // Retrieve userId from localStorage once when the component mounts
-  //   const userData = localStorage.getItem("userData");
-  
-  //   if (userData) {
-  //     try {
-  //       const parsedUserData = JSON.parse(userData);
-  //       if (parsedUserData && parsedUserData.id) {
-  //         setUserId(parsedUserData.id); // Set the userId if found
-  //       } else {
-  //         console.error("No user id found in localStorage.");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error parsing user data from localStorage", error);
-  //     }
-  //   } else {
-  //     console.log("No user data found in localStorage.");
-  //   }
-  // }, []);
-  useEffect(() => {
-    // Lấy thông tin người dùng từ localStorage
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      try {
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser); // Lưu thông tin người dùng
-        if (parsedUser && parsedUser.name) {
-          // Cập nhật formData với thông tin người dùng
-          setFormData((prevData) => ({
-            ...prevData,
-            name: parsedUser.name,
-            email: parsedUser.email || "",
-            phone: parsedUser.phone || "",
-          }));
-        }
-      } catch (error) {
-        console.error("Lỗi khi phân tích dữ liệu người dùng từ localStorage", error);
-      }
-    }
-  }, []);
-  useEffect(() => {
-    // Update the list of districts based on the selected city
-    if (cities) {
-      const province = locations.find((loc) => loc.name === cities);
-      setDistricts(province ? province.districts : []);
-    } else {
-      setDistricts([]);
-    }
-  }, [cities, locations]);
-
-  const handleProvinceChange = async (e) => {
-    const selectedProvince = e.target.value;
-    setFormData({
-      ...formData,
-      province: selectedProvince,
-    });
-
-    setLoadingDistricts(true);
+  const clearCart = async (user_id) => {
     try {
-      const districtsData = await fetchDistricts();
-      setDistricts(districtsData);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Không tìm thấy token. Vui lòng đăng nhập lại.");
+      }
+  
+      // Gửi yêu cầu DELETE với user_id trong URL
+      await axios.delete(`${BASE_URL}/api/cart_user_id/${user_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      toast({
+        title: "Thành công!",
+        description: "Giỏ hàng đã được xóa.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
     } catch (error) {
-      console.error("Error fetching districts:", error);
-    } finally {
-      setLoadingDistricts(false);
+      console.error("Lỗi khi xóa giỏ hàng:", error);
+      toast({
+        title: "Lỗi",
+        description: "Không thể xóa giỏ hàng. Vui lòng thử lại.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
-
-  const handleCityChange = (e) => {
-    const selectedCity = e.target.value;
-    setFormData({
-      ...formData,
-      city: selectedCity,
-    });
-  };
-
+  
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -143,89 +124,86 @@ const CheckoutForm = () => {
   const validateForm = () => {
     const newErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^[0-9]{10,11}$/;
 
-    if (!formData.name) newErrors.name = "Tên khách hàng là bắt buộc";
-    if (!formData.email || !emailRegex.test(formData.email))
+    if (!formData.name.trim()) newErrors.name = "Tên khách hàng là bắt buộc";
+    if (!formData.email.trim() || !emailRegex.test(formData.email))
       newErrors.email = "Địa chỉ email không hợp lệ";
-    if (!formData.phone || !phoneRegex.test(formData.phone))
-      newErrors.phone = "Số điện thoại không hợp lệ";
-    if (!formData.address) newErrors.address = "Địa chỉ nhận hàng là bắt buộc";
-    if (!formData.paymentMethod)
-      newErrors.paymentMethod = "Chọn phương thức thanh toán";
+    if (!formData.address.trim())
+      newErrors.address = "Địa chỉ nhận hàng là bắt buộc";
 
     setErrors(newErrors);
-    return !Object.values(newErrors).length;
+    return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!validateForm()) return;
-
+  
     setIsSubmitting(true);
     try {
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
       if (cart.length === 0) {
-        alert("Giỏ hàng trống. Không thể đặt hàng.");
+        toast({
+          title: "Giỏ hàng trống.",
+          description: "Không thể đặt hàng khi giỏ hàng trống.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
         return;
       }
-
+  
+      const totalAmount = cart.reduce(
+        (total, item) => total + item.total_quantity * item.total_price,
+        0
+      );
+  
       const orderItems = cart.map((item) => ({
-        product_id: item.id,
-        quantity: item.quantity,
-        price: parseFloat(item.price),
-        total: parseFloat(item.price) * item.quantity,
+        product_id: item.product_id,
+        total_quantity: item.total_quantity,
+        total_price: parseFloat(item.total_price),
+        total: parseFloat(item.total_price) * item.total_quantity,
       }));
-
+  
       const orderData = {
         ...formData,
         Provinces: formData.city,
         Districts: formData.province,
         order_detail: orderItems,
-          user_id: user?.id, // Ensure userId is included in the order data
+        user_id: user?.id,
+        total_amount: totalAmount,
       };
-
-      console.log(orderData, user); // Check the order data
-
-      const response = await fetch("http://localhost:3000/api/orders", {
-        method: "POST",
+  
+      console.log("Order Data:", orderData);
+  
+      const response = await axios.post(`${BASE_URL}/api/orders`, orderData, {
         headers: {
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(orderData),
       });
-
-      const data = await response.json();
-
-      if (data.message === "Đặt hàng thành công!") {
+  
+      if (response.data.message === "Đặt hàng thành công!") {
+        // Xóa giỏ hàng sau khi đặt hàng thành công
+        await clearCart(user.id);
         localStorage.removeItem("cart");
+        setCart([]); // Cập nhật lại giỏ hàng trong state
+  
         toast({
-          title: "Đặt hàng thành công",
-          description: "Đơn hàng của bạn đã được gửi.",
+          title: "Thành công!",
+          description: "Đơn hàng đã được đặt.",
           status: "success",
           duration: 5000,
           isClosable: true,
         });
-        navigate("/");
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          city: "",
-          districts: "",
-          address: "",
-          note: "",
-          paymentMethod: "COD",
-        });
+  
+        navigate("/"); // Chuyển về trang chính
       } else {
-        throw new Error("Có lỗi xảy ra. Vui lòng thử lại.");
+        throw new Error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.");
       }
     } catch (error) {
-      console.error("Error submitting order:", error);
+      console.error("Lỗi khi đặt hàng:", error);
       toast({
         title: "Lỗi",
-        description: error.message,
+        description: error.message || "Có lỗi xảy ra. Vui lòng thử lại.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -234,6 +212,9 @@ const CheckoutForm = () => {
       setIsSubmitting(false);
     }
   };
+  
+  
+  
 
   return (
     <div className="checkout-form">
@@ -252,78 +233,46 @@ const CheckoutForm = () => {
             />
             <FormErrorMessage>{errors.name}</FormErrorMessage>
           </FormControl>
-          <Box display="flex" flexDirection="row" mb={3} gap={2}>
-            <FormControl mb={3} isInvalid={errors.email}>
-              <FormLabel htmlFor="email">Email</FormLabel>
-              <Input
-                className="custom-input"
-                id="email"
-                name="email"
-                placeholder="Nhập địa chỉ email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-              <FormErrorMessage>{errors.email}</FormErrorMessage>
-            </FormControl>
 
-            <FormControl mb={3} isInvalid={errors.phone}>
-              <FormLabel htmlFor="phone">Số điện thoại</FormLabel>
-              <Input
-                className="custom-input"
-                id="phone"
-                name="phone"
-                placeholder="Nhập số điện thoại"
-                value={formData.phone}
-                onChange={handleChange}
-              />
-              <FormErrorMessage>{errors.phone}</FormErrorMessage>
-            </FormControl>
-          </Box>
+          <FormControl mb={3} isInvalid={errors.email}>
+            <FormLabel htmlFor="email">Email</FormLabel>
+            <Input
+              className="custom-input"
+              id="email"
+              name="email"
+              placeholder="Nhập địa chỉ email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+            <FormErrorMessage>{errors.email}</FormErrorMessage>
+          </FormControl>
 
           <Box display="flex" flexDirection="row" mb={3} gap={2}>
-            {loadingLocations ? (
-              <Spinner />
-            ) : (
-              <Flex>
-                <FormControl mb={3} isInvalid={errors.province}>
-                  <FormLabel htmlFor="province">Tỉnh/Thành phố</FormLabel>
-                  <Select
-                    className="custom-input"
-                    id="province"
-                    name="province"
-                    value={formData.province}
-                    placeholder="Chọn Tỉnh/Thành phố"
-                    onChange={handleProvinceChange}
-                    mb={4}
-                  >
-                    {locations.map((location, index) => (
-                      <option key={index} value={location.name}>
-                        {location.name}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
+            <FormControl mb={3} isInvalid={errors.province}>
+              <FormLabel htmlFor="province">Tỉnh/Thành phố</FormLabel>
+              <Input
+                className="custom-input"
+                id="province"
+                name="province"
+                placeholder="Nhập Tỉnh/Thành phố"
+                value={formData.province}
+                onChange={handleChange}
+              />
+              <FormErrorMessage>{errors.province}</FormErrorMessage>
+            </FormControl>
 
-                <FormControl mb={3} isInvalid={errors.city}>
-                  <FormLabel htmlFor="city">Quận/Huyện</FormLabel>
-                  <Select
-                    className="custom-input"
-                    id="city"
-                    name="city"
-                    value={formData.city}
-                    placeholder="Chọn Quận/Huyện"
-                    isDisabled={!formData.province}
-                    onChange={handleCityChange}
-                  >
-                    {districts.map((district, index) => (
-                      <option key={index} value={district}>
-                        {district}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Flex>
-            )}
+            <FormControl mb={3} isInvalid={errors.city}>
+              <FormLabel htmlFor="city">Quận/Huyện</FormLabel>
+              <Input
+                className="custom-input"
+                id="city"
+                name="city"
+                placeholder="Nhập Quận/Huyện"
+                value={formData.city}
+                onChange={handleChange}
+              />
+              <FormErrorMessage>{errors.city}</FormErrorMessage>
+            </FormControl>
           </Box>
 
           <FormControl mb={3} isInvalid={errors.address}>
@@ -340,7 +289,9 @@ const CheckoutForm = () => {
           </FormControl>
 
           <FormControl mb={3} isInvalid={errors.paymentMethod}>
-            <FormLabel htmlFor="paymentMethod">Phương thức thanh toán</FormLabel>
+            <FormLabel htmlFor="paymentMethod">
+              Phương thức thanh toán
+            </FormLabel>
             <Select
               className="custom-input"
               id="paymentMethod"
@@ -355,7 +306,12 @@ const CheckoutForm = () => {
             <FormErrorMessage>{errors.paymentMethod}</FormErrorMessage>
           </FormControl>
 
-          <Button className="w-100" type="submit" colorScheme="teal" isLoading={isSubmitting}>
+          <Button
+            className="w-100"
+            type="submit"
+            colorScheme="teal"
+            isLoading={isSubmitting}
+          >
             Đặt hàng
           </Button>
         </form>

@@ -28,6 +28,7 @@ const AdminRoutes = () => {
   return (
     <Routes>
       <Route element={<AdminLayout />}>
+      
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="category/*" element={<CategoryRoutes />} />
         <Route path="products/*" element={<ProductsRoutes />} />

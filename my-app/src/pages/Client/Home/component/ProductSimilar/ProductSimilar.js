@@ -195,7 +195,7 @@ console.log(similarProducts);
                     </button>
                     <a href={`/product/${product.id}`} className="plain">
                       <div className="product-image">
-                        <img src={`${BASE_URL}/uploads/products/${product.images}`} alt={product.name} />
+                        <img src={`${BASE_URL}/uploads/products/${product.image_url}`} alt={product.name} />
                       </div>
                       <div className="product-info">
                         <p className="product-title">{product.name}</p>

@@ -120,3 +120,41 @@ span {
   width: 100%;
   /* Mở rộng đường kẻ ra toàn bộ chiều rộng của thẻ <a> khi hover */
 }
+
+/* Tùy chỉnh vị trí */
+df-messenger {
+  --df-messenger-bot-message: #f0f0f0; /* Màu nền tin nhắn bot */
+  --df-messenger-button-titlebar-color: #2a72d5; /* Màu thanh tiêu đề */
+  --df-messenger-chat-background-color: #ffffff; /* Màu nền cửa sổ chat */
+  --df-messenger-font-color: #000000; /* Màu chữ chung */
+  --df-messenger-send-icon: #2a72d5; /* Màu biểu tượng gửi */
+  --df-messenger-user-message: #d1e8ff; /* Màu nền tin nhắn người dùng */
+}
+
+/* Căn chỉnh vị trí widget */
+df-messenger {
+  position: fixed;
+  bottom: 20px; /* Cách đáy màn hình 20px */
+  right: 20px; /* Cách bên phải 20px */
+  z-index: 9999; /* Đảm bảo nằm trên các thành phần khác */
+}
+
+/* Animation cho nút */
+df-messenger-button {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 5px rgba(42, 114, 213, 0.5);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(42, 114, 213, 0.7);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 5px rgba(42, 114, 213, 0.5);
+  }
+}

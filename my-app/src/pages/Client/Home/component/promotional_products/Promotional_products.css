@@ -130,7 +130,7 @@
 .PromotionalProducts .product-price,.product-title,
 .discount-price {
   font-size: 1.1rem;
-  color: #666;
+  color: #df5454;
   margin: 0.5rem 0;
   font-weight: 700;
 }
@@ -142,7 +142,7 @@
 
 .PromotionalProducts .product-price .discount-price {
   font-weight: bold;
-  color: #a60101;
+  color: #df5454;
 }
 
 /* ===================================================================================================== */

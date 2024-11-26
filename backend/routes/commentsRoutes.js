@@ -8,8 +8,8 @@ router.get("/product_reviews/:id", commentsController.getReviewById); // Lấy b
 router.post("/product_reviews", commentsController.updateReviewCounts); // Cập nhật số lượng bình luận
 
 // Các route khác cho bình luận theo sản phẩm
-router.get("/product_reviews/product/:product_id", commentsController.getReviewsByProductID); // Lấy bình luận theo ID sản phẩm
-router.post("/product_reviews/product/:product_id", commentsController.postReviewByProductID); // Thêm bình luận cho sản phẩm
+router.get("/product_reviews/:id", commentsController.getReviewsByProductID); // Lấy bình luận theo ID sản phẩm
+router.post("/product_reviews/:id", commentsController.postReviewByProductID); // Thêm bình luận cho sản phẩm
 
 
 module.exports = router;

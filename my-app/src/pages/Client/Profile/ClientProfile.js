@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { updatePassword, updateUser } from "../../../service/api/users";
+import SuccessModal from "../../../components/Modals/SuccessModal"; // Import modal
 import "./ClientProfile.css";
 
 const Profile = () => {
@@ -27,13 +28,12 @@ const Profile = () => {
     confirmNewPassword: "",
   });
 
+  const [successMessage, setSuccessMessage] = useState(""); // Thêm state để quản lý modal
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Kiểm tra trong localStorage xem có thông tin người dùng không
     const userData = JSON.parse(localStorage.getItem("userData"));
-    const googleUser = JSON.parse(localStorage.getItem("googleUser"));
-  
+
     if (userData) {
       setValues({
         name: userData.name || "",
@@ -41,29 +41,21 @@ const Profile = () => {
         phone: userData.phone || "",
         avatar: userData.avatar || "https://via.placeholder.com/150",
       });
-    } else if (googleUser) {
-      setValues({
-        name: googleUser.name || "",
-        email: googleUser.email || "",
-        phone: googleUser.phone || "Không có số điện thoại",
-        avatar: googleUser.avatar || "https://via.placeholder.com/150",
-      });
     } else {
       navigate("/signin");
     }
   }, [navigate]);
-  
-
 
   const validateField = (field, value) => {
     let error = "";
     if (!value) {
-      error = `${field === "name"
-        ? "Họ tên"
-        : field === "email"
+      error = `${
+        field === "name"
+          ? "Họ tên"
+          : field === "email"
           ? "Email"
           : "Số điện thoại"
-        } là bắt buộc.`;
+      } là bắt buộc.`;
     } else if (field === "email" && !/\S+@\S+\.\S+/.test(value)) {
       error = "Email không hợp lệ.";
     } else if (field === "phone" && !/^\d{10}$/.test(value)) {
@@ -91,12 +83,12 @@ const Profile = () => {
       if (response) {
         userData[field] = values[field];
         localStorage.setItem("userData", JSON.stringify(userData));
-        alert("Thông tin đã được cập nhật thành công.");
+        setSuccessMessage("Thông tin đã được cập nhật thành công.");
         setIsEditing((prev) => ({ ...prev, [field]: false }));
       }
     } catch (error) {
       console.error("Lỗi khi cập nhật thông tin", error);
-      alert(error.message || "Đã xảy ra lỗi khi cập nhật thông tin.");
+      setSuccessMessage("Đã xảy ra lỗi khi cập nhật thông tin.");
     }
   };
 
@@ -117,30 +109,30 @@ const Profile = () => {
   const handleChangePassword = async (e) => {
     e.preventDefault();
     const { currentPassword, newPassword, confirmNewPassword } = passwords;
-  
+
     setErrors({});
-  
+
     let validationErrors = {};
-  
+
     if (!currentPassword) {
       validationErrors.currentPassword = "Mật khẩu hiện tại là bắt buộc.";
     }
-  
+
     if (!newPassword) {
       validationErrors.newPassword = "Mật khẩu mới là bắt buộc.";
     } else if (newPassword.length < 6) {
       validationErrors.newPassword = "Mật khẩu mới phải có ít nhất 6 ký tự.";
     }
-  
+
     if (newPassword !== confirmNewPassword) {
       validationErrors.confirmNewPassword = "Mật khẩu xác nhận không khớp.";
     }
-  
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-  
+
     try {
       const userData = JSON.parse(localStorage.getItem("userData"));
       if (!userData || !userData.id) {
@@ -148,19 +140,22 @@ const Profile = () => {
           "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại."
         );
       }
-        await updatePassword(userData.id, passwords); 
-  
-      alert("Mật khẩu đã được thay đổi thành công.");
+      await updatePassword(userData.id, passwords);
+
+      setSuccessMessage("Mật khẩu đã được thay đổi thành công.");
       setShowChangePassword(false);
     } catch (error) {
       console.error("Error changing password:", error);
-      alert(
+      setSuccessMessage(
         error.response?.data?.message || "Đã xảy ra lỗi khi thay đổi mật khẩu."
       );
     }
   };
-  
-  
+
+  const handleModalClose = () => {
+    setSuccessMessage("");
+  };
+
   return (
     <div className="Profile">
       <div className="profile-container">
@@ -183,17 +178,16 @@ const Profile = () => {
                 {key === "name"
                   ? "Họ và tên :"
                   : key === "email"
-                    ? "Email :"
-                    : key === "phone"
-                      ? "Số điện thoại :"
-                      : ""}
+                  ? "Email :"
+                  : key === "phone"
+                  ? "Số điện thoại :"
+                  : ""}
               </label>
               {isEditing[key] ? (
                 <form
                   className={`edit-form ${isEditing[key] ? "open" : ""}`}
                   onSubmit={(e) => handleSave(key, e)}
                 >
-
                   <input
                     type="text"
                     value={value}
@@ -219,23 +213,8 @@ const Profile = () => {
                 </form>
               ) : (
                 <div className="info-item-actions">
-                  <span>
-                    {key === "matKhau"
-                      ? isPasswordVisible
-                        ? value
-                        : "********"
-                      : value}
-                  </span>
-                  {key === "matKhau" && (
-                    <button
-                      onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                    >
-                      {isPasswordVisible ? "Ẩn" : "Hiện"}
-                    </button>
-                  )}
-                  {key !== "matKhau" && (
-                    <button onClick={() => handleEditClick(key)}>Sửa</button>
-                  )}
+                  <span>{value}</span>
+                  <button onClick={() => handleEditClick(key)}>Sửa</button>
                 </div>
               )}
               {errors[key] && <span className="error-text">{errors[key]}</span>}
@@ -254,68 +233,69 @@ const Profile = () => {
             <form onSubmit={handleChangePassword}>
               <div className="change-password-form-checkin d-flex justify-content-between">
                 <label>Mật khẩu hiện tại:</label>
-                <div class="d-flex flex-column">
-                  <input
-                    className="Present-password"
-                    type="password"
-                    value={passwords.currentPassword}
-                    onChange={(e) =>
-                      setPasswords({
-                        ...passwords,
-                        currentPassword: e.target.value,
-                      })
-                    }
-                  />
-                  {errors.currentPassword && (
-                    <span className="error-text">{errors.currentPassword}</span>
-                  )}
-                </div>
+                <input
+                  className="Present-password"
+                  type="password"
+                  value={passwords.currentPassword}
+                  onChange={(e) =>
+                    setPasswords({
+                      ...passwords,
+                      currentPassword: e.target.value,
+                    })
+                  }
+                />
+                {errors.currentPassword && (
+                  <span className="error-text">{errors.currentPassword}</span>
+                )}
               </div>
               <div className="change-password-form-checkin d-flex justify-content-between">
                 <label>Mật khẩu mới:</label>
-                <div class="d-flex flex-column ">
-                  <input
-                    className="new-password"
-                    type="password"
-                    value={passwords.newPassword}
-                    onChange={(e) =>
-                      setPasswords({
-                        ...passwords,
-                        newPassword: e.target.value,
-                      })
-                    }
-                  />
-                  {errors.newPassword && (
-                    <span className="error-text">{errors.newPassword}</span>
-                  )}
-                </div>
+                <input
+                  className="Present-password"
+                  type="password"
+                  value={passwords.newPassword}
+                  onChange={(e) =>
+                    setPasswords({
+                      ...passwords,
+                      newPassword: e.target.value,
+                    })
+                  }
+                />
+                {errors.newPassword && (
+                  <span className="error-text">{errors.newPassword}</span>
+                )}
               </div>
               <div className="change-password-form-checkin d-flex justify-content-between">
                 <label>Xác nhận mật khẩu mới:</label>
-                <div class="d-flex flex-column mb-3">
-                  <input
-                    className="new-confirm-password"
-                    type="password"
-                    value={passwords.confirmNewPassword}
-                    onChange={(e) =>
-                      setPasswords({
-                        ...passwords,
-                        confirmNewPassword: e.target.value,
-                      })
-                    }
-                  />
-                  {errors.confirmNewPassword && (
-                    <span className="error-text">
-                      {errors.confirmNewPassword}
-                    </span>
-                  )}
-                </div>
+                <input
+                  className="Present-password"
+                  type="password"
+                  value={passwords.confirmNewPassword}
+                  onChange={(e) =>
+                    setPasswords({
+                      ...passwords,
+                      confirmNewPassword: e.target.value,
+                    })
+                  }
+                />
+                {errors.confirmNewPassword && (
+                  <span className="error-text">{errors.confirmNewPassword}</span>
+                )}
               </div>
-              <div className="form-button">
-                <button className="button-form-save" type="submit">
-                  Đổi mật khẩu
+              <div className="button-form">
+                <button
+                  type="submit"
+                  className="button-form-save"
+                  disabled={
+                    !passwords.currentPassword ||
+                    !passwords.newPassword ||
+                    !passwords.confirmNewPassword
+                  }
+                >
+                  Lưu mật khẩu
                 </button>
                 <button
+                  type="button"
                   className="button-form-cancel"
                   onClick={() => setShowChangePassword(false)}
                 >
@@ -326,6 +306,13 @@ const Profile = () => {
           </div>
         )}
       </div>
+
+      {successMessage && (
+        <SuccessModal
+          message={successMessage}
+          onClose={handleModalClose}
+        />
+      )}
     </div>
   );
 };

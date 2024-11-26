@@ -100,32 +100,6 @@ const Navbar = () => {
                     <li>
                       <Link to="/casio">Casio</Link>
                     </li>
-                    <li>
-                      {" "}
-                      <Link to="/orient">Orient</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/seiko">Seiko</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/citizen">Citizen</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/olympianus">Olympianus</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/bentley">Bentley</Link>
-                    </li>
-                    <li>
-                      <Link to="/bulova">Bulova</Link>
-                    </li>
-                    <li>
-                      <Link to="/daniel-wellington">Daniel Wellington</Link>
-                    </li>
                   </ul>
                 </div>
                 <div className="dropdown-section">
@@ -135,29 +109,6 @@ const Navbar = () => {
                     <li>
                       <Link to="/carnival">Carnival</Link>
                     </li>{" "}
-                    <li>
-                      {" "}
-                      <Link to="/calvin-klein">Calvin Klein</Link>
-                    </li>{" "}
-                    <li>
-                      {" "}
-                      <Link to="/boomest-gatti">Boomest Gatti</Link>
-                    </li>{" "}
-                    <li>
-                      {" "}
-                      <Link to="/daniel-klein">Daniel Klein</Link>
-                    </li>{" "}
-                    <li>
-                      {" "}
-                      <Link to="/free-look">Free Look</Link>
-                    </li>{" "}
-                    <li>
-                      <Link to="/seven-friday">SevenFriday</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/versace">Versace</Link>
-                    </li>
                   </ul>
                 </div>
                 <div className="dropdown-section">
@@ -167,37 +118,6 @@ const Navbar = () => {
                     <li>
                       {" "}
                       <Link to="/tissot">Tissot</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/frederique-constant">Frederique Constant</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/orient-star">Orient Star</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/longines">Longines</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/omega">Omega</Link>
-                    </li>
-                    <li>
-                      <Link to="/certina">Certina</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/ogival">Ogival</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/movado">Movado</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/maurice-lacroix">Maurice Lacroix</Link>
                     </li>
                   </ul>
                 </div>
@@ -209,34 +129,6 @@ const Navbar = () => {
                       {" "}
                       <Link to="/dai-da-tong-hop">Dây da tổng hợp</Link>
                     </li>
-                    <li>
-                      {" "}
-                      <Link to="/dai-kim-loai">Dây kim loại</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/co-automatic">Cơ (Automatic)</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/pin-quartz">Pin (Quartz)</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/dien-tu">Điện tử</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/nhat-ban">Nhật Bản</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/thuy-sy">Thụy Sỹ</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/luxury">Luxury (Cao cấp)</Link>
-                    </li>
                   </ul>
                 </div>
                 <div className="dropdown-section">
@@ -246,36 +138,6 @@ const Navbar = () => {
                     <li>
                       {" "}
                       <Link to="/quan-doi">Quân đội</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/cong-so">Công sở</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/couple">Cặp đôi</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/mat-vuong">Mặt vuông</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/giong-rolex">Giống Rolex</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/giong-hublot">Giống Hublot</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/giong-patek-philippe">
-                        Giống Patek Philippe
-                      </Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/giong-richard-mille">Giống Richard Mille</Link>
                     </li>
                   </ul>
                 </div>
@@ -302,28 +164,6 @@ const Navbar = () => {
                       {" "}
                       <Link to="/products?price=under-1m">Dưới 1 triệu</Link>
                     </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?price=1m-3m">
-                        Từ 1 triệu - 3 triệu
-                      </Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?price=3m-6m">
-                        Từ 3 triệu - 6 triệu
-                      </Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?price=6m-9m">
-                        Từ 6 triệu - 9 triệu
-                      </Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?price=above-9m">Trên 9 triệu</Link>
-                    </li>
                   </ul>
                 </div>
                 <div className="dropdown-section">
@@ -333,29 +173,6 @@ const Navbar = () => {
                     <li>
                       <Link to="/products?brand=casio">Casio</Link>
                     </li>
-                    <li>
-                      <Link to="/products?brand=orient">Orient</Link>
-                    </li>
-                    <li>
-                      <Link to="/products?brand=seiko">Seiko</Link>
-                    </li>
-                    <li>
-                      <Link to="/products?brand=citizen">Citizen</Link>
-                    </li>
-                    <li>
-                      <Link to="/products?brand=olympianus">Olympianus</Link>
-                    </li>
-                    <li>
-                      <Link to="/products?brand=bentley">Bentley</Link>
-                    </li>
-                    <li>
-                      <Link to="/products?brand=frederiqueconstant">
-                        Frederique Constant
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/products?brand=tissot">Tissot</Link>
-                    </li>
                   </ul>
                 </div>
                 <div className="dropdown-section">
@@ -364,15 +181,6 @@ const Navbar = () => {
                   <ul>
                     <li>
                       <Link to="/products?strap=metal">Dây kim loại</Link>
-                    </li>
-                    <li>
-                      <Link to="/products?strap=leather">Dây da tổng hợp</Link>
-                    </li>
-                    <li>
-                      <Link to="/products?strap=plastic">Dây nhựa</Link>
-                    </li>
-                    <li>
-                      <Link to="/products?strap=rubber">Dây cao su</Link>
                     </li>
                   </ul>
                 </div>
@@ -386,16 +194,6 @@ const Navbar = () => {
                         Cơ (Automatic)
                       </Link>
                     </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?movement=quartz">Pin (Quartz)</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?movement=solar">
-                        Năng lượng ánh sáng
-                      </Link>
-                    </li>
                   </ul>
                 </div>
                 <div className="dropdown-section">
@@ -407,31 +205,6 @@ const Navbar = () => {
                       <Link to="/products?special=rolex-style">
                         Giống Rolex
                       </Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?special=hublot-style">
-                        Giống Hublot
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/products?special=casio-ltp">Casio LTP</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?special=g-shock">G-Shock</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?special=baby-g">Baby-G</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?special=luxury">Sang chảnh</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?special=bracelet">Dây lắc</Link>
                     </li>
                   </ul>
                 </div>
@@ -456,28 +229,6 @@ const Navbar = () => {
                       {" "}
                       <Link to="/products?price=under-1m">Dưới 1 triệu</Link>
                     </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?price=1m-3m">
-                        Từ 1 triệu - 3 triệu
-                      </Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?price=3m-6m">
-                        Từ 3 triệu - 6 triệu
-                      </Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?price=6m-9m">
-                        Từ 6 triệu - 9 triệu
-                      </Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?price=above-9m">Trên 9 triệu</Link>
-                    </li>
                   </ul>
                 </div>
                 <div className="dropdown-section">
@@ -488,44 +239,6 @@ const Navbar = () => {
                       {" "}
                       <Link to="/products?brand=casio">Casio</Link>
                     </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?brand=orient">Orient</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?brand=seiko">Seiko</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?brand=citizen">Citizen</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?brand=olympianus">Olympianus</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?brand=bentley">Bentley</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?brand=frederiqueconstant">
-                        Frederique Constant
-                      </Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?brand=tissot">Tissot</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?brand=longines">Longines</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?brand=omega">Omega</Link>
-                    </li>
                   </ul>
                 </div>
                 <div className="dropdown-section">
@@ -535,18 +248,6 @@ const Navbar = () => {
                     <li>
                       {" "}
                       <Link to="/products?strap=metal">Dây kim loại</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?strap=leather">Dây da tổng hợp</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?strap=plastic">Dây nhựa</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?strap=rubber">Dây cao su</Link>
                     </li>
                   </ul>
                 </div>
@@ -560,16 +261,6 @@ const Navbar = () => {
                         Cơ (Automatic)
                       </Link>
                     </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?movement=quartz">Pin (Quartz)</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?movement=solar">
-                        Năng lượng ánh sáng
-                      </Link>
-                    </li>
                   </ul>
                 </div>
                 <div className="dropdown-section">
@@ -581,32 +272,6 @@ const Navbar = () => {
                       <Link to="/products?special=rolex-style">
                         Giống Rolex
                       </Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?special=hublot-style">
-                        Giống Hublot
-                      </Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?special=casio-ltp">Casio LTP</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?special=g-shock">G-Shock</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?special=baby-g">Baby-G</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?special=luxury">Sang chảnh</Link>
-                    </li>
-                    <li>
-                      {" "}
-                      <Link to="/products?special=bracelet">Dây lắc</Link>
                     </li>
                   </ul>
                 </div>

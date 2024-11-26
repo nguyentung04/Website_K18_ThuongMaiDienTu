@@ -68,28 +68,35 @@ exports.googleAuth = (req, res) => {
         avatar,
         username: name.replace(/\s+/g, '').toLowerCase(),
         password: 'google_user_password',
+        role: 'user', // Thêm role
+        status: '1',  // Thêm status
       };
 
       connection.query("INSERT INTO users SET ?", newUser, (insertErr, result) => {
         if (insertErr) {
-          return res.status(500).json({ error: "Lỗi thêm người dùng Google" });
+          return res.status(500).json({ error: "Lỗi khi thêm người dùng" });
         }
+
         newUser.id = result.insertId;
-        user = newUser;
-        const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(200).json({
-          token,
-          user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar }
-        });
+        const token = jwt.sign({ 
+          id: newUser.id, 
+          username: newUser.username,
+          email: newUser.email,
+          role: newUser.role 
+        }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        
+        return res.redirect(`http://localhost:3001?token=${token}`);
       });
-
+    } else {
+      const token = jwt.sign({ 
+        id: user.id, 
+        username: user.username,
+        email: user.email,
+        role: user.role 
+      }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      
+      return res.redirect(`http://localhost:3001?token=${token}`);
     }
-
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.status(200).json({
-      token,
-      user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar }
-    });
   });
 };
 

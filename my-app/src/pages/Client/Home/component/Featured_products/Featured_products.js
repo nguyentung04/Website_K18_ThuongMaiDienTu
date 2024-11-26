@@ -346,38 +346,59 @@ const FeaturedProducts = () => {
             <SwiperSlide>Loading...</SwiperSlide>
           ) : (
             featuredProducts.map((product) => (
-              <SwiperSlide key={product.id} style={{ display: "flex" }}>
-                <div className="product-box h-100 bg-gray relative">
-                  <button
-                    className="like-icon"
-                    onClick={() => toggleLike(product.id)}
-                  >
-                    <HeartIcon
-                      size="24px"
-                      color={likedProducts.includes(product.id) ? "#b29c6e" : "white"}
-                    />
-                  </button>
-                  <button
-                    className="add-to-cart-icon"
-                    onClick={() => addToCart(product)}
-                    disabled={isAddingToCart}
-                  >
-                    {isAddingToCart ? "Đang thêm..." : <FaShoppingCart size="25" color="white" />}
-                  </button>
-               
-                  <a href={`/product/${product.id}`} className="plain">
-                    <div className="product-image">
-                      <img
-                        src={`${BASE_URL}/uploads/products/${product.images}`}
-                        alt={product.name}
-                      />
+              <SwiperSlide className="swiper-wrappe" key={product.id} style={{ display: "flex" }}>
+                <div className="swiper-slide swiper-slide-active">
+                    <div className="product-box h-100 bg-gray relative">
+                      <button
+                        className="like-icon"
+                        onClick={() => toggleLike(product.id)}
+                      >
+                        <HeartIcon
+                          size="24px"
+                          color={
+                            likedProducts.includes(product.id)
+                              ? "#b29c6e"
+                              : "white"
+                          }
+                        />
+                        {/* <span>{likeCounts[product.id] || 0}</span> */}
+                      </button>
+                      <button
+                        className="add-to-cart-icon"
+                        onClick={(e) => handleAddToCartAndOpenModal(e, product)}
+                        disabled={isAddingToCart}
+                      >
+                        {isAddingToCart ? (
+                          "Đang thêm..."
+                        ) : (
+                          <FaShoppingCart
+                            size="25"
+                            style={{
+                              color: "white",
+                              stroke: "#b29c6e",
+                              strokeWidth: 42,
+                            }}
+                          />
+                        )}
+                      </button>
+                      <div className="product-box">
+                        <a href={`/product/${product.id}`} className="plain">
+                          <div className="product-image">
+                            <img
+                              src={`${BASE_URL}/uploads/products/${product.images}`}
+                              alt={product.name}
+                            />
+                          </div>
+                          <div className="product-info">
+                            <p className="product-title">{product.name}</p>
+                            <p className="product-price">
+                              {formatPrice(product.price)}
+                            </p>
+                          </div>
+                        </a>
+                      </div>
                     </div>
-                    <div className="product-info">
-                      <p className="product-title">{product.name}</p>
-                      <p className="product-price">{formatPrice(product.price)}</p>
-                    </div>
-                  </a>
-                </div>
+                  </div>
               </SwiperSlide>
             ))
           )}

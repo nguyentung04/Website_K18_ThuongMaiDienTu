@@ -18,7 +18,7 @@ import {
   useToast, // Import useToast from Chakra UI
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { fetchOrders, deleteOrder } from "../../../../service/api/orders"; // Import service functions
+import { fetchOrdersPaid, deleteOrder } from "../../../../service/api/orders"; // Import service functions
 
 const PaidTable = () => {
   const [orders, setOrders] = useState([]);
@@ -32,7 +32,7 @@ const PaidTable = () => {
   useEffect(() => {
     const getOrders = async () => {
       try {
-        const fetchedData = await fetchOrders();
+        const fetchedData = await fetchOrdersPaid();
         if (fetchedData) {
           setOrders(fetchedData);
         }
@@ -90,6 +90,7 @@ const PaidTable = () => {
             <Th>Tên người nhận</Th>
             <Th>Địa chỉ</Th>
             <Th>Tỉnh</Th>
+            <Th>trạng thái</Th>
             <Th>Quận/Huyện</Th>
             <Th>Phương thức thanh toán</Th>
             <Th>Chi tiết</Th>
@@ -100,10 +101,11 @@ const PaidTable = () => {
           {orders.map((order, index) => (
             <Tr key={order.id} _hover={{ bg: hoverBgColor }}>
               <Td fontWeight="bold">{index + 1}</Td>
-              <Td>{order.users}</Td>
-              <Td>{order.total_amount}</Td>
-              <Td>{order.status}</Td>
+              <Td>{order.name}</Td>
               <Td>{order.shipping_address}</Td>
+              <Td>{order.Districts}</Td>
+              <Td>{order.Provinces}</Td> 
+              <Td>{order.status}</Td>
               <Td>{order.payment_method}</Td>
               <Td>
                 <Link to={`order_items/${order.id}`}>

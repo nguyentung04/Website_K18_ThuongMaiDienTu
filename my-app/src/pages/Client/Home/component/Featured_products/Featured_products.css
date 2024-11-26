@@ -38,7 +38,6 @@
 
 
 
-
 /* =========================================================== sản phẩm ============================ */
 .FeaturedProducts .swiper-wrappe {
   position: relative;
@@ -51,6 +50,9 @@
   box-sizing: content-box;
 }
 
+.FeaturedProducts .swiper-wrappe:hover .add-to-cart-icon {
+  opacity: 2;
+}
 
 .FeaturedProducts .product-list {
 
@@ -114,9 +116,6 @@
 
 .FeaturedProducts .plain:hover img {
   transform: scale(1.05);
-  /* Slight zoom effect */
-  /* pointer-events: none; */
-  /* Vô hiệu hóa hover của thẻ con khi thẻ cha được hover */
 }
 
 
@@ -132,9 +131,8 @@
   padding: 20px;
 }
 
-.FeaturedProducts .product-price,
-.product-title,
-.product-discount-price {
+.FeaturedProducts .product-price,.product-title,
+.discount-price {
   font-size: 1.1rem;
   color: #df5454;
   margin: 0.5rem 0;
@@ -146,9 +144,9 @@
   color: gray;
 }
 
-.FeaturedProducts .product-price .product-discount-price {
+.FeaturedProducts .product-price .discount-price {
   font-weight: bold;
-  color: #a60101;
+  color: #df5454;
 }
 
 /* ===================================================================================================== */

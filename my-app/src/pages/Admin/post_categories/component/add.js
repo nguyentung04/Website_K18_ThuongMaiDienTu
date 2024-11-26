@@ -5,10 +5,10 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Heading,
   useToast,
   useColorModeValue,
   FormErrorMessage,
+  Heading,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { addPost_categories } from "../../../../service/api/post_categories"; // Ensure this API function works
@@ -49,7 +49,7 @@ const AddCategoryPage = () => {
       });
       navigate("/admin/post_categories");
     } catch (error) {
-      console.error("Không thêm được danh mục:", error);
+      console.error("Không thêm được Tỉnh:", error);
       toast({
         title: "Lỗi khi thêm danh mục.",
         description: "Không thêm được danh mục.",

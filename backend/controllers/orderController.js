@@ -1,3 +1,4 @@
+
 const connection = require("../config/database");
 
 //Minh Canh
@@ -288,6 +289,9 @@ exports.PostOrders = (req, res) => {
 
       // Kiểm tra log để đảm bảo dữ liệu order_detail chính xác
       console.log("Order Details:", orderDetailValues);
+
+      // Kiểm tra log để đảm bảo dữ liệu order_detail chính xác
+      console.log('Order Details:', orderDetailValues);
 
       connection.query(orderDetailSql, [orderDetailValues], (err) => {
         if (err) {

@@ -68,8 +68,8 @@ exports.googleAuth = (req, res) => {
         avatar,
         username: name.replace(/\s+/g, '').toLowerCase(),
         password: 'google_user_password',
-        role: 'user', // Thêm role
-        status: '1',  // Thêm status
+        role: 'user',
+        status: '1',  
       };
 
       connection.query("INSERT INTO users SET ?", newUser, (insertErr, result) => {

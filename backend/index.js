@@ -7,6 +7,8 @@ const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const axios = require('axios');
 
 require("./config/passport");
 
@@ -110,7 +112,7 @@ app.use("/api", order_itemsRoutes);
 app.use("/api", cart);
 
 app.listen(port, () => {
-  console.log(`Server đã khởi chạy trên cổng ${port}`);
+  console.log(`Server is running on port ${port}`);
 });
 
 app.use(express.json());
@@ -124,7 +126,7 @@ app.post("/payment", async (req, res) => {
   //parameters
 
   var orderInfo = "pay with MoMo";
-  var partnerCode = "MOMO";
+  var partnerCode = "MOMO"; 
   var redirectUrl = "http://localhost:3001/";
   var ipnUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
   var requestType = "payWithMethod";

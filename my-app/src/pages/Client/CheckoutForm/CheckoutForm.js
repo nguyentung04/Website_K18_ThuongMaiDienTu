@@ -85,14 +85,14 @@ const CheckoutForm = () => {
       if (!token) {
         throw new Error("Không tìm thấy token. Vui lòng đăng nhập lại.");
       }
-  
+
       // Gửi yêu cầu DELETE với user_id trong URL
       await axios.delete(`${BASE_URL}/api/cart_user_id/${user_id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       toast({
         title: "Thành công!",
         description: "Giỏ hàng đã được xóa.",
@@ -111,8 +111,7 @@ const CheckoutForm = () => {
       });
     }
   };
-  
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -134,70 +133,59 @@ const CheckoutForm = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!validateForm()) return;
-  
+
     setIsSubmitting(true);
     try {
-      if (cart.length === 0) {
-        toast({
-          title: "Giỏ hàng trống.",
-          description: "Không thể đặt hàng khi giỏ hàng trống.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-        return;
-      }
-  
       const totalAmount = cart.reduce(
         (total, item) => total + item.total_quantity * item.total_price,
         0
       );
+
+      if (formData.paymentMethod === "momo") {
+        const momoResponse = await axios.post(`${BASE_URL}/payment`, {
+          amount: totalAmount,
+          orderInfo: `Thanh toán đơn hàng: ${new Date().toLocaleString()}`,
+          product_id: cart.map((item) => item.product_id),
+        });
+
+        if (momoResponse.data?.payUrl) {
+          window.location.href = momoResponse.data.payUrl;
+        } else {
+          throw new Error("Không thể tạo giao dịch thanh toán bằng MoMo.");
+        }
+      } else {
+        // Đặt hàng COD hoặc cập nhật đơn hàng
+        const endpoint =
   
-      const orderItems = cart.map((item) => ({
-        product_id: item.product_id,
-        total_quantity: item.total_quantity,
-        total_price: parseFloat(item.total_price),
-        total: parseFloat(item.total_price) * item.total_quantity,
-      }));
-  
-      const orderData = {
-        ...formData,
-        Provinces: formData.city,
-        Districts: formData.province,
-        order_detail: orderItems,
-        user_id: user?.id,
-        total_amount: totalAmount,
-      };
-  
-      console.log("Order Data:", orderData);
-  
-      const response = await axios.post(`${BASE_URL}/api/orders`, orderData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-  
-      if (response.data.message === "Đặt hàng thành công!") {
-        // Xóa giỏ hàng sau khi đặt hàng thành công
-        await clearCart(user.id);
-        localStorage.removeItem("cart");
-        setCart([]); // Cập nhật lại giỏ hàng trong state
-  
+           `${BASE_URL}/api/orders`;
+        const method =  "POST";
+
+        const response = await axios({
+          url: endpoint,
+          method,
+          data: {
+            ...formData,
+            orderItems: cart,
+            total_amount: totalAmount,
+          },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+
         toast({
           title: "Thành công!",
-          description: "Đơn hàng đã được đặt.",
+          description: response.data.message || "Đơn hàng đã được xử lý.",
           status: "success",
           duration: 5000,
           isClosable: true,
         });
-  
-        navigate("/"); // Chuyển về trang chính
-      } else {
-        throw new Error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.");
+
+        navigate("/");
       }
     } catch (error) {
       console.error("Lỗi khi đặt hàng:", error);
@@ -212,9 +200,46 @@ const CheckoutForm = () => {
       setIsSubmitting(false);
     }
   };
-  
-  
-  
+
+  const placeOrder = async (totalAmount) => {
+    const orderItems = cart.map((item) => ({
+      product_id: item.product_id,
+      total_quantity: item.total_quantity,
+      total_price: parseFloat(item.total_price),
+      total: parseFloat(item.total_price) * item.total_quantity,
+    }));
+
+    const orderData = {
+      ...formData,
+      Provinces: formData.city,
+      Districts: formData.province,
+      order_detail: orderItems,
+      user_id: user?.id,
+      total_amount: totalAmount,
+    };
+
+    const response = await axios.post(`${BASE_URL}/api/orders`, orderData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    if (response.data.message === "Đặt hàng thành công!") {
+      await clearCart(user.id);
+      localStorage.removeItem("cart");
+      setCart([]);
+      toast({
+        title: "Thành công!",
+        description: "Đơn hàng đã được đặt.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate("/");
+    } else {
+      throw new Error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.");
+    }
+  };
 
   return (
     <div className="checkout-form">
@@ -287,7 +312,6 @@ const CheckoutForm = () => {
             />
             <FormErrorMessage>{errors.address}</FormErrorMessage>
           </FormControl>
-
           <FormControl mb={3} isInvalid={errors.paymentMethod}>
             <FormLabel htmlFor="paymentMethod">
               Phương thức thanh toán
@@ -301,7 +325,7 @@ const CheckoutForm = () => {
               onChange={handleChange}
             >
               <option value="COD">Thanh toán khi nhận hàng</option>
-              <option value="Bank Transfer">Chuyển khoản ngân hàng</option>
+              <option value="momo">Chuyển khoản MoMo</option>
             </Select>
             <FormErrorMessage>{errors.paymentMethod}</FormErrorMessage>
           </FormControl>

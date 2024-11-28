@@ -98,6 +98,8 @@ exports.getAllorder_items = (req, res) => {
     res.status(200).json(results);
   });
 };
+
+
 exports.orderByName = (req, res) => {
   const { name } = req.params; // Lấy giá trị từ tham số URL
 

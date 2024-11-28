@@ -174,13 +174,8 @@ const FeaturedProducts = () => {
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
-  // const handleAddToCartAndOpenModal = (e, product) => {
 
-  //   e.stopPropagation();
-  //   addToCart(product);
-  //   handleOpenModal(product);
-  // };
-
+  // ================================================ hàm thêm sản phẩm vào giỏ hàng ======================================================
   const handleAddToCartAndOpenModal = async (e, product) => {
     e.stopPropagation();
 
@@ -189,33 +184,6 @@ const FeaturedProducts = () => {
     await addToCart(product);
     // handleOpenModal(product);
   };
-
-  // const addToCart = (product) => {
-  //   if (product) {
-  //     const details = {
-  //       id: product.id,
-  //       name: product.name,
-  //       price: product.price,
-  //       description: product.description,
-  //       image: product.image,
-  //       quantity: quantity,
-  //     };
-
-  //     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  //     const existingProductIndex = cart.findIndex(
-  //       (item) => item.id === product.id
-  //     );
-
-  //     if (existingProductIndex !== -1) {
-  //       cart[existingProductIndex].quantity += quantity;
-  //     } else {
-  //       cart.push(details);
-  //     }
-
-  //     localStorage.setItem("cart", JSON.stringify(cart));
-  //   }
-  // };
-
 
   const addToCart = async (product) => {
     if (!userData || !userData.id) {

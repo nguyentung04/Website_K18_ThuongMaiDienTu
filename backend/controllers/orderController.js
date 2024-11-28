@@ -41,7 +41,7 @@ exports.orderByName = (req, res) => {
   );
 };
 
-// Lấy toàn bộ đơn hàng theo  id người dùng 
+// Lấy toàn bộ đơn hàng theo  id người dùng
 exports.orderByName1 = (req, res) => {
   const { id } = req.params;
 
@@ -67,14 +67,11 @@ exports.orderByName1 = (req, res) => {
   );
 };
 
-
 // Lấy toàn bộ đơn hàng theo trạng thái đã thanh toán
 exports.orderByStatusPaid = (req, res) => {
-
-
   connection.query(
     `SELECT o.*, od.* , u.name AS name , p.name AS pr_name FROM orders o JOIN order_items od ON o.id = od.order_id JOIN users u ON u.id = o.user_id JOIN products p ON p.id = od.product_id WHERE o.status = "pending"`,
-   
+
     (err, results) => {
       if (err) {
         return res
@@ -145,7 +142,6 @@ exports.orderDetail = (req, res) => {
     }
   );
 };
-
 
 // Lấy đơn hàng theo ID
 // exports.getOrderById = (req, res) => {
@@ -221,29 +217,36 @@ exports.deleteOrder = (req, res) => {
 exports.PostOrders = (req, res) => {
   const {
     total_amount,
-
-    address,
+    orderCode,
+    shipping_address,
     Provinces,
     Districts,
     paymentMethod,
-    order_detail,
+    orderItems,
     user_id, // Thêm user_id vào đây
   } = req.body;
 
   // Kiểm tra log để đảm bảo user_id được truyền vào
   console.log("User ID:", user_id);
 
-  if (!total_amount || !address || !paymentMethod || !order_detail || !user_id) {
+  if (
+    !orderCode ||
+    !total_amount ||
+    !shipping_address ||
+    !paymentMethod ||
+    !orderItems ||
+    !user_id
+  ) {
     console.error("Thiếu thông tin cần thiết:", {
+      orderCode,
       total_amount,
-      address,
+      shipping_address,
       paymentMethod,
-      order_detail,
+      orderItems,
       user_id,
     });
     return res.status(400).json({ error: "Thiếu thông tin cần thiết" });
   }
-  
 
   // Bắt đầu giao dịch để đảm bảo toàn vẹn dữ liệu
   connection.beginTransaction((err) => {
@@ -253,17 +256,16 @@ exports.PostOrders = (req, res) => {
 
     // Thêm đơn hàng vào bảng orders (không bao gồm user_id)
     const sql =
-    "INSERT INTO orders (user_id, shipping_address, Provinces, Districts, total_amount, payment_method) VALUES (?, ?, ?, ?, ?, ?)";
-  const values = [
-    user_id,
-    address,
-    Provinces || null,
-    Districts || null,
-    total_amount,
-    paymentMethod,
-  ];
-  
-
+      "INSERT INTO orders (orderCode,user_id, shipping_address, Provinces, Districts, total_amount, payment_method) VALUES (?,?, ?, ?, ?, ?, ?)";
+    const values = [
+      orderCode,
+      user_id,
+      shipping_address,
+      Provinces || null,
+      Districts || null,
+      total_amount,
+      paymentMethod,
+    ];
 
     connection.query(sql, values, (err, results) => {
       if (err) {
@@ -277,14 +279,16 @@ exports.PostOrders = (req, res) => {
 
       // Chèn vào bảng order_detail và thêm user_id
       const orderDetailSql =
-      "INSERT INTO order_items (	order_id	, product_id, total_quantity, total_price) VALUES ?";
-    const orderDetailValues = order_detail.map((item) => [
-      orderId,
-      item.product_id,
-      item.total_quantity,
-      item.total_price,
-    ]);
-    
+        "INSERT INTO order_items (	order_id	, product_id, total_quantity, total_price) VALUES ?";
+      const orderDetailValues = orderItems.map((item) => [
+        orderId,
+        item.product_id,
+        item.total_quantity,
+        item.total_price,
+      ]);
+
+      // Kiểm tra log để đảm bảo dữ liệu order_detail chính xác
+      console.log("Order Details:", orderDetailValues);
 
       // Kiểm tra log để đảm bảo dữ liệu order_detail chính xác
       console.log("Order Details:", orderDetailValues);

@@ -344,3 +344,18 @@
     transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
     width: 500px;
 }
+
+.save-address-button {
+    background-color: #4caf50;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-left: 10px;
+  }
+  
+  .save-address-button:hover {
+    background-color: #45a049;
+  }
+  

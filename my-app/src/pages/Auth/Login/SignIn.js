@@ -42,32 +42,25 @@ const SignIn = () => {
     const googleToken = urlParams.get('token');
 
     if (googleToken) {
-      try {
-        const base64Url = googleToken.split('.')[1];
-        const base64 = base64Url.replace('-', '+').replace('_', '/');
-        const userInfo = JSON.parse(window.atob(base64));
-
-        localStorage.setItem('token', googleToken);
-        localStorage.setItem('username', userInfo.username);
-        localStorage.setItem('userData', JSON.stringify({
-          id: userInfo.id,
-          username: userInfo.username,
-          email: userInfo.email,
-          role: userInfo.role
-        }));
-
-        setShowSuccessModal(true);
-        
-        setTimeout(() => {
-          navigate('/');
-          window.history.replaceState({}, document.title, "/signin");
-        }, 2000);
-      } catch (decodeError) {
-        console.error('Lỗi giải mã token:', decodeError);
-        setError('Đã xảy ra lỗi khi xác thực');
-        setShowErrorModal(true);
-      }
+      const base64Url = googleToken.split('.')[1];
+      const base64 = base64Url.replace('-', '+').replace('_', '/');
+      const decoded = JSON.parse(window.atob(base64));
+      const userData = {
+        id: decoded.sub,
+        name: decoded.name,
+        email: decoded.email,
+        username: decoded.given_name,
+        avatar: decoded.picture || 'default-avatar.png',
+      };
+    
+      // Lưu thông tin người dùng vào localStorage
+      localStorage.setItem('token', googleToken);
+      localStorage.setItem('userData', JSON.stringify(userData));
+    
+      // Điều hướng sau khi đăng nhập thành công
+      navigate('/');
     }
+    
   }, [navigate]);
 
   // Xử lý đăng nhập bằng Google
@@ -78,11 +71,11 @@ const SignIn = () => {
   // Validate form
   const validateForm = () => {
     const errors = {};
-    
+
     if (!username.trim()) {
       errors.username = 'Vui lòng nhập tên đăng nhập';
     }
-    
+
     if (!password.trim()) {
       errors.password = 'Vui lòng nhập mật khẩu';
     }
@@ -98,7 +91,7 @@ const SignIn = () => {
   // Đăng nhập bằng tài khoản thông thường
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // Kiểm tra kết nối mạng
     if (!navigator.onLine) {
       setError('Không có kết nối mạng. Vui lòng kiểm tra lại.');
@@ -131,30 +124,26 @@ const SignIn = () => {
       },
       body: JSON.stringify({ username, password }),
     })
-    .then(response => {
-      setIsLoading(false);
-      if (!response.ok) throw new Error('Đăng nhập không thành công');
-      return response.json();
-    })
-    .then(data => {
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('username', username);
-        localStorage.setItem('userData', JSON.stringify(data.user)); 
-        
-        setShowSuccessModal(true);
-        setTimeout(() => navigate('/'), 2000);
-      } else {
-        setError(data.message || 'Đăng nhập thất bại');
+      .then(response => response.json())
+      .then(data => {
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('username', username);
+          localStorage.setItem('userData', JSON.stringify(data.user));
+          console.log(localStorage.getItem("userData"));
+          setShowSuccessModal(true);
+          setTimeout(() => navigate('/'), 2000);  // Điều hướng đến trang profile
+        } else {
+          setError(data.message || 'Đăng nhập thất bại');
+          setShowErrorModal(true);
+        }
+      })
+      .catch(error => {
+        setIsLoading(false);
+        setError('Tên đăng nhập hoặc mật khẩu không đúng');
         setShowErrorModal(true);
-      }
-    })
-    .catch(error => {
-      setIsLoading(false);
-      setError('Tên đăng nhập hoặc mật khẩu không đúng');
-      setShowErrorModal(true);
-      console.error('Lỗi đăng nhập:', error);
-    });
+        console.error('Lỗi đăng nhập:', error);
+      });    
   };
 
   // Xử lý load tên đăng nhập đã ghi nhớ
@@ -183,7 +172,7 @@ const SignIn = () => {
                 value={username}
                 onChange={(e) => {
                   setUsername(e.target.value);
-                  setErrorDetails(prev => ({...prev, username: ''}));
+                  setErrorDetails(prev => ({ ...prev, username: '' }));
                 }}
                 required
               />
@@ -200,7 +189,7 @@ const SignIn = () => {
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
-                  setErrorDetails(prev => ({...prev, password: ''}));
+                  setErrorDetails(prev => ({ ...prev, password: '' }));
                 }}
                 required
               />
@@ -219,8 +208,8 @@ const SignIn = () => {
               <label htmlFor="rememberMe">Ghi nhớ đăng nhập</label>
             </div>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="btn-submit mb-3"
               disabled={isLoading}
             >
@@ -228,8 +217,8 @@ const SignIn = () => {
             </button>
           </form>
 
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="btn-submit google-login"
             onClick={handleGoogleLogin}
             disabled={isLoading}

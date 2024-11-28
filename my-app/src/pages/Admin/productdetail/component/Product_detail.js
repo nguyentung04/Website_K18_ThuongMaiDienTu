@@ -20,15 +20,16 @@ import {
 } from "../../../../service/api/product_detail";
 
 const ProductDetails = () => {
-  const [product, setProduct] = useState([]); // Lưu danh sách sản phẩm
-  const { id } = useParams(); // Lấy ID sản phẩm từ URL
+  const [product, setProduct] = useState([]);
+  const { id } = useParams();
   const toast = useToast();
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState(""); // Chuỗi tìm kiếm
-  const [suggestions, setSuggestions] = useState([]); // Gợi ý sản phẩm
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  // Lấy dữ liệu chi tiết sản phẩm
   const getProductDetails = useCallback(async () => {
     try {
       const data = id
@@ -47,46 +48,40 @@ const ProductDetails = () => {
     }
   }, [id, toast]);
 
-  // Lấy dữ liệu khi component mount
   useEffect(() => {
     getProductDetails();
   }, [getProductDetails]);
 
-  // Xử lý khi không có dữ liệu
-  if (product.length === 0) {
-    return <Text>Loading hoặc không có sản phẩm!</Text>;
-  }
-
-  // Xử lý tìm kiếm sản phẩm
   const handleInputChange = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-
-    // Lọc sản phẩm dựa trên tên
     const filteredSuggestions = query
       ? product.filter((item) =>
-        product.name.toLowerCase().includes(query)
-      )
+          item.name.toLowerCase().includes(query)
+        )
       : [];
     setSuggestions(filteredSuggestions);
   };
 
-  // Khi chọn một gợi ý
   const handleSuggestionClick = (suggestion) => {
     setSearchQuery(suggestion.name);
     navigate(`/admin/productsdetail/${suggestion.product_id}`);
     setSuggestions([]);
   };
 
-  // Lọc sản phẩm theo chuỗi tìm kiếm
-  const filteredProducts = product.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProducts = product.filter((p) =>
+    p.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
   return (
     <Box className="product-details" w="100%">
       <Flex w="100%" flexDirection="column">
-        {/* Tiêu đề và nút thêm sản phẩm */}
         <Box w="100%" mb={4}>
           <Flex justifyContent="space-between" alignItems="center">
             <Text as="h2" fontSize="2xl">
@@ -100,7 +95,6 @@ const ProductDetails = () => {
           </Flex>
         </Box>
 
-        {/* Thanh tìm kiếm */}
         <Flex align="center" mb={4}>
           <Input
             placeholder="Tìm kiếm sản phẩm..."
@@ -136,8 +130,7 @@ const ProductDetails = () => {
           )}
         </Flex>
 
-        {/* Danh sách sản phẩm */}
-        {filteredProducts.map((product) => (
+        {currentProducts.map((product) => (
           <Flex
             key={product.product_id}
             _hover={{ bg: hoverBgColor }}
@@ -160,30 +153,34 @@ const ProductDetails = () => {
                 <Text fontWeight="bold">Mô tả: {product.description}</Text>
               </Box>
               <Box>
-                <Text fontWeight="bold">Giá: {product.price.toLocaleString("vi-VN", { style: "currency", currency: "VND" } )}</Text>
+                <Text fontWeight="bold">Giá: {product.price.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</Text>
                 <Text fontWeight="bold">Loại: {product.category}</Text>
-                <Text fontWeight="bold">Giới tính: {product.gender}</Text>
-                <Text fontWeight="bold">Màu sắc: {product.color}</Text>
-                <Text>{product.color}</Text>
               </Box>
             </Grid>
             <Link to={`/admin/productsdetail/edit/${product.product_id}`}>
-              <Button
-                colorScheme="blue"
-                size="sm"
-                ml={4}
-                fontWeight="bold"
-                fontSize={14}
-                w={100}
-              >
+              <Button colorScheme="blue" size="sm" ml={4} fontWeight="bold">
                 Sửa
               </Button>
             </Link>
           </Flex>
         ))}
+
+        <Flex justifyContent="center" mt={4}>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <Button
+              key={i + 1}
+              onClick={() => setCurrentPage(i + 1)}
+              colorScheme={currentPage === i + 1 ? "teal" : "gray"}
+              mx={1}
+            >
+              {i + 1}
+            </Button>
+          ))}
+        </Flex>
       </Flex>
     </Box>
   );
 };
 
 export default ProductDetails;
+

@@ -31,31 +31,76 @@ const Profile = () => {
   const [successMessage, setSuccessMessage] = useState(""); // Thêm state để quản lý modal
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
+  const isTokenExpired = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace('-', '+').replace('_', '/');
+      const decoded = JSON.parse(window.atob(base64));
+      console.log(decoded); // Kiểm tra toàn bộ dữ liệu trả về từ Google
+      return decoded.exp * 1000 < Date.now();
+    } catch (error) {
+      return true; // Nếu có lỗi khi giải mã token, coi như token hết hạn
+    }
+  };
 
-    if (userData) {
-      setValues({
-        name: userData.name || "",
-        email: userData.email || "",
-        phone: userData.phone || "",
-        avatar: userData.avatar || "https://via.placeholder.com/150",
-      });
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = JSON.parse(localStorage.getItem('userData'));
+
+    // Kiểm tra token và xử lý thông tin người dùng
+    if (token && !isTokenExpired(token)) {
+      if (!userData) {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace('-', '+').replace('_', '/');
+        const decoded = JSON.parse(window.atob(base64));
+
+        // Chắc chắn rằng các thông tin được lấy chính xác
+        const newUserData = {
+          id: decoded.id,          
+          name: decoded.name,       
+          email: decoded.email,     
+          phone: decoded.phone,   
+          google_id: decoded.google_id, // Thêm google_id vào
+        };
+        
+        // Lưu lại thông tin người dùng vào localStorage
+        localStorage.setItem('userData', JSON.stringify(newUserData));
+        
+        // Lấy lại thông tin người dùng từ localStorage
+        const storedData = JSON.parse(localStorage.getItem('userData'));        
+        storedData.name = decodeURIComponent(storedData.name);  // Giải mã tên nếu cần
+        setValues({
+          name: newUserData.name || '',
+          email: newUserData.email || '',
+          phone: newUserData.phone || '', // Đảm bảo là có phone nếu cần
+          avatar: newUserData.avatar || 'https://via.placeholder.com/150',
+        });
+      } else {
+        setValues({
+          name: userData.name || '',
+          email: userData.email || '',
+          phone: userData.phone || '', // Đảm bảo là có phone nếu cần
+          avatar: userData.avatar || 'https://via.placeholder.com/150',
+        });
+      }
     } else {
-      navigate("/signin");
+      navigate('/signin');
     }
   }, [navigate]);
+
+
+
 
   const validateField = (field, value) => {
     let error = "";
     if (!value) {
-      error = `${
-        field === "name"
+      error = `${field === "name"
           ? "Họ tên"
           : field === "email"
-          ? "Email"
-          : "Số điện thoại"
-      } là bắt buộc.`;
+            ? "Email"
+            : "Số điện thoại"
+        } là bắt buộc.`;
     } else if (field === "email" && !/\S+@\S+\.\S+/.test(value)) {
       error = "Email không hợp lệ.";
     } else if (field === "phone" && !/^\d{10}$/.test(value)) {
@@ -161,15 +206,16 @@ const Profile = () => {
       <div className="profile-container">
         <div className="profile-container1">
           <img src={values.avatar} alt="Avatar" className="avatar" />
-          <h3>{values.name}</h3>
-          <p>{values.email}</p>
+          {/* <h3>{values.name}</h3> */}
+          {/* <p>{values.email}</p> */}
         </div>
-        <button className="logout-button" onClick={() => navigate("/login")}>
+        {/* <button className="logout-button" onClick={() => navigate("/login")}>
           Đăng xuất
-        </button>
+        </button> */}
       </div>
 
       <div className="personal-info">
+        
         {Object.entries(values)
           .filter(([key]) => key !== "avatar")
           .map(([key, value]) => (
@@ -178,10 +224,10 @@ const Profile = () => {
                 {key === "name"
                   ? "Họ và tên :"
                   : key === "email"
-                  ? "Email :"
-                  : key === "phone"
-                  ? "Số điện thoại :"
-                  : ""}
+                    ? "Email :"
+                    : key === "phone"
+                      ? "Số điện thoại :"
+                      : ""}
               </label>
               {isEditing[key] ? (
                 <form

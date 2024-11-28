@@ -33,6 +33,8 @@ const ProductsTable = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Số sản phẩm trên mỗi trang
   const cancelRef = useRef();
   const toast = useToast();
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
@@ -91,6 +93,12 @@ const ProductsTable = () => {
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   const onClose = () => setIsOpen(false);
 
   const handleDeleteClick = (product) => {
@@ -126,7 +134,7 @@ const ProductsTable = () => {
   };
 
   const formatCurrency = (value) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+    return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value);
   };
 
   if (loading) {
@@ -139,53 +147,17 @@ const ProductsTable = () => {
         <Box>
           <Text fontSize="2xl" fontWeight="bold">Danh sách sản phẩm</Text>
           <Flex align="center" mb={4}>
-            <Flex opacity={1}>
-              <Input
-                placeholder="Tìm kiếm tên sản phẩm..."
-                value={searchQuery}
-                onChange={handleInputChange}
-                variant="outline"
-                borderColor="#00aa9f"
-                color="black"
-                mr={2}
-                width="200px"
-              />
-              {suggestions.length > 0 && (
-                <List
-                  border="1px solid #ccc"
-                  borderRadius="md"
-                  bg="white"
-                  position="absolute"
-                  marginTop={10}
-                  width="200px"
-                  paddingLeft={0}
-                  zIndex={1000}
-                >
-                  {suggestions.map((suggestion) => (
-                    <ListItem
-                      key={suggestion.id}
-                      p={2}
-                      _hover={{ bg: "gray.200", cursor: "pointer" }}
-                      onClick={() => handleSuggestionClick(suggestion)}
-                    >
-                      {suggestion.name}
-                    </ListItem>
-                  ))}
-                </List>
-              )}
-            </Flex>
-            <Button
-              fontFamily="math"
-              variant="solid"
-              colorScheme="teal"
-              bg="#00aa9f"
-              _hover={{ bg: "#32dfd4" }}
-              mr={4}
-            >
-              Tìm kiếm
-            </Button>
+            <Input
+              placeholder="Tìm kiếm tên sản phẩm..."
+              value={searchQuery}
+              onChange={handleInputChange}
+              variant="outline"
+              borderColor="#00aa9f"
+              color="black"
+              mr={2}
+              width="200px"
+            />
           </Flex>
-
         </Box>
         <Link to="admin/products/add">
           <Button
@@ -200,7 +172,7 @@ const ProductsTable = () => {
       </Flex>
 
       {error && <Text color="red.500">{error}</Text>}
-      {filteredProducts.length === 0 && <Text color="gray.500">Không có sản phẩm nào để hiển thị.</Text>}
+      {paginatedProducts.length === 0 && <Text color="gray.500">Không có sản phẩm nào để hiển thị.</Text>}
 
       <Table variant="simple">
         <Thead>
@@ -214,9 +186,9 @@ const ProductsTable = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {filteredProducts.map((product, index) => (
+          {paginatedProducts.map((product, index) => (
             <Tr key={product.id} _hover={{ bg: hoverBgColor }}>
-              <Td fontWeight="bold">{index + 1}</Td>
+              <Td fontWeight="bold">{(currentPage - 1) * itemsPerPage + index + 1}</Td>
               <Td>
                 <Img
                   src={`http://localhost:3000/uploads/products/${product.images}`}
@@ -240,6 +212,21 @@ const ProductsTable = () => {
           ))}
         </Tbody>
       </Table>
+
+      <Flex justifyContent="center" mt={4}>
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <Button
+            key={page}
+            onClick={() => setCurrentPage(page)}
+            bg={page === currentPage ? "#00aa9f" : "gray.200"}
+            color={page === currentPage ? "white" : "black"}
+            _hover={{ bg: "#32dfd4" }}
+            mx={1}
+          >
+            {page}
+          </Button>
+        ))}
+      </Flex>
     </Box>
   );
 };

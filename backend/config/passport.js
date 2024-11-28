@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const { promisify } = require('util');
 
 dotenv.config();
 
@@ -14,6 +15,9 @@ function generateToken(user) {
       id: user.id,
       name: user.name,
       google_id: user.google_id,
+      email: user.email,   // Thêm email vào token
+      phone: user.phone,  // Thêm avatar vào token
+      // Thêm các thông tin khác nếu cần
     },
     process.env.JWT_SECRET,
     { expiresIn: '1h' }
@@ -21,45 +25,42 @@ function generateToken(user) {
 }
 
 
+// Chuyển query thành Promise
+const query = promisify(connection.query).bind(connection);
+
+// Tìm người dùng trong cơ sở dữ liệu
 passport.use(new GoogleStrategy({
   clientID: process.env.GF_CLIENT_ID,
   clientSecret: process.env.GF_CLIENT_SECRET,
   callbackURL: "http://localhost:3000/api/auth/google/callback"
-},
-  (accessToken, refreshToken, profile, done) => {
-    connection.query('SELECT * FROM users WHERE google_id = ?', [profile.id], (err, results) => {
-      if (err) return done(err);
-      if (results.length > 0) {
-        return done(null, results[0]);
-      } else {
-        // Tạo đối tượng newUser
-        const newUser = {
-          google_id: profile.id,
-          email: profile.emails[0].value,
-          name: profile.displayName,
-          username: profile.displayName.replace(/\s+/g, '').toLowerCase(),
-          password: 'your_encrypted_password_here', // mật khẩu tạm thời, sẽ mã hóa sau
-          role: 'user',  // Hoặc giá trị mặc định bạn muốn
-          status: '1',  // Hoặc giá trị mặc định bạn muốn
-          createdAt: new Date(),
-          image: profile.photos ? profile.photos[0].value : null,  // Nếu Google trả về ảnh đại diện
-        };
+}, async (accessToken, refreshToken, profile, done) => {
+  try {
+    // Kiểm tra người dùng có tồn tại
+    const results = await query('SELECT * FROM users WHERE google_id = ?', [profile.id]);
 
-        // Mã hóa mật khẩu trước khi lưu vào cơ sở dữ liệu
-        bcrypt.hash(newUser.password, saltRounds, (err, hash) => {
-          if (err) return done(err);
-          newUser.password = hash; // Cập nhật mật khẩu đã mã hóa
+    if (results.length > 0) {
+      return done(null, results[0]); // Trả về thông tin người dùng
+    }
 
-          // Lưu người dùng vào cơ sở dữ liệu
-          connection.query('INSERT INTO users SET ?', newUser, (err, result) => {
-            if (err) return done(err);
-            newUser.id = result.insertId; // Gán id người dùng vừa tạo
-            return done(null, newUser); // Trả lại thông tin người dùng
-          });
-        });
-      }
-    });
-  }));
+    // Nếu chưa tồn tại, thêm người dùng mới
+    const newUser = {
+      google_id: profile.id,
+      email: profile.emails[0]?.value || null,
+      name: profile.displayName || 'Anonymous',
+      username: profile.displayName.replace(/\s+/g, '').toLowerCase(),
+      role: 'user',
+      status: '1',
+      createdAt: new Date(),
+      image: profile.photos?.[0]?.value || null,
+    };
+
+    const result = await query('INSERT INTO users SET ?', newUser);
+    newUser.id = result.insertId;
+    return done(null, newUser);
+  } catch (err) {
+    return done(err);
+  }
+}));
 
 passport.serializeUser((user, done) => {
   done(null, user.id);

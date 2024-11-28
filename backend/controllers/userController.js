@@ -141,29 +141,27 @@
   };
 
 
-  // Lấy người dùng theo ID
-  exports.getUserById = (req, res) => {
-    const userId = req.params.id;
+  // Lấy người dùng theo ID kèm địa chỉ
+exports.getUserById = (req, res) => {
+  const userId = req.params.id;
 
-    connection.query(
-      "SELECT * FROM users WHERE id = ?",
-      [userId],
-      (err, results) => {
-        if (err) {
-          console.error("Lỗi truy vấn cơ sở dữ liệu:", err);
-          return res
-            .status(500)
-            .json({ error: "Đã xảy ra lỗi khi tìm kiếm người dùng." });
-        }
-
-        if (results.length === 0) {
-          return res.status(404).json({ message: "Không tìm thấy người dùng" });
-        }
-
-        res.status(200).json(results[0]);
+  connection.query(
+    "SELECT id, name, username, email, phone, address1, address2, status, role FROM users WHERE id = ?",
+    [userId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
       }
-    );
-  };
+
+      if (results.length === 0) {
+        return res.status(404).json({ message: "Không tìm thấy người dùng" });
+      }
+
+      res.status(200).json(results[0]);
+    }
+  );
+};
+
 
   // Xóa người dùng
   exports.deleteUser = (req, res) => {
@@ -253,16 +251,16 @@
     try {
       console.log("Dữ liệu gửi từ yêu cầu:", req.body);
 
-      const { name, phone, password, email, username, role } = req.body;
+      const { name, phone, password, email, username, role, address1, address2 } = req.body;
 
       // Mã hóa mật khẩu
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const query = `
-        INSERT INTO users(name, phone, password, email, username, role)
+        INSERT INTO users(name, phone, password, email, username, role, address1, address2)
         VALUES (?, ?, ?, ?, ?, ?)
       `;
-      const values = [name, phone, hashedPassword, email, username, role];
+      const values = [name, phone, hashedPassword, email, username, role, address1, address2];
 
       connection.query(query, values, (err, results) => {
         if (err) {
@@ -377,3 +375,45 @@
       }
     );
   };
+
+
+ 
+  // Cập nhật địa chỉ của người dùng
+exports.updateUserWithAddress = (req, res) => {
+  const userId = req.params.id;
+  const { address1, address2 } = req.body;
+
+  // Tạo mảng để lưu các trường cần cập nhật
+  const fieldsToUpdate = [];
+  const values = [];
+
+  // Kiểm tra nếu có địa chỉ 1 hoặc 2
+  if (address1) {
+    fieldsToUpdate.push("address1 = ?");
+    values.push(address1);
+  }
+  if (address2) {
+    fieldsToUpdate.push("address2 = ?");
+    values.push(address2);
+  }
+
+  // Thêm ID vào cuối danh sách giá trị
+  values.push(userId);
+
+  // Nếu không có trường nào để cập nhật
+  if (fieldsToUpdate.length === 0) {
+    return res.status(400).json({ message: "Không có thông tin nào để cập nhật." });
+  }
+
+  const query = `UPDATE users SET ${fieldsToUpdate.join(", ")} WHERE id = ?`;
+
+  connection.query(query, values, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+    res.status(200).json({ message: "Cập nhật địa chỉ thành công" });
+  });
+};

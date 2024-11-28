@@ -6,6 +6,7 @@ import { HeartIcon } from "../../../../../components/icon/icon";
 import { Autoplay } from "swiper/modules";
 import OrderModal from "../../../../../components/Client/orderModel/orderModel";
 import "./Promotional_products.css";
+import { toast } from "react-toastify";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -14,6 +15,7 @@ const PromotionalProducts = () => {
   const [loading, setLoading] = useState(true);
   const [likedProducts, setLikedProducts] = useState([]);
   const [likeCounts, setLikeCounts] = useState({});
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   // Existing state variables remain unchanged
   const [isOpen, setIsOpen] = useState(false);
@@ -34,13 +36,12 @@ const PromotionalProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const featuredResponse = await axios.get(
-          `${BASE_URL}/api/products`
-        );
+        const featuredResponse = await axios.get(`${BASE_URL}/api/products`);
         setFeaturedProducts(featuredResponse.data);
 
         // Initialize like counts and restore liked products
-        const savedLikedProducts = JSON.parse(localStorage.getItem("likedProducts")) || [];
+        const savedLikedProducts =
+          JSON.parse(localStorage.getItem("likedProducts")) || [];
         setLikedProducts(savedLikedProducts);
 
         const initialLikeCounts = {};
@@ -60,14 +61,17 @@ const PromotionalProducts = () => {
 
   // New function to handle liking/unliking products
   const toggleLike = async (productId) => {
-    const userId = JSON.parse(localStorage.getItem('userData')).id;
+    const userId = JSON.parse(localStorage.getItem("userData")).id;
     if (!userId) {
       console.error("User not logged in");
       return;
     }
 
     try {
-      const response = await axios.post(`${BASE_URL}/api/product/${productId}/like`, { userId });
+      const response = await axios.post(
+        `${BASE_URL}/api/product/${productId}/like`,
+        { userId }
+      );
 
       setLikedProducts((prevLiked) => {
         const updatedLiked = prevLiked.includes(productId)
@@ -97,7 +101,7 @@ const PromotionalProducts = () => {
     e.preventDefault();
     // Form validation and submit logic
   };
-  
+
   const handleCloseModal = () => setIsOpen(false);
   const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
   const increaseQuantity = () => setQuantity(quantity + 1);
@@ -107,16 +111,138 @@ const PromotionalProducts = () => {
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
-  const handleAddToCartAndOpenModal = (e, product) => {
+  // ======================================================================================================
+
+  // const handleAddToCartAndOpenModal = (e, product) => {
+  //   e.stopPropagation();
+  //   addToCart(product);
+  //   handleOpenModal(product);
+  // };
+
+  const handleAddToCartAndOpenModal = async (e, product) => {
     e.stopPropagation();
-    addToCart(product);
-    handleOpenModal(product);
+
+    if (isAddingToCart) return; // Không thực hiện nếu đang xử lý thêm vào giỏ hàng
+
+    await addToCart(product);
+  };
+  // ======================================================================================================
+  const addToCart = async (product) => {
+    if (!product) return;
+
+    const userId = JSON.parse(localStorage.getItem("userData"))?.id;
+
+    if (!userId) {
+      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored", // Optional: change toast theme
+      });
+      return;
+    }
+
+    if (product.stock < quantity) {
+      toast.error("Số lượng sản phẩm không đủ. Vui lòng giảm số lượng.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+      return;
+    }
+
+    const cartData = {
+      user_id: userId,
+      cart_items: [
+        {
+          product_id: product.id,
+          quantity,
+          price: product.price,
+          total: quantity * product.price,
+        },
+      ],
+    };
+
+    setIsAddingToCart(true);
+
+    try {
+      const response = await axios.post(`${BASE_URL}/api/cart`, cartData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer <token>", // if required
+        },
+      });
+
+      if (response.data.success) {
+        toast.success("Thêm vào giỏ hàng thành công!", {
+          position: "top-right",
+          autoClose: 5000, // thời gian tự động đóng
+        });
+      } else {
+        toast.error(
+          response.data.message || "Đã xảy ra lỗi, vui lòng thử lại.",
+          {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          }
+        );
+      }
+    } catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.message || "Có lỗi xảy ra", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
+      } else if (error.request) {
+        toast.error("Không thể kết nối tới server", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
+      } else {
+        toast.error("Đã xảy ra lỗi. Vui lòng thử lại.", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
+      }
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
-  const addToCart = (product) => {
-    // Existing addToCart logic
-  };
-
+  // ======================================================================================================
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -148,14 +274,22 @@ const PromotionalProducts = () => {
               <SwiperSlide key={index} style={{ display: "flex" }}>
                 <div
                   className="swiper-wrappe"
-                  style={{ display: "flex", width: "312px", marginBottom: "4px" }}
+                  style={{
+                    display: "flex",
+                    width: "312px",
+                    marginBottom: "4px",
+                  }}
                 >
                   <div className="swiper-slide swiper-slide-active">
                     <div className="product-box h-100 bg-gray relative">
                       {/* <button className="like-icon" onClick={() => toggleLike(product.id)}>
                         <HeartIcon
                           size="24px"
-                          color={likedProducts.includes(product.id) ? "#b29c6e" : "white"}
+                          color={
+                            likedProducts.includes(product.id)
+                              ? "#b29c6e"
+                              : "white"
+                          }
                         />
                         {/* <span>{likeCounts[product.id] || 0}</span> */}
                       {/* </button> */} 

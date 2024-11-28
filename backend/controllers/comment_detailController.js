@@ -33,21 +33,7 @@ exports.getAllCommentDetails = (req, res) => {
 exports.getCommentDetailById = (req, res) => {
   const { id } = req.params;
   const query = `
-    SELECT
-      rd.id AS detail_id,
-      rd.content AS detail_content,
-      rd.created_at AS detail_created_at,
-      r.id AS review_id,
-      r.content AS review_content,
-      u.id AS user_id,
-      u.name AS fullname,
-      p.id AS product_id,
-      p.name AS product_name
-    FROM review_detail rd
-    JOIN product_reviews r ON rd.review_id = r.id
-    JOIN users u ON rd.user_id = u.id
-    JOIN products p ON r.product_id = p.id
-    WHERE rd.id = ?;
+    SELECT p_r.content AS detail_content, p_r.created_at AS detail_created_at, p_r.rating AS review_id, u.name AS fullname, p.name AS product_name FROM product_reviews p_r JOIN orders o ON o.id = p_r.order_id JOIN users u ON p_r.user_id = u.id JOIN products p ON p_r.product_id = p.id WHERE p_r.id = ?;
   `;
 
   connection.query(query, [id], (err, results) => {

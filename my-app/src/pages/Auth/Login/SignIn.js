@@ -1,28 +1,136 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SuccessModal from '../../../components/Modals/SuccessModal';
 import ErrorModal from '../../../components/Modals/ErrorModal';
 import './SignIn.css';
 
 const SignIn = () => {
-  // State
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorDetails, setErrorDetails] = useState({
+    username: '',
+    password: ''
+  });
 
   const navigate = useNavigate();
 
-  // Xử lý đăng nhập Google
-  const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3000/api/auth/google";
+  // Kiểm tra token hết hạn
+  const isTokenExpired = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace('-', '+').replace('_', '/');
+      const decoded = JSON.parse(window.atob(base64));
+      return decoded.exp * 1000 < Date.now();
+    } catch (error) {
+      return true;
+    }
   };
 
-  // Gửi yêu cầu đăng nhập
+
+  useEffect(() => {
+    // Thêm script của Dialogflow vào DOM
+    const script = document.createElement("script");
+    script.src = "https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      // Cleanup script khi component bị unmount
+      document.body.removeChild(script);
+    };
+  }, []);
+  
+  // Kiểm tra và xử lý token Google khi redirect về
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token && !isTokenExpired(token)) {
+      navigate('/');
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const googleToken = urlParams.get('token');
+
+    if (googleToken) {
+      const base64Url = googleToken.split('.')[1];
+      const base64 = base64Url.replace('-', '+').replace('_', '/');
+      const decoded = JSON.parse(window.atob(base64));
+      const userData = {
+        id: decoded.sub,
+        name: decoded.name,
+        email: decoded.email,
+        username: decoded.given_name,
+        avatar: decoded.picture || 'default-avatar.png',
+      };
+    
+      // Lưu thông tin người dùng vào localStorage
+      localStorage.setItem('token', googleToken);
+      localStorage.setItem('userData', JSON.stringify(userData));
+    
+      // Điều hướng sau khi đăng nhập thành công
+      navigate('/');
+    }
+    
+  }, [navigate]);
+
+  // Xử lý đăng nhập bằng Google
+  const handleGoogleLogin = () => {
+    window.location.href = 'http://localhost:3000/api/auth/google';
+  };
+
+  // Validate form
+  const validateForm = () => {
+    const errors = {};
+
+    if (!username.trim()) {
+      errors.username = 'Vui lòng nhập tên đăng nhập';
+    }
+
+    if (!password.trim()) {
+      errors.password = 'Vui lòng nhập mật khẩu';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setErrorDetails(errors);
+      return false;
+    }
+
+    return true;
+  };
+
+  // Đăng nhập bằng tài khoản thông thường
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Kiểm tra kết nối mạng
+    if (!navigator.onLine) {
+      setError('Không có kết nối mạng. Vui lòng kiểm tra lại.');
+      setShowErrorModal(true);
+      return;
+    }
+
+    // Validate form
+    if (!validateForm()) {
+      setShowErrorModal(true);
+      return;
+    }
+
+    // Xử lý ghi nhớ đăng nhập
+    if (rememberMe) {
+      localStorage.setItem('rememberedUsername', username);
+    } else {
+      localStorage.removeItem('rememberedUsername');
+    }
+
+    // Bắt đầu quá trình đăng nhập
+    setIsLoading(true);
+    setError('');
+    setErrorDetails({});
+
     fetch("http://localhost:3000/api/login", {
       method: "POST",
       headers: {
@@ -30,31 +138,36 @@ const SignIn = () => {
       },
       body: JSON.stringify({ username, password }),
     })
-      .then(response => {
-        if (!response.ok) throw new Error('Đăng nhập không thành công');
-        return response.json();
-      })
+      .then(response => response.json())
       .then(data => {
         if (data.token) {
           localStorage.setItem('token', data.token);
           localStorage.setItem('username', username);
-          localStorage.setItem('userData', JSON.stringify(data.user)); // Lưu thông tin người dùng
-          localStorage.setItem('userId', data.users.id);
+          localStorage.setItem('userData', JSON.stringify(data.user));
+          console.log(localStorage.getItem("userData"));
           setShowSuccessModal(true);
-          setTimeout(() => navigate('/'), 2000);
+          setTimeout(() => navigate('/'), 2000);  // Điều hướng đến trang profile
         } else {
           setError(data.message || 'Đăng nhập thất bại');
           setShowErrorModal(true);
-          setTimeout(() => setShowErrorModal(false), 2000);
         }
       })
-      .catch(() => {
-        setError('Có lỗi xảy ra');
+      .catch(error => {
+        setIsLoading(false);
+        setError('Tên đăng nhập hoặc mật khẩu không đúng');
         setShowErrorModal(true);
-        setTimeout(() => setShowErrorModal(false), 2000);
-      });
+        console.error('Lỗi đăng nhập:', error);
+      });    
   };
 
+  // Xử lý load tên đăng nhập đã ghi nhớ
+  useEffect(() => {
+    const savedUsername = localStorage.getItem('rememberedUsername');
+    if (savedUsername) {
+      setUsername(savedUsername);
+      setRememberMe(true);
+    }
+  }, []);
 
   return (
     <div className="signin-container">
@@ -71,9 +184,15 @@ const SignIn = () => {
                 type="text"
                 id="username"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setErrorDetails(prev => ({ ...prev, username: '' }));
+                }}
                 required
               />
+              {errorDetails.username && (
+                <span className="error text-danger">{errorDetails.username}</span>
+              )}
             </div>
 
             <div className="form-group">
@@ -82,9 +201,15 @@ const SignIn = () => {
                 type="password"
                 id="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setErrorDetails(prev => ({ ...prev, password: '' }));
+                }}
                 required
               />
+              {errorDetails.password && (
+                <span className="error text-danger">{errorDetails.password}</span>
+              )}
             </div>
 
             <div className="remember-me">
@@ -97,14 +222,25 @@ const SignIn = () => {
               <label htmlFor="rememberMe">Ghi nhớ đăng nhập</label>
             </div>
 
-            <button type="submit" className="btn-submit ">Đăng nhập</button>
+            <button
+              type="submit"
+              className="btn-submit mb-3"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+            </button>
           </form>
 
-          <button type="button" className="btn-submit google-login mt-3" onClick={handleGoogleLogin}>
+          <button
+            type="button"
+            className="btn-submit google-login"
+            onClick={handleGoogleLogin}
+            disabled={isLoading}
+          >
             Đăng nhập bằng Google
           </button>
 
-          {error && <p className="error-message">{error}</p>}
+          {error && <p className="error-message text-danger">{error}</p>}
 
           <div className="signin-links">
             <a href="/forgot-password">Quên mật khẩu?</a>

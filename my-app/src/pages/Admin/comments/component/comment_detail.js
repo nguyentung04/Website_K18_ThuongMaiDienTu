@@ -40,44 +40,37 @@ const CommentDetailTable = () => {
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
   const headerBgColor = useColorModeValue("gray.200", "gray.800");
   //** ========================================================================================== */
-  const [searchQuery, setSearchQuery] = useState(""); // Lưu chuỗi tìm kiếm
-  const [suggestions, setSuggestions] = useState([]); // Lưu gợi ý quận/huyện
+  // const [searchQuery, setSearchQuery] = useState(""); // Lưu chuỗi tìm kiếm
+  // const [suggestions, setSuggestions] = useState([]); // Lưu gợi ý quận/huyện
 
   useEffect(() => {
-    if (id) {
-      const fetchCommentDetails = async () => {
-        try {
-          const data = await fetchComment_detailById(id);
-          setCommentDetails(data);
-        } catch (error) {
-          setError("Failed to fetch comment details");
-          console.error("Error fetching comment details:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
+    const fetchOrderDetails = async () => {
+      try {
+        const data = await fetchComment_detailById(id);
+        setCommentDetails(data); // Dữ liệu là object
+      } catch (error) {
+        setError("Failed to fetch comment details");
+        console.error("Error fetching comment details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      fetchCommentDetails();
-    } else {
-      setError("Invalid comment ID");
-      setLoading(false);
-    }
+    fetchOrderDetails();
   }, [id]);
-
+  
   const handleDelete = async () => {
     if (deletingId) {
       try {
         await deleteComment_detail(deletingId);
-        setCommentDetails((prevDetails) =>
-          prevDetails.filter((item) => item.id !== deletingId)
-        );
+        setCommentDetails(null); // Xóa dữ liệu
         toast({
           title: "Bình luận đã xóa.",
           status: "warning",
           duration: 3000,
           isClosable: true,
         });
-        onClose(); // Close the modal after successful deletion
+        onClose();
       } catch (error) {
         console.error("Error deleting comment:", error);
         toast({
@@ -109,6 +102,7 @@ const CommentDetailTable = () => {
     );
   }
 
+
   if (error) {
     return (
       <Box p={5} bg="red.100" borderRadius="lg">
@@ -119,43 +113,67 @@ const CommentDetailTable = () => {
     );
   }
 
+  if (error) {
+    return (
+      <Box p={5} bg="red.100" borderRadius="lg">
+        <Text fontSize="lg" color="red.500">
+          {error}
+        </Text>
+      </Box>
+    );
+  }
+
+  if (!commentDetails) {
+    return (
+      <Box p={5} bg="gray.100" borderRadius="lg">
+        <Text fontSize="lg" color="gray.500">
+          Không có chi tiết bình luận.
+        </Text>
+      </Box>
+    );
+  }
+
   //** ========================================================================================== */
-  // Hàm xử lý sự kiện khi người dùng nhập vào ô tìm kiếm
-  const handleInputChange = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
+  
+  // // Hàm xử lý sự kiện khi người dùng nhập vào ô tìm kiếm
+  // const handleInputChange = (e) => {
+  //   const query = e.target.value.toLowerCase();
+  //   setSearchQuery(query);
 
-    // Nếu chuỗi tìm kiếm không rỗng, lọc danh sách quận/huyện
-    if (query !== "") {
-      const filteredSuggestions = commentDetails.filter((commentDetails) =>
-        commentDetails.content.toLowerCase().includes(query)
-      );
-      setSuggestions(filteredSuggestions);
-    } else {
-      setSuggestions([]);
-    }
-  };
+  //   // Tìm kiếm dựa trên tên sản phẩm
+  //   if (query !== "") {
+  //     const filteredSuggestions = commentDetails.filter((review) =>
+  //       review.detail_content?.toLowerCase().includes(query)
+  //     );
+  //     setSuggestions(filteredSuggestions);
+  //   } else {
+  //     setSuggestions([]);
+  //   }
+  // };
+  // // Hàm xử lý khi người dùng chọn 1 gợi ý
+  // const handleSuggestionClick = (suggestion) => {
+  //   setSearchQuery(suggestion.detail_content); // Hiển thị tên sản phẩm đã chọn
+  //   setSuggestions([]);
+  // };
 
-  // Hàm xử lý khi người dùng chọn 1 gợi ý
-  const handleSuggestionClick = (suggestion) => {
-    setSearchQuery(suggestion.content); // Cập nhật chuỗi tìm kiếm với tên đã chọn
-    setSuggestions([]); // Ẩn danh sách gợi ý sau khi chọn
-  };
+  // // Lọc danh sách đánh giá dựa trên tên sản phẩm
+  // const filteredCommentDetails = commentDetails.filter((review) =>
+  //   review.detail_content?.toLowerCase().includes(searchQuery.toLowerCase())
+  // );
+  
 
-  // Filter commentDetails based on search query
-  const filteredCommentDetails = commentDetails.filter((commentDetails) =>
-    commentDetails.content.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  console.log(commentDetails);
+  
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md">
-      <Box >
+      <Box>
         <Text fontSize="2xl" fontWeight="bold" mb={4}>
           Chi tiết bình luận #{id}
         </Text>
         {/*  ===================================== thanh tìm kiếm ================================*/}
-        <Flex align="center" mb={4}>
+        {/* <Flex align="center" mb={4}> */}
           {/* Input tìm kiếm */}
-          <Flex opacity={1}>
+          {/* <Flex opacity={1}>
             <Input
               placeholder="Tìm kiếm..."
               value={searchQuery}
@@ -165,9 +183,9 @@ const CommentDetailTable = () => {
               color="black"
               mr={2}
               width="200px"
-            />
+            /> */}
             {/* Hiển thị gợi ý */}
-            {suggestions.length > 0 && (
+            {/* {suggestions.length > 0 && (
               <List
                 border="1px solid #ccc"
                 borderRadius="md"
@@ -201,7 +219,7 @@ const CommentDetailTable = () => {
           >
             Tìm kiếm
           </Button>
-        </Flex>
+        </Flex> */}
       </Box>
       <Table variant="simple">
         <Thead bg={headerBgColor}>
@@ -212,23 +230,20 @@ const CommentDetailTable = () => {
             <Th>Hành Động</Th>
           </Tr>
         </Thead>
-        <Tbody>
-          {filteredCommentDetails.map((item) => (
-            <Tr key={item.id} _hover={{ bg: hoverBgColor }}>
-              <Td>{item.comment_id}</Td>
-              <Td display={"none"}>{item.id}</Td>
-              <Td>{item.content}</Td>
-              <Td>
-                <Button
-                  colorScheme="red"
-                  size="sm"
-                  onClick={() => openDeleteConfirm(item.id)}
-                >
-                  Xóa
-                </Button>
-              </Td>
-            </Tr>
-          ))}
+      <Tbody>
+          <Tr _hover={{ bg: hoverBgColor }}>
+            <Td>{commentDetails.fullname}</Td>
+            <Td>{commentDetails.detail_content}</Td>
+            <Td>
+              <Button
+                colorScheme="red"
+                size="sm"
+                onClick={() => openDeleteConfirm(commentDetails.id)}
+              >
+                Xóa
+              </Button>
+            </Td>
+          </Tr>
         </Tbody>
       </Table>
 

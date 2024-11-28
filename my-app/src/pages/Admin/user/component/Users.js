@@ -26,6 +26,8 @@ import { fetchUsers, deleteUser } from "../../../../service/api/users";
 
 const AuthorsTable = () => {
   const [data, setData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10); // Số lượng người dùng mỗi trang
   const [isOpen, setIsOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const cancelRef = useRef();
@@ -102,7 +104,16 @@ const AuthorsTable = () => {
         return { bg: "gray.500", color: "white" };
     }
   };
-  
+
+  // Xác định dữ liệu trên trang hiện tại
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentData = data.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
       <Flex mb={5} justify="space-between" align="center">
@@ -122,8 +133,7 @@ const AuthorsTable = () => {
       <Table variant="simple">
         <Thead>
           <Tr>
-            <Th>stt</Th>
-            <Th display="none">ID</Th>
+            <Th>STT</Th>
             <Th>Họ Tên</Th>
             <Th>Tài khoản</Th>
             <Th>Số điện thoại</Th>
@@ -133,13 +143,9 @@ const AuthorsTable = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {data.map((item, index) => (
-            console.log(`User ${index + 1} - ID: ${item.id}, Status: ${item.status}`),
+          {currentData.map((item, index) => (
             <Tr key={item.id} _hover={{ bg: hoverBgColor }}>
-              <Td fontWeight="bold">{index + 1}</Td>
-              <Td display="none">
-                <Text fontWeight="bold">{item.id}</Text>
-              </Td>
+              <Td fontWeight="bold">{startIndex + index + 1}</Td>
               <Td>
                 <Text fontWeight="bold">{item.name}</Text>
                 <Text fontSize="sm" color="gray.500">
@@ -181,9 +187,23 @@ const AuthorsTable = () => {
               </Td>
             </Tr>
           ))}
-          
         </Tbody>
       </Table>
+
+      <Flex justify="center" mt={4}>
+        {Array.from({ length: totalPages }, (_, i) => (
+          <Button
+            key={i + 1}
+            mx={1}
+            onClick={() => handlePageChange(i + 1)}
+            bg={currentPage === i + 1 ? "blue.500" : "gray.200"}
+            color={currentPage === i + 1 ? "white" : "black"}
+            _hover={{ bg: "blue.400" }}
+          >
+            {i + 1}
+          </Button>
+        ))}
+      </Flex>
 
       <AlertDialog
         isOpen={isOpen}

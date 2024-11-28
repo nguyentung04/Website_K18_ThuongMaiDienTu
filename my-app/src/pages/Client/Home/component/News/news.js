@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./news.css";
 import { fetchPosts } from "../../../../../service/api/posts"; // Ensure this imports correctly
 import { useToast } from "@chakra-ui/react";
-
 const BASE_URL = "http://localhost:3000";
-
 // Helper function to truncate text if too long
 const truncateText = (text, maxLength) => {
   if (!text) return "";
@@ -82,7 +80,7 @@ const NewsGrid = () => {
                   <h4>{news.title}</h4>
                 </div>
                 <small className="news-content-time">
-                  <p>{new Date(news.created_at).toLocaleDateString()}</p>
+                  <p>{new Date(news.created_at).toLocaleDateString()}</p> {/* Format date */}
                   <p>{news.auth_name}</p>
                 </small>
                 <p>{truncateText(news.content, 100)}</p>

@@ -12,9 +12,27 @@ export const fetchOrders = async () => {
     throw error;
   }
 };
+// lấu toàn bộ đơn hàng thanh toán trước khi giao
+export const fetchOrdersPaid = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/orders/paid`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    throw error;
+  }
+};
 
-
-
+// lấu toàn bộ đơn hàng thanh toán khi nhận hàng
+export const fetchOrdersUnpaid = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/orders/unpaid`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    throw error;
+  }
+};
 
 export const fetchOrderById = async (id) => {
   try {

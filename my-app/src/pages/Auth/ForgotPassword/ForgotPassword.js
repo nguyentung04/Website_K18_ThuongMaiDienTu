@@ -1,52 +1,44 @@
-import React, { useState } from 'react';
-import SuccessModal from '../../../components/Modals/SuccessModal';
-import ErrorModal from '../../../components/Modals/ErrorModal';
-import './ForgotPassword.css';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import SuccessModal from "../../../components/Modals/SuccessModal";
+import ErrorModal from "../../../components/Modals/ErrorModal";
+import { forgotPassword } from "../../../service/api/users";
+import "./ForgotPassword.css";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    fetch('http://localhost:3000/api/forgot-password', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Không thể gửi yêu cầu');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.success) {
-          setShowSuccessModal(true);
-          setTimeout(() => {
-            setShowSuccessModal(false);
-          }, 2000);
-        } else {
-          setError(data.message || 'Yêu cầu thất bại');
-          setShowErrorModal(true);
-          setTimeout(() => {
-            setShowErrorModal(false);
-          }, 2000);
-        }
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-        setError('Có lỗi xảy ra');
+    try {
+      const data = await forgotPassword(email);
+
+      if (data.success) {
+        setShowSuccessModal(true);
+        setTimeout(() => {
+          setShowSuccessModal(false);
+          navigate("/signin");
+        }, 3000);
+      } else {
+        setError(data.message || "Yêu cầu thất bại. Vui lòng thử lại.");
         setShowErrorModal(true);
         setTimeout(() => {
           setShowErrorModal(false);
-        }, 2000);
-      });
+        }, 3000);
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      setError(err.message || "Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại sau.");
+      setShowErrorModal(true);
+      setTimeout(() => {
+        setShowErrorModal(false);
+      }, 3000);
+    }
   };
 
   return (
@@ -63,17 +55,20 @@ const ForgotPassword = () => {
               <input
                 type="email"
                 id="email"
+                placeholder="example@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
 
-            <button type="submit" className="btn-submit">Gửi yêu cầu</button>
-
-            {error && <p className="error-message">{error}</p>}
+            <button type="submit" className="btn-submit">
+              Gửi yêu cầu
+            </button>
           </form>
         </section>
+
+        {error && <p className="error-message">{error}</p>}
       </div>
 
       {showSuccessModal && (

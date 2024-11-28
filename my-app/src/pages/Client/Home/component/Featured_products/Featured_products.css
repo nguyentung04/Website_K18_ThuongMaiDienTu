@@ -58,6 +58,18 @@
   box-sizing: content-box;
 }
 
+.FeaturedProducts .swiper-wrappe:hover .add-to-cart-icon {
+  opacity: 2;
+}
+
+.FeaturedProducts .product-list {
+
+  gap: 6px;
+  display: flex;
+  grid-template-columns: repeat(4, 1fr);
+  /* 4-column layout */
+}
+
 .FeaturedProducts .swiper-slide {
   flex-shrink: 0;
   width: 100%;
@@ -112,7 +124,7 @@
 }
 
 .FeaturedProducts .plain:hover img {
-  transform: scale(1.05); /* Hiệu ứng phóng to nhẹ */
+  transform: scale(1.05);
 }
 
 /* Chỉnh khoảng cách giữa các sản phẩm */
@@ -145,7 +157,7 @@
   color: gray;
 }
 
-.FeaturedProducts .product-price .product-discount-price {
+.FeaturedProducts .product-price .discount-price {
   font-weight: bold;
   color: #000000;
 }
@@ -181,50 +193,12 @@
   justify-content: space-between;
 }
 
-/* ================================ Model ======================================== */
-.FeaturedProducts .model form .button_order:hover {
-  display: block;
-  width: 100%;
-  padding: 11px;
-  margin-bottom: 10px;
-  font-size: 18px;
-  cursor: pointer;
-  color: #b29c6e;
-  background-color: #fff;
-  border: 1px solid #b29c6e;
-  font-weight: 500;
-}
 
-.FeaturedProducts .button_order {
-  display: block;
-  width: 100%;
-  padding: 11px;
-  margin-bottom: 10px;
-  font-size: 18px;
-  cursor: pointer;
-  color: #fff;
-  background-color: #b29c6e;
-  border: 1px solid #b29c6e;
-  font-weight: 500;
-  border-radius: 6px;
-}
-
-.FeaturedProducts form .custom-input {
-  border: 1px solid #b29c6e;
-  padding: 10px;
-  border-radius: 4px;
-  outline: none;
-  transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
-}
-
-.FeaturedProducts form .custom-input:hover {
-  border-color: #b29c6e;
-  box-shadow: 0 0 8px rgba(178, 156, 110, 0.5);
-  color: #b29c6e;
-}
-
-.FeaturedProducts form .custom-input:focus {
-  border-color: #b29c6e;
-  box-shadow: 0 0 8px rgba(178, 156, 110, 0.5);
-  border: 2px solid #b29c6e;
+/* // =============================== giao diện thông báo khi thêm vào giỏ hàng thành công ================================================== */
+/* Toast container background */
+.Toastify__toast {
+  background-color: #3ce743 !important;
+  color: #fff !important;
+  font-family: 'Arial', sans-serif !important;
+  border-radius: 8px !important;
 }

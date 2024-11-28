@@ -58,6 +58,9 @@
   transition-timing-function: var(--swiper-wrapper-transition-timing-function, initial);
   box-sizing: content-box;
 }
+.PromotionalProducts .swiper-wrappe:hover .add-to-cart-icon {
+  opacity: 2;
+}
 
 .PromotionalProducts .swiper-slide {
   flex-shrink: 0;

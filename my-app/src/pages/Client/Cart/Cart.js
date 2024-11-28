@@ -12,67 +12,186 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "../../../components/icon/icon";
-import { NavLink } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import CartProvider from "../../../components/Client/componentss/Cart_Context";
-
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 const BASE_URL = "http://localhost:3000"; // Cập nhật đúng URL của server
 
 const Cart = () => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
-  const [fadePrice, setFadePrice] = useState(null); // State to track fading item ID
+  const [fadePrice, setFadePrice] = useState(null); // State to track fading item userId
   const cartContainerRef = useRef(null); // Ref to the cart container
+  const [error, setError] = useState(null);
   const username = localStorage.getItem("username");
 
   useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCart(storedCart);
-    setLoading(false);
+    const fetchUserIdFromToken = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("Token không tồn tại, vui lòng đăng nhập lại.");
+  
+        const decodedToken = jwtDecode(token);
+        const userId = decodedToken.id;
+        if (!userId) throw new Error("Không tìm thấy userId trong token.");
+  
+        localStorage.setItem("userId", userId);
+        return userId;
+      } catch (error) {
+        console.error("Lỗi khi lấy userId từ token:", error);
+        setError("Vui lòng đăng nhập lại.");
+        setLoading(false);
+        return null;
+      }
+    };
+  
+    fetchUserIdFromToken();
   }, []);
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("User not authenticated");
+  
+        const userId = localStorage.getItem("userId");
+        if (!userId) throw new Error("User ID không tồn tại.");
+  
+        const response = await axios.get(`${BASE_URL}/api/cart_userId/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        // console.log("Fetched Cart Data:", userId);
+        const cartData = response.data || [];
+        setCart(cartData);
+        localStorage.setItem(`cart_${userId}`, JSON.stringify(cartData)); // Save cart to localStorage
+      } catch (err) {
+        console.error("Error fetching cart:", err);
+        setError("Không thể tải giỏ hàng. Vui lòng thử lại.");
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchCart();
+  }, []);
+
+  const saveCartToLocal = (updatedCart) => {
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      localStorage.setItem(`cart_${userId}`, JSON.stringify(updatedCart));
+    }
+  };
+  // Thêm userId vào dependency array
+
+  // Lấy user_id từ localStorage
+  // ====================================================================================
   // Hàm xóa sản phẩm khỏi giỏ hàng
-  const removeFromCart = (id) => {
-    // Lọc ra các sản phẩm không có id tương ứng để xóa
-    const updatedCart = cart.filter((product) => product.id !== id);
-    setCart(updatedCart); // Cập nhật lại trạng thái giỏ hàng
-    localStorage.setItem("cart", JSON.stringify(updatedCart)); // Lưu giỏ hàng mới vào localStorage
+  // const removeFromCart = (id) => {
+  //   // Lọc ra các sản phẩm không có id tương ứng để xóa
+  //   const updatedCart = cart.filter((product) => product.id !== id);
+  //   setCart(updatedCart); // Cập nhật lại trạng thái giỏ hàng
+  //   localStorage.setItem("cart", JSON.stringify(updatedCart)); // Lưu giỏ hàng mới vào localStorage
+  // };
+
+  const removeFromCart = async (product_id) => {
+    try {
+      await axios.delete(`${BASE_URL}/api/cart_id/${product_id}`);
+      setCart((prevCart) => prevCart.filter((item) => item.product_id !== product_id)); // Cập nhật state sau khi xóa
+      alert("Đã xóa sản phẩm khỏi giỏ hàng!");
+    } catch (error) {
+      console.error("Error removing item:", error);
+      alert("Không thể xóa sản phẩm. Vui lòng thử lại sau.");
+    }
   };
 
+
+  // ====================================================================================================
   // Hàm kích hoạt hiệu ứng fade cho giá
+  // const triggerFade = (id) => {
+  //   setFadePrice(id); // Thiết lập sản phẩm có hiệu ứng fade
+  //   setTimeout(() => setFadePrice(null), 300); // Hiển thị giá sau 300ms
+  // };
+
   const triggerFade = (id) => {
-    setFadePrice(id); // Thiết lập sản phẩm có hiệu ứng fade
-    setTimeout(() => setFadePrice(null), 300); // Hiển thị giá sau 300ms
+    if (fadePrice !== id) {
+      // Kiểm tra nếu hiệu ứng chưa kích hoạt cho id này
+      setFadePrice(id); // Thiết lập sản phẩm có hiệu ứng fade
+      setTimeout(() => {
+        if (fadePrice === id) {
+          setFadePrice(null); // Chỉ tắt hiệu ứng nếu id vẫn khớp
+        }
+      }, 300); // Hiển thị giá sau 300ms
+    }
   };
 
+  // =========================================================================================================
   // Hàm tăng số lượng sản phẩm trong giỏ hàng
-  const increaseQuantity = (id) => {
-    setFadePrice(id); // Thiết lập sản phẩm có hiệu ứng fade
-    setTimeout(() => {
-      const updatedCart = cart.map(
-        (item) =>
-          item.id === id ? { ...item, quantity: item.quantity + 1 } : item // Tăng số lượng sản phẩm
-      );
-      setCart(updatedCart); // Cập nhật lại giỏ hàng
-      localStorage.setItem("cart", JSON.stringify(updatedCart)); // Lưu giỏ hàng mới vào localStorage
-      triggerFade(id); // Kích hoạt hiệu ứng fade sau khi cập nhật số lượng
-    }, 300);
-  };
-
-  // Hàm giảm số lượng sản phẩm trong giỏ hàng
-  const decreaseQuantity = (id) => {
-    setFadePrice(id); // Thiết lập sản phẩm có hiệu ứng fade
-    setTimeout(() => {
+  const increaseQuantity = async (id, product_id, cart_id) => {
+    try {
       const updatedCart = cart.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(item.quantity - 1, 1) } // Giảm số lượng nhưng không dưới 1
+        item.product_id === product_id
+          ? { ...item, quantity: item.quantity + 1 }
           : item
       );
-      setCart(updatedCart); // Cập nhật lại giỏ hàng
-      localStorage.setItem("cart", JSON.stringify(updatedCart)); // Lưu giỏ hàng mới vào localStorage
-      triggerFade(id); // Kích hoạt hiệu ứng fade sau khi cập nhật số lượng
-    }, 300);
+      setCart(updatedCart);
+      saveCartToLocal(updatedCart); // Save updated cart
+  
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `${BASE_URL}/api/cart/${id}`,
+        { cart_id, cart_items: updatedCart },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (error) {
+      console.error("Error increasing quantity:", error);
+      alert("Không thể cập nhật số lượng. Vui lòng thử lại sau.");
+    }
   };
+  
 
+  // Hàm giảm số lượng sản phẩm trong giỏ hàng
+  const decreaseQuantity = async (cart_id, product_id) => {
+    try {
+      // Cập nhật số lượng trên giao diện
+      const updatedCart = cart.map((item) =>
+        item.product_id === product_id
+          ? { ...item, quantity: Math.max(item.quantity - 1, 1) }
+          : item
+      );
+      setCart(updatedCart);
+  
+      // Lấy sản phẩm được cập nhật
+      const updatedItem = updatedCart.find((item) => item.product_id === product_id);
+      const cart_items = updatedCart.map((item) => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        price: item.price,
+      }));
+  
+      // Gửi yêu cầu lên server
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Token không tồn tại, vui lòng đăng nhập lại.");
+  
+      await axios.put(
+        `${BASE_URL}/api/cart/update`,
+        {
+          cart_id,
+          cart_items,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+    } catch (error) {
+      console.error("Lỗi khi giảm số lượng sản phẩm:", error);
+      alert("Không thể cập nhật số lượng. Vui lòng thử lại sau.");
+    }
+  };
+  
+
+  // ========================================================================================================
   // Hàm xử lý thay đổi số lượng khi người dùng nhập tay
   const handleQuantityChange = (e, id) => {
     const value = e.target.value; // Lấy giá trị từ input
@@ -86,14 +205,26 @@ const Cart = () => {
       localStorage.setItem("cart", JSON.stringify(updatedCart)); // Lưu giỏ hàng mới vào localStorage
     }
   };
+
+  // const handleQuantityChange = (e, id) => {
+  //   const value = parseInt(e.target.value, 10);
+  //   if (isNaN(value) || value <= 0) return; // Prevent invalid input
+  //   const updatedCart = cart.map((item) =>
+  //     item.id === id ? { ...item, quantity: value } : item
+  //   );
+  //   setCart(updatedCart);
+  //   localStorage.setItem("cart", JSON.stringify(updatedCart));
+  // };
+
+  // ==================================================================================================
   // Hàm tính tổng giá trị giỏ hàng
   const getTotal = () => {
     return cart.reduce((total, item) => {
       const price =
         typeof item.price === "string"
-          ? parseFloat(item.price.replace(/[^0-9.-]+/g, "")) // Chuyển chuỗi giá tiền thành số
-          : parseFloat(item.price); // Nếu giá đã là số, thì giữ nguyên
-      return total + item.quantity * (price || 0); // Cộng dồn giá trị từng sản phẩm vào tổng
+          ? parseFloat(item.pr_price.replace(/[^0-9.-]+/g, "")) // Chuyển chuỗi giá tiền thành số
+          : parseFloat(item.total_price); // Nếu giá đã là số, thì giữ nguyên
+      return total + item.total_quantity * (price || 0); // Cộng dồn giá trị từng sản phẩm vào tổng
     }, 0);
   };
   // Hàm tính tổng giá của một sản phẩm
@@ -101,7 +232,7 @@ const Cart = () => {
     const price =
       typeof item.price === "string"
         ? parseFloat(item.price.replace(/[^0-9.-]+/g, "")) // Chuyển chuỗi giá thành số
-        : parseFloat(item.price); // Nếu giá đã là số, giữ nguyên
+        : parseFloat(item.total_price); // Nếu giá đã là số, giữ nguyên
 
     const discountPrice = item.discountPrice
       ? typeof item.discountPrice === "string"
@@ -113,7 +244,7 @@ const Cart = () => {
     const finalPrice = discountPrice || price;
 
     // Tính tổng giá sản phẩm
-    return item.quantity * (finalPrice || 0);
+    return item.total_quantity * (finalPrice || 0);
   };
 
   // Hàm định dạng giá theo tiền tệ Việt Nam
@@ -164,12 +295,12 @@ const Cart = () => {
 
       <Box background="fff" mb="40px" p="20px" borderRadius="6px">
         {cart.map((item, index) => (
-          <Box key={item.id}>
+          <Box >
             {" "}
             <CartProvider>
+              
               <Box
                 className="d-flex justify-content-between "
-              
                 style={{
                   display: "flex",
                   flexDirection: "row",
@@ -182,7 +313,7 @@ const Cart = () => {
                     style={{ mixBlendMode: "multiply" }}
                     className="me-4"
                     src={`${BASE_URL}/uploads/products/${item.images}`}
-                    alt={item.name}
+                    alt={item.product_name}
                     maxWidth="114px"
                   />
                   <Heading
@@ -199,7 +330,7 @@ const Cart = () => {
                     color="#666"
                     mb={2}
                   >
-                    {item.name}
+                    {item.product_name}
                   </Heading>
                 </Flex>
 
@@ -208,7 +339,7 @@ const Cart = () => {
                   <Text fontWeight="bold" style={{ marginLeft: "5px" }}>
                     {item.discountPrice
                       ? formatPrice(item.discountPrice)
-                      : formatPrice(item.price)}
+                      : formatPrice(item.product_price)}
                   </Text>{" "}
                 </Flex>
 
@@ -224,7 +355,7 @@ const Cart = () => {
                   </Button>
                   <Input
                     px={2}
-                    value={item.quantity}
+                    value={item.total_quantity}
                     onChange={(e) => handleQuantityChange(e, item.id)}
                     textAlign="center"
                     width="60px"
@@ -244,6 +375,8 @@ const Cart = () => {
                     {" "}
                     Tổng giá: <br></br>
                   </span>
+              
+
                   <Text
                     fontWeight="bold"
                     className={fadePrice === item.id ? "fade" : "show"}
@@ -254,7 +387,7 @@ const Cart = () => {
                 </Flex>
                 <button
                   className="remove-button"
-                  onClick={() => removeFromCart(item.id)}
+                  onClick={() => removeFromCart(item.product_id)}
                 >
                   <DeleteIcon />
                   <deleteIcon />

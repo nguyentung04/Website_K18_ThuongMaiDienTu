@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { updateUser } from "../../../service/api/users";
+import { updatePassword, updateUser } from "../../../service/api/users";
+import SuccessModal from "../../../components/Modals/SuccessModal"; // Import modal
 import "./ClientProfile.css";
 
 const Profile = () => {
@@ -9,7 +10,7 @@ const Profile = () => {
     email: "",
     phone: "",
     avatar: "",
-    matKhau: "", // Add matKhau if you need to display password
+    matKhau: "",
   });
 
   const [isEditing, setIsEditing] = useState({
@@ -27,41 +28,79 @@ const Profile = () => {
     confirmNewPassword: "",
   });
 
+  const [successMessage, setSuccessMessage] = useState(""); // Thêm state để quản lý modal
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    const googleUser = JSON.parse(localStorage.getItem("googleUser"));
+  const isTokenExpired = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace('-', '+').replace('_', '/');
+      const decoded = JSON.parse(window.atob(base64));
+      console.log(decoded); // Kiểm tra toàn bộ dữ liệu trả về từ Google
+      return decoded.exp * 1000 < Date.now();
+    } catch (error) {
+      return true; // Nếu có lỗi khi giải mã token, coi như token hết hạn
+    }
+  };
 
-    if (userData) {
-      setValues({
-        name: userData.name || "",
-        email: userData.email || "",
-        phone: userData.phone || "",
-        avatar: userData.avatar || "https://via.placeholder.com/150",
-      });
-    } else if (googleUser) {
-      setValues({
-        name: googleUser.name || "",
-        email: googleUser.email || "",
-        phone: googleUser.phone || "",
-        avatar: googleUser.avatar || "https://via.placeholder.com/150",
-      });
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = JSON.parse(localStorage.getItem('userData'));
+
+    // Kiểm tra token và xử lý thông tin người dùng
+    if (token && !isTokenExpired(token)) {
+      if (!userData) {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace('-', '+').replace('_', '/');
+        const decoded = JSON.parse(window.atob(base64));
+
+        // Chắc chắn rằng các thông tin được lấy chính xác
+        const newUserData = {
+          id: decoded.id,          
+          name: decoded.name,       
+          email: decoded.email,     
+          phone: decoded.phone,   
+          google_id: decoded.google_id, // Thêm google_id vào
+        };
+        
+        // Lưu lại thông tin người dùng vào localStorage
+        localStorage.setItem('userData', JSON.stringify(newUserData));
+        
+        // Lấy lại thông tin người dùng từ localStorage
+        const storedData = JSON.parse(localStorage.getItem('userData'));        
+        storedData.name = decodeURIComponent(storedData.name);  // Giải mã tên nếu cần
+        setValues({
+          name: newUserData.name || '',
+          email: newUserData.email || '',
+          phone: newUserData.phone || '', // Đảm bảo là có phone nếu cần
+          avatar: newUserData.avatar || 'https://via.placeholder.com/150',
+        });
+      } else {
+        setValues({
+          name: userData.name || '',
+          email: userData.email || '',
+          phone: userData.phone || '', // Đảm bảo là có phone nếu cần
+          avatar: userData.avatar || 'https://via.placeholder.com/150',
+        });
+      }
     } else {
-      navigate("/signin");
+      navigate('/signin');
     }
   }, [navigate]);
+
+
+
 
   const validateField = (field, value) => {
     let error = "";
     if (!value) {
-      error = `${
-        field === "name"
+      error = `${field === "name"
           ? "Họ tên"
           : field === "email"
-          ? "Email"
-          : "Số điện thoại"
-      } là bắt buộc.`;
+            ? "Email"
+            : "Số điện thoại"
+        } là bắt buộc.`;
     } else if (field === "email" && !/\S+@\S+\.\S+/.test(value)) {
       error = "Email không hợp lệ.";
     } else if (field === "phone" && !/^\d{10}$/.test(value)) {
@@ -89,12 +128,12 @@ const Profile = () => {
       if (response) {
         userData[field] = values[field];
         localStorage.setItem("userData", JSON.stringify(userData));
-        alert("Thông tin đã được cập nhật thành công.");
+        setSuccessMessage("Thông tin đã được cập nhật thành công.");
         setIsEditing((prev) => ({ ...prev, [field]: false }));
       }
     } catch (error) {
       console.error("Lỗi khi cập nhật thông tin", error);
-      alert(error.message || "Đã xảy ra lỗi khi cập nhật thông tin.");
+      setSuccessMessage("Đã xảy ra lỗi khi cập nhật thông tin.");
     }
   };
 
@@ -112,15 +151,12 @@ const Profile = () => {
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
-  const handleChangePassword = (e) => {
+  const handleChangePassword = async (e) => {
     e.preventDefault();
-
     const { currentPassword, newPassword, confirmNewPassword } = passwords;
 
-    // Clear previous errors
     setErrors({});
 
-    // Validate passwords
     let validationErrors = {};
 
     if (!currentPassword) {
@@ -130,7 +166,6 @@ const Profile = () => {
     if (!newPassword) {
       validationErrors.newPassword = "Mật khẩu mới là bắt buộc.";
     } else if (newPassword.length < 6) {
-      // Check for minimum length or other password rules
       validationErrors.newPassword = "Mật khẩu mới phải có ít nhất 6 ký tự.";
     }
 
@@ -138,24 +173,32 @@ const Profile = () => {
       validationErrors.confirmNewPassword = "Mật khẩu xác nhận không khớp.";
     }
 
-    // If any validation errors, stop the process
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
-    // If no errors, proceed to change the password
     try {
-      // Implement password change logic here (for example, send a request to the backend)
-      // For now, we'll simulate with an alert
-      alert("Password change functionality is not implemented yet.");
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData || !userData.id) {
+        throw new Error(
+          "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại."
+        );
+      }
+      await updatePassword(userData.id, passwords);
 
-      // Close the change password form after submission
+      setSuccessMessage("Mật khẩu đã được thay đổi thành công.");
       setShowChangePassword(false);
     } catch (error) {
       console.error("Error changing password:", error);
-      alert("Đã xảy ra lỗi khi thay đổi mật khẩu.");
+      setSuccessMessage(
+        error.response?.data?.message || "Đã xảy ra lỗi khi thay đổi mật khẩu."
+      );
     }
+  };
+
+  const handleModalClose = () => {
+    setSuccessMessage("");
   };
 
   return (
@@ -163,15 +206,16 @@ const Profile = () => {
       <div className="profile-container">
         <div className="profile-container1">
           <img src={values.avatar} alt="Avatar" className="avatar" />
-          <h3>{values.name}</h3>
-          <p>{values.email}</p>
+          {/* <h3>{values.name}</h3> */}
+          {/* <p>{values.email}</p> */}
         </div>
-        <button className="logout-button" onClick={() => navigate("/login")}>
+        {/* <button className="logout-button" onClick={() => navigate("/login")}>
           Đăng xuất
-        </button>
+        </button> */}
       </div>
 
       <div className="personal-info">
+        
         {Object.entries(values)
           .filter(([key]) => key !== "avatar")
           .map(([key, value]) => (
@@ -180,17 +224,16 @@ const Profile = () => {
                 {key === "name"
                   ? "Họ và tên :"
                   : key === "email"
-                  ? "Email :"
-                  : key === "phone"
-                  ? "Số điện thoại :"
-                  : ""}
+                    ? "Email :"
+                    : key === "phone"
+                      ? "Số điện thoại :"
+                      : ""}
               </label>
               {isEditing[key] ? (
                 <form
                   className={`edit-form ${isEditing[key] ? "open" : ""}`}
                   onSubmit={(e) => handleSave(key, e)}
                 >
-                  
                   <input
                     type="text"
                     value={value}
@@ -216,23 +259,8 @@ const Profile = () => {
                 </form>
               ) : (
                 <div className="info-item-actions">
-                  <span>
-                    {key === "matKhau"
-                      ? isPasswordVisible
-                        ? value
-                        : "********"
-                      : value}
-                  </span>
-                  {key === "matKhau" && (
-                    <button
-                      onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                    >
-                      {isPasswordVisible ? "Ẩn" : "Hiện"}
-                    </button>
-                  )}
-                  {key !== "matKhau" && (
-                    <button onClick={() => handleEditClick(key)}>Sửa</button>
-                  )}
+                  <span>{value}</span>
+                  <button onClick={() => handleEditClick(key)}>Sửa</button>
                 </div>
               )}
               {errors[key] && <span className="error-text">{errors[key]}</span>}
@@ -251,68 +279,69 @@ const Profile = () => {
             <form onSubmit={handleChangePassword}>
               <div className="change-password-form-checkin d-flex justify-content-between">
                 <label>Mật khẩu hiện tại:</label>
-                <div class="d-flex flex-column">
-                  <input
-                    className="Present-password"
-                    type="password"
-                    value={passwords.currentPassword}
-                    onChange={(e) =>
-                      setPasswords({
-                        ...passwords,
-                        currentPassword: e.target.value,
-                      })
-                    }
-                  />
-                  {errors.currentPassword && (
-                    <span className="error-text">{errors.currentPassword}</span>
-                  )}
-                </div>
+                <input
+                  className="Present-password"
+                  type="password"
+                  value={passwords.currentPassword}
+                  onChange={(e) =>
+                    setPasswords({
+                      ...passwords,
+                      currentPassword: e.target.value,
+                    })
+                  }
+                />
+                {errors.currentPassword && (
+                  <span className="error-text">{errors.currentPassword}</span>
+                )}
               </div>
               <div className="change-password-form-checkin d-flex justify-content-between">
                 <label>Mật khẩu mới:</label>
-                <div class="d-flex flex-column ">
-                  <input
-                    className="new-password"
-                    type="password"
-                    value={passwords.newPassword}
-                    onChange={(e) =>
-                      setPasswords({
-                        ...passwords,
-                        newPassword: e.target.value,
-                      })
-                    }
-                  />
-                  {errors.newPassword && (
-                    <span className="error-text">{errors.newPassword}</span>
-                  )}
-                </div>
+                <input
+                  className="Present-password"
+                  type="password"
+                  value={passwords.newPassword}
+                  onChange={(e) =>
+                    setPasswords({
+                      ...passwords,
+                      newPassword: e.target.value,
+                    })
+                  }
+                />
+                {errors.newPassword && (
+                  <span className="error-text">{errors.newPassword}</span>
+                )}
               </div>
               <div className="change-password-form-checkin d-flex justify-content-between">
                 <label>Xác nhận mật khẩu mới:</label>
-                <div class="d-flex flex-column mb-3">
-                  <input
-                    className="new-confirm-password"
-                    type="password"
-                    value={passwords.confirmNewPassword}
-                    onChange={(e) =>
-                      setPasswords({
-                        ...passwords,
-                        confirmNewPassword: e.target.value,
-                      })
-                    }
-                  />
-                  {errors.confirmNewPassword && (
-                    <span className="error-text">
-                      {errors.confirmNewPassword}
-                    </span>
-                  )}
-                </div>
+                <input
+                  className="Present-password"
+                  type="password"
+                  value={passwords.confirmNewPassword}
+                  onChange={(e) =>
+                    setPasswords({
+                      ...passwords,
+                      confirmNewPassword: e.target.value,
+                    })
+                  }
+                />
+                {errors.confirmNewPassword && (
+                  <span className="error-text">{errors.confirmNewPassword}</span>
+                )}
               </div>
-              <div className="form-button">
-                <button className="button-form-save" type="submit">
-                  Đổi mật khẩu
+              <div className="button-form">
+                <button
+                  type="submit"
+                  className="button-form-save"
+                  disabled={
+                    !passwords.currentPassword ||
+                    !passwords.newPassword ||
+                    !passwords.confirmNewPassword
+                  }
+                >
+                  Lưu mật khẩu
                 </button>
                 <button
+                  type="button"
                   className="button-form-cancel"
                   onClick={() => setShowChangePassword(false)}
                 >
@@ -323,6 +352,13 @@ const Profile = () => {
           </div>
         )}
       </div>
+
+      {successMessage && (
+        <SuccessModal
+          message={successMessage}
+          onClose={handleModalClose}
+        />
+      )}
     </div>
   );
 };

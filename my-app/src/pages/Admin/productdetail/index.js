@@ -6,7 +6,7 @@ import { Outlet } from "react-router-dom";
 
 const Layout = () => {
   return (
-    <Flex direction="column" height="100vh" bg="#f7fafc" fontFamily="math">
+    <Flex direction="column" height="auto" bg="#f7fafc" fontFamily="math">
       <Flex direction="column" p={4} mt="60px" alignItems={"center"}>
         <Outlet /> {/* This will render the content based on the route */}
       </Flex>

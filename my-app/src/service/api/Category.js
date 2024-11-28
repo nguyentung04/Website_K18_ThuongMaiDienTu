@@ -72,5 +72,3 @@ export const deleteCategory = async (id) => {
     throw error;
   }
 };
-
-

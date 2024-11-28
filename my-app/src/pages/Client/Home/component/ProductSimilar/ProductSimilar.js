@@ -162,6 +162,7 @@ const ProductSimilar = () => {
     }).format(price);
   };
 
+
   return (
     <div className="best_selling_products">
       <h2>Sản phẩm tương tự</h2>

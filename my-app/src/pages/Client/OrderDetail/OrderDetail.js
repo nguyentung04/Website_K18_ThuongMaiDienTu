@@ -133,7 +133,7 @@ const OrderDetail = () => {
             </div>
           </div>
           <div>
-            <div className="info-section-time">Thời gian nhận:</div>
+            <div className="info-section-time">Thời gian đặt:</div>
             {new Date(order_items[0].created_at).toLocaleString()}
           </div>
         </div>
@@ -156,7 +156,7 @@ const OrderDetail = () => {
             <div className=" d-flex justify-content-between  align-items-center">
             <img
               src={`${BASE_URL}/uploads/products/${item.image}`}
-              alt={item.name}
+              alt={item.pr_name}
             />
               <h4>{item.pr_name}</h4>
               <p>
@@ -164,17 +164,17 @@ const OrderDetail = () => {
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
-                }).format(item.price)}
+                }).format(item.total_price)}
               </p>
               <p>
-                <strong>Số lượng:</strong> {item.quantity}
+                <strong>Số lượng:</strong> {item.total_quantity}
               </p>
               <p>
                 <strong>Tổng tiền:</strong>{" "}
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
-                }).format(item.total_amount || 0)}
+                }).format(item.total_price * item.total_quantity|| 0)}
               </p>
               <div className="d-flex justify-content-end">
                 <button
@@ -197,7 +197,7 @@ const OrderDetail = () => {
             currency: "VND",
           }).format(
             order_items.reduce(
-              (total, item) => total + item.price * item.quantity,
+              (total, item) => total + item.total_price * item.total_quantity,
               0
             )
           )}

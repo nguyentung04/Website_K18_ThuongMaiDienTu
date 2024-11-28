@@ -21,7 +21,7 @@ import {
   Img,
   Input,
   List,
-  ListItem, // Thêm Img để hiển thị logo
+  ListItem,
 } from "@chakra-ui/react";
 import { fetchPosts, deletePosts } from "../../../../service/api/posts";
 import { Link } from "react-router-dom";
@@ -32,12 +32,13 @@ const PostsPage = () => {
   const [selectedPosts, setSelectedPosts] = useState(null);
   const cancelRef = useRef();
   const toast = useToast();
-
-  //** ========================================================================================== */
-  const [searchQuery, setSearchQuery] = useState(""); // Lưu chuỗi tìm kiếm
-  const [suggestions, setSuggestions] = useState([]); // Lưu gợi ý quận/huyện
-
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
+
+  // State phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Số bài viết trên mỗi trang
 
   useEffect(() => {
     const getPosts = async () => {
@@ -72,7 +73,6 @@ const PostsPage = () => {
         duration: 5000,
         isClosable: true,
       });
-      console.error("Failed to delete post:", error);
     }
     setIsOpen(false);
   };
@@ -84,16 +84,13 @@ const PostsPage = () => {
     setIsOpen(true);
   };
 
-  //** ========================================================================================== */
-  // Hàm xử lý sự kiện khi người dùng nhập vào ô tìm kiếm
   const handleInputChange = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
 
-    // Nếu chuỗi tìm kiếm không rỗng, lọc danh sách quận/huyện
     if (query !== "") {
-      const filteredSuggestions = posts.filter((posts) =>
-        posts.title.toLowerCase().includes(query)
+      const filteredSuggestions = posts.filter((post) =>
+        post.title.toLowerCase().includes(query)
       );
       setSuggestions(filteredSuggestions);
     } else {
@@ -101,16 +98,25 @@ const PostsPage = () => {
     }
   };
 
-  // Hàm xử lý khi người dùng chọn 1 gợi ý
   const handleSuggestionClick = (suggestion) => {
-    setSearchQuery(suggestion.name); // Cập nhật chuỗi tìm kiếm với tên đã chọn
-    setSuggestions([]); // Ẩn danh sách gợi ý sau khi chọn
+    setSearchQuery(suggestion.name);
+    setSuggestions([]);
   };
 
-  // Filter cities based on search query
-  const filtereposts = posts.filter((posts) =>
-    posts.title.toLowerCase().includes(searchQuery.toLowerCase())
+  // Tính toán bài viết hiển thị trên trang hiện tại
+  const filteredPosts = posts.filter((post) =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const totalPages = Math.ceil(filteredPosts.length / itemsPerPage);
+  const currentPosts = filteredPosts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md">
       <Flex mb={5} justify="space-between" align="center">
@@ -118,32 +124,25 @@ const PostsPage = () => {
           <Text fontSize="2xl" fontWeight="bold">
             Danh sách bài viết
           </Text>
-
-          {/*  ===================================== thanh tìm kiếm ================================*/}
-
-          {/* Input tìm kiếm */}
-          <Flex opacity={1}>
+          <Flex>
             <Input
               placeholder="Tìm kiếm..."
               value={searchQuery}
-              onChange={handleInputChange} // Sửa lại hàm onChange
+              onChange={handleInputChange}
               variant="outline"
               borderColor="#00aa9f"
               color="black"
               mr={2}
               width="200px"
             />
-            {/* Hiển thị gợi ý */}
             {suggestions.length > 0 && (
               <List
                 border="1px solid #ccc"
                 borderRadius="md"
                 bg="white"
-                // mt={2}
-                position={"absolute"}
-                marginTop={10}
+                position="absolute"
+                mt={2}
                 width="200px"
-                paddingLeft={0}
               >
                 {suggestions.map((suggestion) => (
                   <ListItem
@@ -160,14 +159,7 @@ const PostsPage = () => {
           </Flex>
         </Box>
         <Link to="add">
-          {" "}
-          {/* Sửa đường dẫn */}
-          <Button
-            bg="#1ba43b"
-            color="white"
-            _hover={{ bg: "#189537" }}
-            _active={{ bg: "#157f31" }}
-          >
+          <Button bg="#1ba43b" color="white" _hover={{ bg: "#189537" }}>
             Thêm bài viết
           </Button>
         </Link>
@@ -176,8 +168,7 @@ const PostsPage = () => {
         <Thead>
           <Tr>
             <Th>STT</Th>
-            <Th display="none">ID</Th>
-            <Th>Logo</Th> {/* Cột logo mới */}
+            <Th>Logo</Th>
             <Th>Tiêu đề</Th>
             <Th>Nội dung</Th>
             <Th>Lượt xem</Th>
@@ -187,24 +178,22 @@ const PostsPage = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {filtereposts.map((post, index) => (
+          {currentPosts.map((post, index) => (
             <Tr key={post.id} _hover={{ bg: hoverBgColor }}>
-              <Td fontWeight="bold">{index + 1}</Td>
-              <Td display="none">{post.id}</Td>
+              <Td>{(currentPage - 1) * itemsPerPage + index + 1}</Td>
               <Td>
                 <Img
-                  src={`http://localhost:3000/uploads/posts/${post.avt}`} // Đường dẫn đến logo
-                  boxSize="50px" // Kích thước của logo
+                  src={`http://localhost:3000/uploads/posts/${post.avt}`}
+                  boxSize="50px"
                   objectFit="cover"
-                  borderRadius="full" // Làm tròn nếu muốn
+                  borderRadius="full"
                   alt={post.title}
                 />
               </Td>
               <Td>{post.title}</Td>
               <Td maxW="200px" isTruncated>
                 {post.content}
-              </Td>{" "}
-              {/* Hiển thị nội dung với độ dài giới hạn */}
+              </Td>
               <Td>{post.views}</Td>
               <Td>{post.post_categories_id}</Td>
               <Td>{post.author_id}</Td>
@@ -226,23 +215,31 @@ const PostsPage = () => {
           ))}
         </Tbody>
       </Table>
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-      >
+      <Flex mt={4} justify="center">
+        {[...Array(totalPages)].map((_, pageIndex) => (
+          <Button
+            key={pageIndex}
+            mx={1}
+            size="sm"
+            onClick={() => handlePageChange(pageIndex + 1)}
+            bg={currentPage === pageIndex + 1 ? "blue.500" : "gray.200"}
+            color={currentPage === pageIndex + 1 ? "white" : "black"}
+          >
+            {pageIndex + 1}
+          </Button>
+        ))}
+      </Flex>
+      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Xác nhận xóa
             </AlertDialogHeader>
-
             <AlertDialogBody>
               Bạn có chắc chắn muốn xóa bài viết này không?
             </AlertDialogBody>
-
             <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose} colorScheme="blue">
+              <Button ref={cancelRef} onClick={onClose}>
                 Hủy
               </Button>
               <Button colorScheme="red" onClick={handleConfirmDelete} ml={3}>

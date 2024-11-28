@@ -32,6 +32,8 @@ const CategoryPage = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1); // Quản lý trang hiện tại
+  const categoriesPerPage = 5; // Số mục mỗi trang
   const cancelRef = useRef();
   const toast = useToast();
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
@@ -61,7 +63,7 @@ const CategoryPage = () => {
   };
 
   const handleSuggestionClick = (suggestion) => {
-    setSearchQuery(suggestion.name); // Cập nhật chuỗi tìm kiếm với tên danh mục đã chọn
+    setSearchQuery(suggestion.name);
     setSuggestions([]);
   };
 
@@ -100,16 +102,31 @@ const CategoryPage = () => {
     setIsOpen(true);
   };
 
-  // Lọc danh sách danh mục dựa trên tên danh mục
   const filteredCategories = categories.filter((category) =>
     category.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Tính toán danh sách hiển thị dựa trên trang hiện tại
+  const indexOfLastCategory = currentPage * categoriesPerPage;
+  const indexOfFirstCategory = indexOfLastCategory - categoriesPerPage;
+  const currentCategories = filteredCategories.slice(
+    indexOfFirstCategory,
+    indexOfLastCategory
+  );
+
+  const totalPages = Math.ceil(filteredCategories.length / categoriesPerPage);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
 
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md">
       <Flex mb={5} justify="space-between" align="center">
         <Box>
-          <Text fontSize="2xl" fontWeight="bold">Danh sách danh mục</Text>
+          <Text fontSize="2xl" fontWeight="bold">
+            Danh sách danh mục
+          </Text>
           <Flex align="center" mb={4}>
             <Flex opacity={1}>
               <Input
@@ -145,18 +162,7 @@ const CategoryPage = () => {
                 </List>
               )}
             </Flex>
-            <Button
-              fontFamily="math"
-              variant="solid"
-              colorScheme="teal"
-              bg="#00aa9f"
-              _hover={{ bg: "#32dfd4" }}
-              mr={4}
-            >
-              Tìm kiếm
-            </Button>
           </Flex>
-
         </Box>
         <Link to="admin/categories/add">
           <Button
@@ -181,9 +187,9 @@ const CategoryPage = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {filteredCategories.map((category, index) => (
+          {currentCategories.map((category, index) => (
             <Tr key={category.id} _hover={{ bg: hoverBgColor }}>
-              <Td fontWeight="bold">{index + 1}</Td>
+              <Td fontWeight="bold">{indexOfFirstCategory + index + 1}</Td>
               <Td display="none">{category.id}</Td>
               <Td>
                 <Img
@@ -214,6 +220,20 @@ const CategoryPage = () => {
           ))}
         </Tbody>
       </Table>
+      {/* Phân trang */}
+      <Flex justify="center" mt={4}>
+        {Array.from({ length: totalPages }, (_, i) => (
+          <Button
+            key={i + 1}
+            mx={1}
+            size="sm"
+            onClick={() => handlePageChange(i + 1)}
+            colorScheme={i + 1 === currentPage ? "blue" : "gray"}
+          >
+            {i + 1}
+          </Button>
+        ))}
+      </Flex>
       <AlertDialog
         isOpen={isOpen}
         leastDestructiveRef={cancelRef}

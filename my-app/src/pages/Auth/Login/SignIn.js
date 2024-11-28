@@ -31,6 +31,20 @@ const SignIn = () => {
     }
   };
 
+
+  useEffect(() => {
+    // Thêm script của Dialogflow vào DOM
+    const script = document.createElement("script");
+    script.src = "https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      // Cleanup script khi component bị unmount
+      document.body.removeChild(script);
+    };
+  }, []);
+  
   // Kiểm tra và xử lý token Google khi redirect về
   useEffect(() => {
     const token = localStorage.getItem('token');

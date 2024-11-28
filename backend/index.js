@@ -152,27 +152,7 @@ app.post("/payment", async (req, res) => {
 
   //before sign HMAC SHA256 with format
   //accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType
-  var rawSignature =
-    "accessKey=" +
-    accessKey +
-    "&amount=" +
-    amount +
-    "&extraData=" +
-    extraData +
-    "&ipnUrl=" +
-    ipnUrl +
-    "&orderId=" +
-    orderId +
-    "&orderInfo=" +
-    orderInfo +
-    "&partnerCode=" +
-    partnerCode +
-    "&redirectUrl=" +
-    redirectUrl +
-    "&requestId=" +
-    requestId +
-    "&requestType=" +
-    requestType;
+  var rawSignature = "accessKey=" + accessKey +"&amount=" + amount +"&extraData=" + extraData +"&ipnUrl=" + ipnUrl + "&orderId=" + orderId +"&orderInfo=" + orderInfo +"&partnerCode=" + partnerCode + "&redirectUrl=" + redirectUrl +"&requestId=" +requestId +"&requestType=" +requestType;
   //puts raw signature
   console.log("--------------------RAW SIGNATURE----------------");
   console.log(rawSignature);

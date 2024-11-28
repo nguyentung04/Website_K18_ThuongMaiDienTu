@@ -66,7 +66,7 @@ const CheckoutForm = () => {
         }));
 
         // Lấy giỏ hàng từ server theo user_id
-        const response = await axios.get(`${BASE_URL}/api/cart/${user_id}`, {
+        const response = await axios.get(`${BASE_URL}/api/cart_userId/${user_id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
       
@@ -107,7 +107,7 @@ useEffect(() => {
 
           // Gọi API để lấy thông tin giỏ hàng
           const token = localStorage.getItem("token"); // Đảm bảo token được truyền
-          const response = await axios.get(`${BASE_URL}/api/cart/${user.id}`, {
+          const response = await axios.get(`${BASE_URL}/api/cart_userId/${user.id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           const cartData = response.data || [];

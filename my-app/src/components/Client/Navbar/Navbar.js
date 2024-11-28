@@ -102,7 +102,7 @@ const Navbar = () => {
                   }`}
                 onClick={() => handleLinkClick("/menu")}
               >
-                Menu <CgChevronDown />
+                Sản phẩm <CgChevronDown />
               </Link>
               <div className="dropdown-content">
                 <div className="dropdown-section">
@@ -314,7 +314,7 @@ const Navbar = () => {
                 <input
                   className="formcontrol me-2"
                   type="search"
-                  placeholder="Search"
+                  placeholder="Tìm kiếm"
                 />
               </div>
             </form>

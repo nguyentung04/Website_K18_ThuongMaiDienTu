@@ -349,7 +349,7 @@ const FeaturedProducts = () => {
               <SwiperSlide className="swiper-wrappe" key={product.id} style={{ display: "flex" }}>
                 <div className="swiper-slide swiper-slide-active">
                     <div className="product-box h-100 bg-gray relative">
-                      <button
+                      {/* <button
                         className="like-icon"
                         onClick={() => toggleLike(product.id)}
                       >
@@ -360,9 +360,9 @@ const FeaturedProducts = () => {
                               ? "#b29c6e"
                               : "white"
                           }
-                        />
+                        /> */}
                         {/* <span>{likeCounts[product.id] || 0}</span> */}
-                      </button>
+                      {/* </button> */}
                       <button
                         className="add-to-cart-icon"
                         onClick={(e) => handleAddToCartAndOpenModal(e, product)}

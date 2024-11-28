@@ -282,10 +282,7 @@ const PromotionalProducts = () => {
                 >
                   <div className="swiper-slide swiper-slide-active">
                     <div className="product-box h-100 bg-gray relative">
-                      <button
-                        className="like-icon"
-                        onClick={() => toggleLike(product.id)}
-                      >
+                      {/* <button className="like-icon" onClick={() => toggleLike(product.id)}>
                         <HeartIcon
                           size="24px"
                           color={
@@ -295,24 +292,12 @@ const PromotionalProducts = () => {
                           }
                         />
                         {/* <span>{likeCounts[product.id] || 0}</span> */}
-                      </button>
-                      <button
-                        className="add-to-cart-icon"
-                        onClick={(e) => handleAddToCartAndOpenModal(e, product)}
-                        disabled={isAddingToCart}
-                      >
-                        {isAddingToCart ? (
-                          "Đang thêm..."
-                        ) : (
-                          <FaShoppingCart
-                            size="25"
-                            style={{
-                              color: "white",
-                              stroke: "#b29c6e",
-                              strokeWidth: 42,
-                            }}
-                          />
-                        )}
+                      {/* </button> */} 
+                      <button className="add-to-cart-icon" onClick={(e) => handleAddToCartAndOpenModal(e, product)}>
+                        <FaShoppingCart
+                          size="25"
+                          style={{ color: "white", stroke: "#b29c6e", strokeWidth: 42 }}
+                        />
                       </button>
                       <div className="product-box">
                         <a href={`/product/${product.id}`} className="plain">

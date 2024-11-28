@@ -435,7 +435,7 @@ button.dot img {
 .products  .product-box {
   position: relative;
   height: 100% !important;
-  background-color: #bcbab636;
+  background-color: #ffffff36;
   border-radius: 6px;
 }
 
@@ -481,7 +481,7 @@ button.dot img {
 
 .products .product-info .product-title,
 .product-info .product-sku {
-  font-size: 14px;
+  font-size:16px;
   margin-bottom: 8px;
   line-height: 23px;
   color: var(--black);
@@ -491,6 +491,7 @@ button.dot img {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   font-family: 'SVN-Humanst 521 BT', Arial, sans-serif;
+  text-align: center;
 }
 
 

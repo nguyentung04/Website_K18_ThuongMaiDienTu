@@ -121,6 +121,8 @@ const FilterItem = ({ title, children, filters }) => {
   );
 };
 
+
+
 // =========================================================================================
 const Products = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -175,15 +177,29 @@ const Products = () => {
     };
   }, []);
 
-    const handleOpenModal = (product) => {
-      setSelectedProduct(product);
-      setIsOpen(true);
-    };
-    const handleCloseModal = () => setIsOpen(false);
+  const handleOpenModal = (product) => {
+    setSelectedProduct(product);
+    setIsOpen(true);
+  };
+  const handleCloseModal = () => setIsOpen(false);
   const [likedProducts, setLikedProducts] = useState([]);
   const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
   const increaseQuantity = () => setQuantity(quantity + 1);
+  //Phân trang 
+const [currentPage, setCurrentPage] = useState(1);
+const productsPerPage = 16;
 
+// Tính toán sản phẩm để hiển thị trên trang hiện tại
+const indexOfLastProduct = currentPage * productsPerPage;
+const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+const currentProducts = featuredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+
+// Tổng số trang
+const totalPages = Math.ceil(featuredProducts.length / productsPerPage);
+
+const handlePageChange = (pageNumber) => {
+  setCurrentPage(pageNumber);
+};
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [id]: value }));
@@ -627,9 +643,9 @@ const Products = () => {
       {/* ============================================================ SLIDER ============================================= */}
       <Slideshow />
 
-    
+
       <section className="featured-products  container">
-        <h2>Đồng hồ nam đẹp - cao cấp</h2>
+        <h2>SẢN PHẨM CỦA CHÚNG TÔI</h2>
         {/* ==================================== NÚT DANH MỤC VÀ SẮP XẾP ======================================== */}
         <div class="row filter-sort" id="filter-sort">
           <div class="col p-0">
@@ -699,109 +715,115 @@ const Products = () => {
           </div>
         </div>
         {/* =========================================== sản phẩm ================================= */}
-        <div className="product-list gridBlock row row-eq-height gx-1 row-cols-2 row-cols-md-3 row-cols-lg-3 row-cols-xl-3 row-cols-xxl-4">
-          {featuredProducts.slice(0, visibleProducts).map((product) => {
-            // Tính giá khuyến mãi nếu có phần trăm khuyến mãi
-            const discountPrice = product.discountPrice
-              ? product.price - (product.price * product.discountPrice) / 100
-              : "";
+        <div>
+          <div className="product-list gridBlock row row-eq-height gx-1 row-cols-2 row-cols-md-3 row-cols-lg-3 row-cols-xl-3 row-cols-xxl-4">
+            {currentProducts.map((product) => {
+              const discountPrice = product.discountPrice
+                ? product.price - (product.price * product.discountPrice) / 100
+                : "";
 
-            return (
-              <div
-                className="swiper-wrappe"
-                style={{
-                  width: " 312px",
-                  marginBottom: "4px",
-                }}
-                key={product.id}
-              >
-                <button
-                  className="like-icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleLike(product.id);
-                  }} // Toggle like state on click
-                >
-                  <span>
-                    <HeartIcon
-                      size="24px"
-                      marginLeft={"1.5px"}
-                      color={
-                        likedProducts.includes(product.id) ? "#b29c6e" : "white"
-                      }
-                    />
-                  </span>
-                </button>
-                <button
-                  className="add-to-cart-icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleOpenModal(product);
+              return (
+                <div
+                  className="swiper-wrappe"
+                  style={{
+                    width: "312px",
+                    marginBottom: "4px",
                   }}
+                  key={product.id}
                 >
-                  <span style={{ color: "white" }}>
-                    <FaShoppingCart
-                      size={25}
-                      style={{
-                        color: "white",
-                        stroke: "#b29c6e",
-                        strokeWidth: 42,
-                      }}
-                    />
-                  </span>
-                </button>
+                  <button
+                    className="add-to-cart-icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenModal(product);
+                    }}
+                  >
+                    <span style={{ color: "white" }}>
+                      <FaShoppingCart
+                        size={25}
+                        style={{
+                          color: "white",
+                          stroke: "#b29c6e",
+                          strokeWidth: 42,
+                        }}
+                      />
+                    </span>
+                  </button>
 
-                <div className="swiper-slide swiper-slide-active">
-                  <div className="product-box h-100 bg-gray relative">
-                    <a
-                    href={`/product/${product.id}`}// phải có link thì mới có hiện con trỏ bàn tay nhấn
-                      className="plain"
-                      onClick={() =>
-                        (window.location.href = `/product_detail/${product.id}`)
-                      }
-                    >
-                      <div className="product-item">
-                        <img
-                          src={`${BASE_URL}/uploads/products/${product.images}`}
-                          alt={product.name}
-                          className="product-image img-fluid"
-                        />
-                      </div>
+                  <div className="swiper-slide swiper-slide-active">
+                    <div className="product-box h-100 relative">
+                      <a
+                        href={`/product/${product.id}`}
+                        className="plain"
+                        onClick={() => (window.location.href = `/product_detail/${product.id}`)}
+                      >
+                        <div className="product-item">
+                          <img
+                            src={`${BASE_URL}/uploads/products/${product.images}`}
+                            alt={product.name}
+                            className="product-image img-fluid"
+                          />
+                        </div>
 
-                      <div className="product-info">
-                        <p className="product-title">{product.name}</p>
+                        <div className="product-info">
+                          <p className="product-title">{product.name}</p>
 
-                        {/* Hiển thị giá gốc */}
-                        <p
-                          className={`product-price ${
-                            discountPrice ? "line-through" : ""
-                          }`}
-                        >
-                          {formatPrice(product.price)}
-                        </p>
-
-                        {/* Nếu sản phẩm có giá khuyến mãi, hiển thị giá khuyến mãi */}
-                        {discountPrice && (
                           <p
-                            className="product-discount-price"
-                            style={{ color: "#a60101" }} // Màu đỏ cho giá khuyến mãi
+                            className={`product-price ${discountPrice ? "line-through" : ""}`}
                           >
-                            Giá khuyến mãi: {formatPrice(discountPrice)}
+                            {formatPrice(product.price)}
                           </p>
-                        )}
-                      </div>
-                    </a>
+
+                          {discountPrice && (
+                            <p
+                              className="product-discount-price"
+                              style={{ color: "#a60101" }}
+                            >
+                              Giá khuyến mãi: {formatPrice(discountPrice)}
+                            </p>
+                          )}
+                        </div>
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+
+          {/* Phân trang */}
+          <div className="pagination">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Trước
+            </button>
+
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index}
+                onClick={() => handlePageChange(index + 1)}
+                className={currentPage === index + 1 ? "active" : ""}
+              >
+                {index + 1}
+              </button>
+            ))}
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Sau
+            </button>
+          </div>
         </div>
+        
+
         {/* ================== MENU CON ==================== */}
         <div
-          className={`offcanvas offcanvas-end product-filter ${
-            isOffcanvasVisible ? "show" : ""
-          }`}
+          className={`offcanvas offcanvas-end product-filter ${isOffcanvasVisible ? "show" : ""
+            }`}
           class="offcanvas offcanvas-end product-filter show"
           data-bs-scroll="true"
           tabindex="-1"
@@ -836,77 +858,77 @@ const Products = () => {
                 class="filter-options"
                 filters={brands}
               ></FilterItem>
-                  <hr />
+              <hr />
             </div>
-        
+
             <div class="filter-col">
               <FilterItem title="Loại máy" filters={loaiMayArray}></FilterItem>
-            <hr />
+              <hr />
             </div>
-   
+
             <div class="filter-col">
               <FilterItem
                 title=" Chất liệu dây"
                 class="filter-options"
                 filters={dayArray}
               ></FilterItem>
-            <hr />
+              <hr />
             </div>
-   
+
             <div class="filter-col">
               <FilterItem
                 title="Màu sắc "
                 class="filter-options"
                 filters={mauSacArray}
               ></FilterItem>
-            <hr />
+              <hr />
             </div>
-   
+
             <div class="filter-col">
               <FilterItem
                 title="Đường kính "
                 class="filter-options"
                 filters={duongKinhArray}
               ></FilterItem>
-            <hr />
+              <hr />
             </div>
-   
+
             <div class="filter-col">
               <FilterItem
                 title="Style "
                 class="filter-options"
                 filters={styleArray}
               ></FilterItem>
-            <hr />
+              <hr />
             </div>
-   
+
             <div class="filter-col">
               <FilterItem
                 title="Tính năng "
                 class="filter-options"
                 filters={chucNangArray}
               ></FilterItem>
-            <hr />
+              <hr />
             </div>
-   
+
             <div class="filter-col">
               <FilterItem
                 title="Độ chống nước "
                 class="filter-options"
                 filters={chongNuocArray}
               ></FilterItem>
-            <hr />
+              <hr />
             </div>
-   
+
             <div class="filter-col">
               <FilterItem
                 title="Khoảng giá "
                 class="filter-options "
                 filters={giaArray}
               ></FilterItem>
-            <hr />
+              <hr />
             </div>
-   
+
           </div>
           <div class="offcanvas-footer reset-bar">
             <div class="secondary-bar d-flex">

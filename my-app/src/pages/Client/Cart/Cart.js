@@ -296,9 +296,9 @@ const removeFromCart = async (id) => {
 
   return (
     <div className="cart" ref={cartContainerRef}>
-      <h3>Giỏ hàng</h3>
+      <h3>GIỎ HÀNG CỦA BẠN</h3>
 
-      <Box background="#e4cc972e" mb="40px" p="20px" borderRadius="6px">
+      <Box background="fff" mb="40px" p="20px" borderRadius="6px">
         {cart.map((item, index) => (
           <Box key={item.id}>
             {" "}

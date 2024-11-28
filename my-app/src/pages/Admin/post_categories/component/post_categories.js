@@ -18,10 +18,9 @@ import {
   AlertDialogBody,
   AlertDialogFooter,
   useToast,
-  Img,
   Input,
   List,
-  ListItem, // Thêm Img để hiển thị logo
+  ListItem,
 } from "@chakra-ui/react";
 import {
   fetchPost_categories,
@@ -36,11 +35,14 @@ const CategoryPage = () => {
   const cancelRef = useRef();
   const toast = useToast();
 
-  //** ========================================================================================== */
-  const [searchQuery, setSearchQuery] = useState(""); // Lưu chuỗi tìm kiếm
-  const [suggestions, setSuggestions] = useState([]); // Lưu gợi ý quận/huyện
-
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Số danh mục trên mỗi trang
+
+  const [searchQuery, setSearchQuery] = useState(""); 
+  const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
     const getCategories = async () => {
@@ -75,7 +77,6 @@ const CategoryPage = () => {
         duration: 5000,
         isClosable: true,
       });
-      console.error("Failed to delete category:", error);
     }
     setIsOpen(false);
   };
@@ -87,13 +88,10 @@ const CategoryPage = () => {
     setIsOpen(true);
   };
 
-  //** ========================================================================================== */
-  // Hàm xử lý sự kiện khi người dùng nhập vào ô tìm kiếm
   const handleInputChange = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
 
-    // Nếu chuỗi tìm kiếm không rỗng, lọc danh sách quận/huyện
     if (query !== "") {
       const filteredSuggestions = post_categories.filter((post_categories) =>
         post_categories.name.toLowerCase().includes(query)
@@ -104,16 +102,28 @@ const CategoryPage = () => {
     }
   };
 
-  // Hàm xử lý khi người dùng chọn 1 gợi ý
   const handleSuggestionClick = (suggestion) => {
-    setSearchQuery(suggestion.name); // Cập nhật chuỗi tìm kiếm với tên đã chọn
-    setSuggestions([]); // Ẩn danh sách gợi ý sau khi chọn
+    setSearchQuery(suggestion.name);
+    setSuggestions([]);
   };
 
-  // Filter cities based on search query
   const filterePost_categories = post_categories.filter((post_categories) =>
     post_categories.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Pagination logic
+  const totalItems = filterePost_categories.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  const currentData = filterePost_categories.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md">
       <Flex mb={5} justify="space-between" align="center">
@@ -121,28 +131,22 @@ const CategoryPage = () => {
           <Text fontSize="2xl" fontWeight="bold">
             Danh sách danh mục
           </Text>
-
-          {/*  ===================================== thanh tìm kiếm ================================*/}
-
-          {/* Input tìm kiếm */}
           <Flex opacity={1}>
             <Input
               placeholder="Tìm kiếm..."
               value={searchQuery}
-              onChange={handleInputChange} // Sửa lại hàm onChange
+              onChange={handleInputChange}
               variant="outline"
               borderColor="#00aa9f"
               color="black"
               mr={2}
               width="200px"
             />
-            {/* Hiển thị gợi ý */}
             {suggestions.length > 0 && (
               <List
                 border="1px solid #ccc"
                 borderRadius="md"
                 bg="white"
-                // mt={2}
                 position={"absolute"}
                 marginTop={10}
                 width="200px"
@@ -184,9 +188,11 @@ const CategoryPage = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {filterePost_categories.map((post_categories, index) => (
+          {currentData.map((post_categories, index) => (
             <Tr key={post_categories.id} _hover={{ bg: hoverBgColor }}>
-              <Td fontWeight="bold">{index + 1}</Td>
+              <Td fontWeight="bold">
+                {(currentPage - 1) * itemsPerPage + index + 1}
+              </Td>
               <Td display="none">{post_categories.id}</Td>
               <Td>{post_categories.name}</Td>
               <Td>{post_categories.description}</Td>
@@ -208,21 +214,30 @@ const CategoryPage = () => {
           ))}
         </Tbody>
       </Table>
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-      >
+      <Flex justify="center" mt={4}>
+        {Array.from({ length: totalPages }, (_, index) => (
+          <Button
+            key={index}
+            size="sm"
+            onClick={() => handlePageChange(index + 1)}
+            bg={currentPage === index + 1 ? "blue.500" : "gray.300"}
+            color={currentPage === index + 1 ? "white" : "black"}
+            mx={1}
+            _hover={{ bg: "blue.400" }}
+          >
+            {index + 1}
+          </Button>
+        ))}
+      </Flex>
+      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Xác nhận xóa
             </AlertDialogHeader>
-
             <AlertDialogBody>
               Bạn có chắc chắn muốn xóa danh mục này không?
             </AlertDialogBody>
-
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose} colorScheme="blue">
                 Hủy

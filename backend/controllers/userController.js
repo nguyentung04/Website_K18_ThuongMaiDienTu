@@ -146,9 +146,30 @@ exports.getUserById = (req, res) => {
   const userId = req.params.id;
 
   connection.query(
-    "SELECT * FROM users WHERE id = ?",
+    "SELECT id, name, username, email, phone, address1, address2, status, role FROM users WHERE id = ?",
     [userId],
     (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (results.length === 0) {
+        return res.status(404).json({ message: "Không tìm thấy người dùng" });
+      }
+
+      res.status(200).json(results[0]);
+    }
+  );
+};
+
+
+  // Xóa người dùng
+  exports.deleteUser = (req, res) => {
+    const userId = req.params.id;
+
+    const query = "DELETE FROM Users WHERE id = ?";
+
+    connection.query(query, [userId], (err, results) => {
       if (err) {
         console.error("Lỗi truy vấn cơ sở dữ liệu:", err);
         return res
@@ -248,32 +269,35 @@ exports.updateUser = (req, res) => {
 };
 
 
-// Thêm người dùng mới
-exports.postUsers = async (req, res, next) => {
-  try {
-    console.log("Dữ liệu gửi từ yêu cầu:", req.body);
 
-    const { name, phone, password, email, username, role } = req.body;
+  // Thêm người dùng mới
+  exports.postUsers = async (req, res, next) => {
+    try {
+      console.log("Dữ liệu gửi từ yêu cầu:", req.body);
 
-    // Mã hóa mật khẩu
-    const hashedPassword = await bcrypt.hash(password, 10);
+      const { name, phone, password, email, username, role, address1, address2 } = req.body;
 
-    const query = `
-      INSERT INTO users(name, phone, password, email, username, role)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `;
-    const values = [name, phone, hashedPassword, email, username, role];
+      // Mã hóa mật khẩu
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    connection.query(query, values, (err, results) => {
-      if (err) {
-        console.error("Lỗi cơ sở dữ liệu:", err);
-        return res.status(500).json({ error: err.message });
-      }
-      res.status(201).json({
-        message: "Thêm người dùng thành công",
-        userId: results.insertId,
+      const query = `
+        INSERT INTO users(name, phone, password, email, username, role, address1, address2)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `;
+      const values = [name, phone, hashedPassword, email, username, role, address1, address2];
+
+      connection.query(query, values, (err, results) => {
+        if (err) {
+          console.error("Lỗi cơ sở dữ liệu:", err);
+          return res.status(500).json({ error: err.message });
+        }
+        res.status(201).json({
+          message: "Thêm người dùng thành công",
+          userId: results.insertId,
+        });
       });
-    });
+    
+  
   } catch (error) {
     console.error("Lỗi máy chủ:", error);
     next(error);

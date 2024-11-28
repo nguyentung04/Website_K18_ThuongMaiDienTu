@@ -38,6 +38,7 @@ exports.login = async (req, res) => {
 
       res.status(200).json({
         token,
+        expiresIn: 3600,
         user: {
           id: user.id,
           username: user.username,
@@ -50,66 +51,61 @@ exports.login = async (req, res) => {
 };
 
 
-exports.googleAuth = (req, res) => {
-  const { id, name, email, avatar } = req.user;
+exports.googleAuth = async (req, res) => {
+  const { id, name, email, image } = req.user; // Thông tin từ Google OAuth
 
-  connection.query("SELECT * FROM users WHERE email = ?", [email], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: "Lỗi kết nối cơ sở dữ liệu" });
-    }
+  try {
+    // Kiểm tra xem người dùng có tồn tại trong database hay không
+    const results = await query('SELECT * FROM users WHERE google_id = ? OR email = ?', [id, email]);
 
     let user = results.length > 0 ? results[0] : null;
 
     if (!user) {
+      // Người dùng chưa tồn tại, tạo mới
       const newUser = {
-        google_id: id,
-        name,
-        email,
-        avatar,
+        google_id: id,                    
+        name,                              
+        email,                             
+        image,                             
         username: name.replace(/\s+/g, '').toLowerCase(),
-        password: 'google_user_password',
-        role: 'user',
-        status: '1',  
+        role: 'user',                      
+        status: '1',                       
+        createdAt: new Date(),
       };
 
-      connection.query("INSERT INTO users SET ?", newUser, (insertErr, result) => {
-        if (insertErr) {
-          return res.status(500).json({ error: "Lỗi khi thêm người dùng" });
-        }
-
-        newUser.id = result.insertId;
-        const token = jwt.sign({ 
-          id: newUser.id, 
-          username: newUser.username,
-          email: newUser.email,
-          role: newUser.role 
-        }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        
-        return res.redirect(`http://localhost:3001?token=${token}`);
-      });
-    } else {
-      const token = jwt.sign({ 
-        id: user.id, 
-        username: user.username,
-        email: user.email,
-        role: user.role 
-      }, process.env.JWT_SECRET, { expiresIn: '1h' });
-      
-      return res.redirect(`http://localhost:3001?token=${token}`);
+      // Thêm người dùng mới vào database
+      const insertResult = await query('INSERT INTO users SET ?', newUser);
+      newUser.id = insertResult.insertId; 
+      user = newUser;                     
     }
-  });
+
+    // Tạo JWT token cho người dùng
+    const token = jwt.sign(
+      { id: user.id, username: user.username, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    // Redirect đến frontend với token
+    return res.redirect(`http://localhost:3001?token=${token}`);
+  } catch (err) {
+    console.error("GoogleAuth error:", err.message);
+    return res.status(500).json({ error: 'Có lỗi xảy ra, vui lòng thử lại sau!' });
+  }
 };
+
+
 
 
 function authenticateToken(req, res, next) {
   const token = req.header('Authorization')?.replace('Bearer ', '');
-  console.log("Token received:", token);
   if (!token) {
     return res.status(401).json({ message: 'Bạn cần phải đăng nhập' });
   }
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
+      console.error("Invalid Token:", err.message);
       return res.status(403).json({ message: 'Token không hợp lệ' });
     }
     req.user = user;
@@ -117,6 +113,5 @@ function authenticateToken(req, res, next) {
   });
 }
 
+module.exports = { authenticateToken };
 
-
-module.exports = authenticateToken;

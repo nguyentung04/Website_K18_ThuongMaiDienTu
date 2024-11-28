@@ -15,18 +15,16 @@ import {
   List,
   ListItem,
 } from "@chakra-ui/react";
-import {
-  fetchProductReviews,
-  updateProductReviewCounts,
-} from "../../../../service/api/comments";
+import { fetchProductReviews, updateProductReviewCounts } from "../../../../service/api/comments";
 import { Link } from "react-router-dom";
 
 const CommentPage = () => {
   const [reviews, setReviews] = useState([]);
-  const hoverBgColor = useColorModeValue("gray.100", "gray.700");
-
+  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+  const [itemsPerPage] = useState(10); // Số lượng đánh giá mỗi trang
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const hoverBgColor = useColorModeValue("gray.100", "gray.700");
 
   useEffect(() => {
     const getReviews = async () => {
@@ -56,7 +54,6 @@ const CommentPage = () => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
 
-    // Tìm kiếm dựa trên tên sản phẩm
     if (query !== "") {
       const filteredSuggestions = reviews.filter((review) =>
         review.name?.toLowerCase().includes(query)
@@ -68,14 +65,24 @@ const CommentPage = () => {
   };
 
   const handleSuggestionClick = (suggestion) => {
-    setSearchQuery(suggestion.name); // Hiển thị tên sản phẩm đã chọn
+    setSearchQuery(suggestion.name);
     setSuggestions([]);
   };
 
-  // Lọc danh sách đánh giá dựa trên tên sản phẩm
   const filteredReviews = reviews.filter((review) =>
     review.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Lấy dữ liệu cho trang hiện tại
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentReviews = filteredReviews.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md">
@@ -148,9 +155,9 @@ const CommentPage = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {filteredReviews.map((review, index) => (
+          {currentReviews.map((review, index) => (
             <Tr key={review.id} _hover={{ bg: hoverBgColor }}>
-              <Td fontWeight="bold">{index + 1}</Td>
+              <Td fontWeight="bold">{indexOfFirstItem + index + 1}</Td>
               <Td>{review.fullname}</Td>
               <Td display={"none"}>{review.user_id}</Td>
               <Td>{review.name}</Td>
@@ -167,6 +174,19 @@ const CommentPage = () => {
           ))}
         </Tbody>
       </Table>
+      {/* Phân trang */}
+      <Flex justify="center" mt={5}>
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <Button
+            key={page}
+            onClick={() => handlePageChange(page)}
+            mx={1}
+            colorScheme={page === currentPage ? "blue" : "gray"}
+          >
+            {page}
+          </Button>
+        ))}
+      </Flex>
     </Box>
   );
 };

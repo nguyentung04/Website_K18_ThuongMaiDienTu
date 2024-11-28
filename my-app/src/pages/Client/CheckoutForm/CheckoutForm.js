@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./CheckoutForm.css";
 import {
   Box,
@@ -25,6 +25,8 @@ const CheckoutForm = () => {
     note: "",
     paymentMethod: "COD",
   });
+  
+  const location = useLocation();
   const [cart, setCart] = useState([]);
   const [locations, setLocations] = useState([]);
   const navigate = useNavigate();
@@ -34,35 +36,43 @@ const CheckoutForm = () => {
   const toast = useToast();
   const [user, setUser] = useState(null);
   const BASE_URL = "http://localhost:3000"; // Cập nhật đúng URL của server
+  
+ // Đồng bộ user_id vào formData khi state `user` thay đổi
+ useEffect(() => {
+  if (user) {
+    setFormData((prev) => ({
+      ...prev,
+      user_id: user.id,
+    }));
+  }
+}, [user]);
 
+  // Lấy thông tin người dùng và giỏ hàng từ server
   useEffect(() => {
     const fetchUserAndCart = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("token"); // Lấy token từ localStorage
         if (!token) throw new Error("Token không tồn tại. Vui lòng đăng nhập.");
 
-        // Giải mã token để lấy user_id và thông tin người dùng
-        const decodedToken = jwtDecode(token);
+        const decodedToken = jwtDecode(token); // Giải mã token
         const { id: user_id, name, email } = decodedToken;
 
-        // Cập nhật thông tin người dùng vào formData
-        setUser({ id: user_id, name, email });
+        setUser({ id: user_id, name, email }); // Lưu thông tin người dùng
+
         setFormData((prev) => ({
           ...prev,
           name: name || "",
           email: email || "",
         }));
 
-        // Gọi API để lấy giỏ hàng theo user_id
+        // Lấy giỏ hàng từ server theo user_id
         const response = await axios.get(`${BASE_URL}/api/cart/${user_id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
-        const cartData = response.data || [];
-        setCart(cartData); // Lưu giỏ hàng vào state
-        localStorage.setItem("cart", JSON.stringify(cartData)); // Đồng bộ giỏ hàng vào localStorage
+      
+        console.log("Dữ liệu giỏ hàng từ API:", response.data);
+        
+        setCart(response.data || []); // Lưu dữ liệu giỏ hàng
       } catch (error) {
         console.error("Lỗi khi lấy thông tin người dùng và giỏ hàng:", error);
         toast({
@@ -72,12 +82,63 @@ const CheckoutForm = () => {
           duration: 5000,
           isClosable: true,
         });
-        navigate("/login"); // Điều hướng về trang đăng nhập nếu lỗi xác thực
+        navigate("/login"); // Chuyển hướng đến trang đăng nhập
       }
     };
 
-    fetchUserAndCart();
+    fetchUserAndCart(); // Gọi hàm lấy dữ liệu khi component được render
   }, []);
+
+
+// Xử lý thanh toán MoMo từ URL callback
+useEffect(() => {
+  const processMoMoCallback = async () => {
+    if (location.search && user) {
+      const urlParams = new URLSearchParams(location.search);
+
+      const orderId = urlParams.get("orderId");
+      const amount = urlParams.get("amount");
+      const resultCode = urlParams.get("resultCode");
+
+      if (orderId && amount && resultCode) {
+        try {
+          // Lấy formData từ localStorage
+          const savedFormData = JSON.parse(localStorage.getItem("checkoutForm")) || {};
+
+          // Gọi API để lấy thông tin giỏ hàng
+          const token = localStorage.getItem("token"); // Đảm bảo token được truyền
+          const response = await axios.get(`${BASE_URL}/api/cart/${user.id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const cartData = response.data || [];
+          setCart(cartData);
+          const savedOrderItems = response.data?.items?.cartData || [];
+          if (!Array.isArray(savedOrderItems)) {
+            console.warn("Dữ liệu giỏ hàng không hợp lệ:", savedOrderItems);
+          }
+           // Đảm bảo giá trị mặc định
+
+          // Cập nhật dữ liệu vào state
+          setFormData((prev) => ({
+            ...prev,
+            ...savedFormData,
+          }));
+
+          // Gọi addOrderMomo
+          addOrderMomo(orderId, amount, resultCode, savedFormData, savedOrderItems);
+        } catch (error) {
+          console.error("Lỗi khi lấy thông tin giỏ hàng:", error.message);
+          // Xử lý fallback nếu cần
+        }
+      }
+    }
+  };
+
+  processMoMoCallback();
+}, [location, user]);
+
+
+
 
   const clearCart = async (user_id) => {
     try {
@@ -86,12 +147,12 @@ const CheckoutForm = () => {
         throw new Error("Không tìm thấy token. Vui lòng đăng nhập lại.");
       }
 
-      // Gửi yêu cầu DELETE với user_id trong URL
-      await axios.delete(`${BASE_URL}/api/cart_user_id/${user_id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      await axios.delete(`${BASE_URL}/api/cart_user_id/${user?.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
+
+      setCart([]); // Xóa giỏ hàng trong state
+      localStorage.removeItem("cart"); // Xóa giỏ hàng trong localStorage
 
       toast({
         title: "Thành công!",
@@ -134,59 +195,131 @@ const CheckoutForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const addOrderMomo = async (orderId, amount, resultCode, formDataOverride, savedOrderItems) => {
+       // Xóa giỏ hàng sau khi đặt hàng thành công
+       await clearCart();
+    try {
+      const updatedFormData = formDataOverride || formData;
   
+      if (Number(resultCode) === 0) {
+        const orderItems = cart.map((item) => ({
+          product_id: item.product_id,
+          total_quantity: item.total_quantity,
+          total_price: parseFloat(item.total_price),
+          total: parseFloat(item.total_price) * item.total_quantity,
+        }));
+  
+        const payload = {
+          ...updatedFormData,
+          orderCode: orderId,
+          Provinces: updatedFormData.city,
+          Districts: updatedFormData.province,
+          shipping_address: updatedFormData.address,
+          order_detail: orderItems,
+          user_id: user.id,
+          total_amount: parseFloat(amount),
+        };
+  
+        console.log("Payload gửi lên server:", payload);
+  
+        const response = await axios.post(`${BASE_URL}/api/orders`, payload, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+  
+        console.log("Đơn hàng MoMo đã được thêm:", response.data);
+  
+      } else {
+        console.warn("Giao dịch không thành công, resultCode:", resultCode);
+      }
+    } catch (error) {
+      console.error("Lỗi khi tạo đơn hàng MoMo:", error.message);
+    }
+  };
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!validateForm()) return;
-
+  
     setIsSubmitting(true);
     try {
       const totalAmount = cart.reduce(
         (total, item) => total + item.total_quantity * item.total_price,
         0
       );
-
+  
+      // Tạo mã đơn hàng ngẫu nhiên
+      const orderCode = `ORD-${Date.now()}-${Math.random()
+        .toString(36)
+        .substr(2, 5)
+        .toUpperCase()}`;
+       
+      // Lưu formData vào localStorage
+      const formDataToSave = {
+          ...formData,
+          orderCode,
+          totalAmount,
+          shipping_address: formData.address,
+          orderItems: cart.map((item) => ({
+            product_id: item.product_id,
+            total_quantity: item.total_quantity,
+            total_price: parseFloat(item.total_price),
+            total: parseFloat(item.total_price) * item.total_quantity,
+          })),
+        }
+        localStorage.setItem("checkoutForm", JSON.stringify(formDataToSave)); // Lưu formData
       if (formData.paymentMethod === "momo") {
+        // Xử lý thanh toán bằng MoMo
         const momoResponse = await axios.post(`${BASE_URL}/payment`, {
           amount: totalAmount,
-          orderInfo: `Thanh toán đơn hàng: ${new Date().toLocaleString()}`,
-          product_id: cart.map((item) => item.product_id),
+          orderInfo: `${orderCode}`,
         });
-
+  
         if (momoResponse.data?.payUrl) {
+          // Chuyển hướng tới trang thanh toán MoMo
           window.location.href = momoResponse.data.payUrl;
+          return;
         } else {
           throw new Error("Không thể tạo giao dịch thanh toán bằng MoMo.");
         }
-      } else {
-        // Đặt hàng COD hoặc cập nhật đơn hàng
-        const endpoint =
-  
-           `${BASE_URL}/api/orders`;
-        const method =  "POST";
-
-        const response = await axios({
-          url: endpoint,
-          method,
-          data: {
-            ...formData,
-            orderItems: cart,
-            total_amount: totalAmount,
-          },
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
-
-        toast({
-          title: "Thành công!",
-          description: response.data.message || "Đơn hàng đã được xử lý.",
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-        });
-
-        navigate("/");
       }
+  
+      // Xử lý đơn hàng COD
+      const response = await axios.post(
+        `${BASE_URL}/api/orders`,
+        {
+          ...formData,
+          orderCode,
+          Provinces: formData.city,
+          Districts: formData.province,
+          shipping_address: formData.address,
+          orderItems: cart.map((item) => ({
+            product_id: item.product_id,
+            total_quantity: item.total_quantity,
+            total_price: parseFloat(item.total_price),
+            total: parseFloat(item.total_price) * item.total_quantity,
+          })),
+          user_id: user?.id,
+          total_amount: totalAmount,
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+  
+      // Xóa giỏ hàng sau khi đặt hàng thành công
+      await clearCart();
+  
+      toast({
+        title: "Thành công!",
+        description: response.data.message || "Đơn hàng đã được xử lý.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+  
+      navigate("/");
     } catch (error) {
       console.error("Lỗi khi đặt hàng:", error);
       toast({
@@ -200,46 +333,8 @@ const CheckoutForm = () => {
       setIsSubmitting(false);
     }
   };
-
-  const placeOrder = async (totalAmount) => {
-    const orderItems = cart.map((item) => ({
-      product_id: item.product_id,
-      total_quantity: item.total_quantity,
-      total_price: parseFloat(item.total_price),
-      total: parseFloat(item.total_price) * item.total_quantity,
-    }));
-
-    const orderData = {
-      ...formData,
-      Provinces: formData.city,
-      Districts: formData.province,
-      order_detail: orderItems,
-      user_id: user?.id,
-      total_amount: totalAmount,
-    };
-
-    const response = await axios.post(`${BASE_URL}/api/orders`, orderData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-
-    if (response.data.message === "Đặt hàng thành công!") {
-      await clearCart(user.id);
-      localStorage.removeItem("cart");
-      setCart([]);
-      toast({
-        title: "Thành công!",
-        description: "Đơn hàng đã được đặt.",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-      navigate("/");
-    } else {
-      throw new Error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.");
-    }
-  };
+  
+  // Hàm xóa giỏ hàng
 
   return (
     <div className="checkout-form">
@@ -325,7 +420,7 @@ const CheckoutForm = () => {
               onChange={handleChange}
             >
               <option value="COD">Thanh toán khi nhận hàng</option>
-              <option value="momo">Chuyển khoản MoMo</option>
+              <option value="momo" > Chuyển khoản MoMo</option>
             </Select>
             <FormErrorMessage>{errors.paymentMethod}</FormErrorMessage>
           </FormControl>

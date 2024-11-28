@@ -59,10 +59,10 @@ const Cart = () => {
         const userId = localStorage.getItem("userId");
         if (!userId) throw new Error("User ID không tồn tại.");
   
-        const response = await axios.get(`${BASE_URL}/api/cart/${userId}`, {
+        const response = await axios.get(`${BASE_URL}/api/cart_userId/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-  
+        // console.log("Fetched Cart Data:", userId);
         const cartData = response.data || [];
         setCart(cartData);
         localStorage.setItem(`cart_${userId}`, JSON.stringify(cartData)); // Save cart to localStorage
@@ -95,22 +95,17 @@ const Cart = () => {
   //   localStorage.setItem("cart", JSON.stringify(updatedCart)); // Lưu giỏ hàng mới vào localStorage
   // };
 
-const removeFromCart = async (id) => {
-  try {
-    const token = localStorage.getItem("token");
-    await axios.delete(`${BASE_URL}/api/cart/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  const removeFromCart = async (product_id) => {
+    try {
+      await axios.delete(`${BASE_URL}/api/cart_id/${product_id}`);
+      setCart((prevCart) => prevCart.filter((item) => item.product_id !== product_id)); // Cập nhật state sau khi xóa
+      alert("Đã xóa sản phẩm khỏi giỏ hàng!");
+    } catch (error) {
+      console.error("Error removing item:", error);
+      alert("Không thể xóa sản phẩm. Vui lòng thử lại sau.");
+    }
+  };
 
-    const updatedCart = cart.filter((product) => product.id !== id);
-    setCart(updatedCart);
-    saveCartToLocal(updatedCart); // Save updated cart
-  } catch (error) {
-    console.error("Error removing item:", error);
-    alert("Không thể xóa sản phẩm. Vui lòng thử lại sau.");
-  }
-};
-  
 
   // ====================================================================================================
   // Hàm kích hoạt hiệu ứng fade cho giá
@@ -300,9 +295,10 @@ const removeFromCart = async (id) => {
 
       <Box background="#e4cc972e" mb="40px" p="20px" borderRadius="6px">
         {cart.map((item, index) => (
-          <Box key={item.id}>
+          <Box >
             {" "}
             <CartProvider>
+              
               <Box
                 className="d-flex justify-content-between "
                 style={{
@@ -391,7 +387,7 @@ const removeFromCart = async (id) => {
                 </Flex>
                 <button
                   className="remove-button"
-                  onClick={() => removeFromCart(item.id)}
+                  onClick={() => removeFromCart(item.product_id)}
                 >
                   <DeleteIcon />
                   <deleteIcon />

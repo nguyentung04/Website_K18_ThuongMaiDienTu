@@ -34,12 +34,13 @@ GROUP BY
 
 // Lấy bài đăng theo ID
 exports.getCartById = (req, res) => {
-  const cartId = req.params.id; // Lấy cartId từ tham số request
+  const user_id = req.params.id; // Lấy cartId từ tham số request
 
   // Truy vấn CSDL để lấy dữ liệu giỏ hàng theo ID
   connection.query(
     `
-    SELECT 
+  SELECT 
+ 	     pr.id AS product_id,
         u.name AS user_name, -- Tên người dùng
         pr.name AS product_name, -- Tên sản phẩm
         pr.price AS product_price, -- Giá sản phẩm
@@ -59,9 +60,9 @@ exports.getCartById = (req, res) => {
     WHERE 
         ca.user_id = ? -- Lọc theo cart_id
     GROUP BY 
-       pr.id, pr.name, pr.price, u.name; -- Nhóm theo sản phẩm, giá và người dùng
+      pr.id, pr.name, pr.price, u.name; -- Nhóm theo sản phẩm, giá và người dùng
     `,
-    [cartId], // Sử dụng tham số hóa để bảo vệ khỏi SQL Injection
+    [user_id], // Sử dụng tham số hóa để bảo vệ khỏi SQL Injection
     (err, results) => {
       if (err) {
         // Ghi lại lỗi và phản hồi lỗi
@@ -79,57 +80,56 @@ exports.getCartById = (req, res) => {
 
 // // Xóa bài đăng theo ID
 exports.deleteCartItem = (req, res) => {
-  const { id } = req.body;
-
-  // Kiểm tra dữ liệu đầu vào
-  if (!id) {
-    return res.status(400).json({
-      error:
-        "Dữ liệu đầu vào không hợp lệ. Vui lòng cung cấp cart_id và product_id.",
-    });
-  }
+  const  product_id  = req.params.id;
 
   // Câu truy vấn SQL để xóa sản phẩm khỏi giỏ hàng
-  const query = "DELETE FROM cart_items WHERE id = ? ";
+  const query = "DELETE FROM `cart_items` WHERE product_id = ?";
 
-  // Thực hiện câu truy vấn
-  connection.query(query, [id], (err, results) => {
-    if (err) {
-      // Ghi lại lỗi và phản hồi bằng mã trạng thái 500
-      console.error("Lỗi truy vấn CSDL:", err);
-      return res
-        .status(500)
-        .json({ error: "Có lỗi xảy ra khi xóa sản phẩm khỏi giỏ hàng." });
-    }
+  try {
+    // Thực hiện câu truy vấn
+    connection.query(query, [product_id], (err, results) => {
+      if (err) {
+        console.error("Lỗi truy vấn CSDL:", err.message); // Ghi lại lỗi chi tiết
+        return res
+          .status(500)
+          .json({ error: "Có lỗi xảy ra khi xóa sản phẩm khỏi giỏ hàng." });
+      }
 
-    // Kiểm tra nếu không có hàng nào bị ảnh hưởng
-    if (results.affectedRows === 0) {
-      return res.status(404).json({
-        message: "Không tìm thấy sản phẩm trong giỏ hàng.",
+      // Kiểm tra nếu không có hàng nào bị ảnh hưởng
+      if (results.affectedRows === 0) {
+        return res.status(404).json({
+          message: "Không tìm thấy sản phẩm trong giỏ hàng.",
+        });
+      }
+
+      // Phản hồi thành công khi sản phẩm đã được xóa
+      res.status(200).json({
+        message: "Sản phẩm đã được xóa khỏi giỏ hàng thành công.",
       });
-    }
-
-    // Phản hồi thành công khi sản phẩm đã được xóa
-    res.status(200).json({
-      message: "Sản phẩm đã được xóa khỏi giỏ hàng thành công.",
     });
-  });
+  } catch (error) {
+    console.error("Lỗi server:", error.message); // Log lỗi server
+    return res
+      .status(500)
+      .json({ error: "Đã xảy ra lỗi không mong muốn trên server." });
+  }
 };
+
 
 // // Xóa bài đăng theo user_id
 exports.deleteCartUser_id = (req, res) => {
-  const { user_id } = req.params; // Lấy user_id từ params
+  const { id } = req.params; // Lấy user_id từ params
 
-  // Kiểm tra nếu user_id không tồn tại
-  if (!user_id) {
-    return res.status(400).json({
-      error: "Dữ liệu đầu vào không hợp lệ. Vui lòng cung cấp user_id.",
-    });
-  }
+  // // Kiểm tra nếu user_id không tồn tại
+  // if (!user_id) {
+  //   return res.status(400).json({
+  //     error: "Dữ liệu đầu vào không hợp lệ. Vui lòng cung cấp user_id.",
+  //   });
+  // }
 
   // Thực hiện xóa giỏ hàng dựa trên user_id
   const query = "DELETE FROM cart WHERE user_id = ?";
-  connection.query(query, [user_id], (err, results) => {
+  connection.query(query, [id], (err, results) => {
     if (err) {
       console.error("Lỗi truy vấn CSDL:", err);
       return res.status(500).json({ error: "Có lỗi xảy ra khi xóa giỏ hàng." });

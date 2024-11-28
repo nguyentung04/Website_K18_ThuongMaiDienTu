@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
@@ -6,9 +6,9 @@ const { generateToken, passport } = require("./config/passport");
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-const axios = require('axios');
+const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const axios = require("axios");
 
 require("./config/passport");
 
@@ -27,11 +27,13 @@ const ordersRoutes = require("./routes/orders/index");
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(session({
-  secret: process.env.SECRET_KEY,
-  resave: false,
-  saveUninitialized: true,
-}));
+app.use(
+  session({
+    secret: process.env.SECRET_KEY,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -39,11 +41,13 @@ app.use(passport.session());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(cors({
-  origin: "http://localhost:3001",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-}));
+app.use(
+  cors({
+    origin: "http://localhost:3001",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -74,19 +78,25 @@ app.post("/api/upload/:entity", upload.single("file"), (req, res) => {
   res.json({ filePath: `${file.filename}` });
 });
 
-app.get("/api/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+app.get(
+  "/api/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
 
-app.get("/api/auth/google/profile", passport.authenticate('google-token'), (req, res) => {
-  if (req.user) {
-    res.json({ user: req.user });
-  } else {
-    res.status(401).send({ error: 'Unauthorized' });
+app.get(
+  "/api/auth/google/profile",
+  passport.authenticate("google-token"),
+  (req, res) => {
+    if (req.user) {
+      res.json({ user: req.user });
+    } else {
+      res.status(401).send({ error: "Unauthorized" });
+    }
   }
-});
+);
 
-
-
-app.get("/api/auth/google/callback",
+app.get(
+  "/api/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/signin" }),
   (req, res) => {
     console.log("Google Login Success - req.user:", req.user);
@@ -95,7 +105,7 @@ app.get("/api/auth/google/callback",
       console.log("Generated Token:", token);
       res.redirect(`http://localhost:3001/?token=${token}`);
     } else {
-      res.status(401).send({ error: 'User not authenticated' });
+      res.status(401).send({ error: "User not authenticated" });
     }
   }
 );
@@ -125,12 +135,12 @@ app.post("/payment", async (req, res) => {
   //https://developers.momo.vn/#/docs/en/aiov2/?id=payment-method
   //parameters
 
-  var orderInfo = "pay with MoMo";
-  var partnerCode = "MOMO"; 
-  var redirectUrl = "http://localhost:3001/";
+  var orderInfo = req.body.orderInfo;
+  var partnerCode = "MOMO";
+  var redirectUrl = "http://localhost:3001/formcheckout";
   var ipnUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
   var requestType = "payWithMethod";
-  var amount = "50000";
+  var amount = req.body.amount;
   var orderId = partnerCode + new Date().getTime();
   var requestId = orderId;
   var extraData = "";
@@ -219,8 +229,12 @@ app.post("/payment", async (req, res) => {
 app.post("/callback", async (req, res) => {
   console.log("callback: ");
   console.log(res.body);
+  
   return res.status(200).json(req.body);
 });
+
+
+
 
 app.post("/transaction-status", async (req, res) => {
   const { orderId } = req.body;
@@ -237,8 +251,7 @@ app.post("/transaction-status", async (req, res) => {
     requestId: orderId,
     orderId,
     signature,
-    lang: 'vi'
+    lang: "vi",
   });
 
-  // Tiếp tục xử lý requestBody theo yêu cầu của bạn
 });

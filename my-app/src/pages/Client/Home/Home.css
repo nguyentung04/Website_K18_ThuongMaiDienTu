@@ -126,16 +126,21 @@
 .introduce-image {
   max-width: 550px;
   width: 100%;
+  border: 2px solid #ddd; /* Thêm border cho ảnh */
+  border-radius: 10px; /* Bo góc cho ảnh */
+  overflow: hidden; /* Đảm bảo ảnh không bị tràn ra ngoài border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Thêm bóng đổ cho đẹp mắt */
 }
 
 .introduce-image img {
   display: block;
   height: auto;
-  display: block;
-  vertical-align: middle;
   width: 100%;
   max-height: 450px;
+  vertical-align: middle;
+  border-radius: 8px; /* Bo góc cho ảnh */
 }
+
 
 /* ==================================== ảnh ======================================= */
 .introduce-information {

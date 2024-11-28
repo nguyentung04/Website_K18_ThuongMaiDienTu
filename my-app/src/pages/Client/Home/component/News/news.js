@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from "react";
 import "./news.css";
-import axios from "axios";
 import { fetchPosts } from "../../../../../service/api/posts"; // Ensure this imports correctly
 import { useToast } from "@chakra-ui/react";
 
+const BASE_URL = "http://localhost:3000";
+
 // Helper function to truncate text if too long
 const truncateText = (text, maxLength) => {
-  if (!text) return ""; // Return an empty string if text is undefined
+  if (!text) return "";
   return text.length <= maxLength ? text : text.substring(0, maxLength) + "...";
 };
 
 const NewsGrid = () => {
   const [posts, setPosts] = useState([]);
+  const [visiblePosts, setVisiblePosts] = useState(4); // Initially show 4 posts
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false); // New state for showing/hiding posts
 
   const toast = useToast();
 
@@ -42,6 +45,16 @@ const NewsGrid = () => {
     getPosts();
   }, [toast]);
 
+  const loadMorePosts = () => {
+    setVisiblePosts(prev => prev + 4); // Load 4 more posts when the button is clicked
+    setIsExpanded(true); // Set the state to true to indicate posts are expanded
+  };
+
+  const hidePosts = () => {
+    setVisiblePosts(4); // Reset to showing 4 posts
+    setIsExpanded(false); // Set the state to false to hide extra posts
+  };
+
   if (loading) {
     return <p>Đang tải dữ liệu...</p>;
   }
@@ -59,18 +72,18 @@ const NewsGrid = () => {
       </div>
       <div className="swiper-slide-news">
         <div className="news">
-          {posts.map((news) => (
+          {posts.slice(0, visiblePosts).map((news) => (
             <div className="news-card" key={news.id}>
               <div className="news-img">
-                <img src={news.avt} alt={news.title} className="news-image" />
+                <img src={`${BASE_URL}/uploads/posts/${news.avt}`} alt={news.title} className="news-image" />
               </div>
               <div className="news-content">
                 <div className="news-content-title">
                   <h4>{news.title}</h4>
                 </div>
                 <small className="news-content-time">
-                  <p>{new Date(news.created_at).toLocaleDateString()}</p> {/* Format date */}
-                  <p>{news.author_id}</p>
+                  <p>{new Date(news.created_at).toLocaleDateString()}</p>
+                  <p>{news.auth_name}</p>
                 </small>
                 <p>{truncateText(news.content, 100)}</p>
               </div>
@@ -78,6 +91,12 @@ const NewsGrid = () => {
           ))}
         </div>
       </div>
+      {visiblePosts < posts.length && !isExpanded && (
+        <button className="load-more-btn" onClick={loadMorePosts}>Xem thêm</button>
+      )}
+      {isExpanded && (
+        <button className="load-more-btn" onClick={hidePosts}>Ẩn bớt</button>
+      )}
     </div>
   );
 };

@@ -160,9 +160,9 @@ const Cart = () => {
 
   return (
     <div className="cart" ref={cartContainerRef}>
-      <h3>Giỏ hàng</h3>
+      <h3>GIỎ HÀNG CỦA BẠN</h3>
 
-      <Box background="#e4cc972e" mb="40px" p="20px" borderRadius="6px">
+      <Box background="fff" mb="40px" p="20px" borderRadius="6px">
         {cart.map((item, index) => (
           <Box key={item.id}>
             {" "}
@@ -181,7 +181,7 @@ const Cart = () => {
                   <Img
                     style={{ mixBlendMode: "multiply" }}
                     className="me-4"
-                    src={`${BASE_URL}/uploads/products/${item.image}`}
+                    src={`${BASE_URL}/uploads/products/${item.images}`}
                     alt={item.name}
                     maxWidth="114px"
                   />

@@ -21,7 +21,6 @@
     "bootstrap-icons": "^1.11.3",
     "cors": "^2.8.5",
     "express-session": "^1.18.1",
-    "framer-motion": "^11.5.2",
     "google": "^2.1.0",
     "jwt-decode": "^4.0.0",
     "login": "^0.8.0",
@@ -38,7 +37,7 @@
     "react-slick": "^0.30.2",
     "recharts": "^2.12.7",
     "slick-carousel": "^1.8.1",
-    "swiper": "^11.1.12",
+    "swiper": "^11.1.15",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

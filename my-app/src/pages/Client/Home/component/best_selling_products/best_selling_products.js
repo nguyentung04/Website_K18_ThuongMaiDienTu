@@ -6,7 +6,7 @@ import { HeartIcon } from "../../../../../components/icon/icon";
 import { Autoplay } from "swiper/modules";
 import OrderModal from "../../../../../components/Client/orderModel/orderModel";
 
-import "./best_selling_products.css";
+ import "./best_selling_products.css";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -164,15 +164,10 @@ const BestSellingProducts = () => {
 
   return (
     <div className="best_selling_products">
-      <div className="row align-items-center">
-        <div className="col fix-title uppercase">
-       
-        <h2>Sản phẩm khuyến mãi</h2>
-        </div>
-      </div>
+      <h2>Sản phẩm khuyến mãi</h2>
       <div className="products_blocks_wrapper">
         <Swiper
-          spaceBetween={1}
+          spaceBetween={10}
           loop={true}
           autoplay={{ delay: 3000, disableOnInteraction: false }}
           speed={3000}
@@ -184,82 +179,43 @@ const BestSellingProducts = () => {
             <SwiperSlide>Loading...</SwiperSlide>
           ) : (
             featuredProducts.map((product, index) => (
-              <SwiperSlide key={index} style={{ display: "flex" }}>
-                <div
-                  className="swiper-wrappe"
-                  style={{
-                    display: "flex",
-                    width: "312px",
-                    marginBottom: "4px",
-                  }}
-                  key={product.id}
-                >
-                  <div className="swiper-slide swiper-slide-active">
-                    <div className="product-box h-100 bg-gray relative">
-                      <button
-                        className="like-icon"
-                        onClick={() => toggleLike(product.id)}
-                      >
-                        <HeartIcon
-                          size="24px"
-                          color={
-                            likedProducts.includes(product.id)
-                              ? "#b29c6e"
-                              : "white"
-                          }
-                        />
-                        
-                      </button>
-                      <button
-                        className="add-to-cart-icon"
-                        onClick={(e) => handleAddToCartAndOpenModal(e, product)}
-                      >
-                        <FaShoppingCart
-                          size="25"
-                          style={{
-                            color: "white",
-                            stroke: "#b29c6e",
-                            strokeWidth: 42,
-                          }}
-                        />
-                      </button>
-                      <div className="product-box">
-                        <a href={`/product/${product.id}`} className="plain">
-                          <div className="product-image">
-                            <img
-                              src={`${BASE_URL}/uploads/products/${product.images}`}
-                              alt={product.name}
-                            />
-
-                          </div>
-                          <div className="product-info">
-                            <p className="product-title">{product.name}</p>
-                            <div className="product-price">
-                              {product.discountPrice ? (
-                                <>
-                                  <div className="itproduct__discount">
-                                    <p
-                                      style={{
-                                        textDecoration: "line-through",
-                                        color: "gray",
-                                      }}
-                                    >
-                                      {formatPrice(product.price)}{" "}
-                                    </p>{" "}
-                                    <span style={{ marginLeft: "8px" }}>
-                                      -{Math.round(((product.price - product.discountPrice) / product.price) * 100)}%
-                                    </span>
-                                  </div>
-                                  
-                                </>
-                              ) : (
-                                <p>{formatPrice(product.price)}</p>
-                              )}
-                            </div>
-                          </div>
-                        </a>
+              <SwiperSlide key={index} className="swiper-slide">
+                <div className="swiper-wrappe">
+                  <div className="product-box bg-gray">
+                    <button
+                      className="add-to-cart-icon"
+                      onClick={(e) => handleAddToCartAndOpenModal(e, product)}
+                    >
+                      <FaShoppingCart
+                        size="25"
+                        style={{
+                          color: "white",
+                          stroke: "#b29c6e",
+                          strokeWidth: 42,
+                        }}
+                      />
+                    </button>
+                    <a href={`/product/${product.id}`} className="plain">
+                      <img
+                        src={`${BASE_URL}/uploads/products/${product.images}`}
+                        alt={product.name}
+                      />
+                      <div className="product-info">
+                        <p className="product-title">{product.name}</p>
+                        <div className="product-price">
+                          {product.discountPrice ? (
+                            <p className="line-through">{formatPrice(product.price)}</p>
+                          ) : (
+                            <p>{formatPrice(product.price)}</p>
+                          )}
+                          {product.discountPrice && (
+                            <span className="discount-price">
+                              {formatPrice(product.discountPrice)}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    </a>
                   </div>
                 </div>
               </SwiperSlide>
@@ -281,6 +237,7 @@ const BestSellingProducts = () => {
         formatPrice={formatPrice}
       />
     </div>
+
   );
 };
 

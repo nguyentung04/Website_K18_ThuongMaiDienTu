@@ -8,7 +8,7 @@ const ClientLayout = () => {
   const location = useLocation();
 
   // Danh sách các trang mà Footer sẽ không hiển thị
-  const noFooterRoutes = ["/signin", "/signup", "/cart", "/orderhistory"];
+  const noFooterRoutes = ["/signin", "/signup", "/orderhistory"];
 
   // Kiểm tra nếu trang hiện tại là một trong các noFooterRoutes hoặc là /orders/:id
   const shouldHideFooter =

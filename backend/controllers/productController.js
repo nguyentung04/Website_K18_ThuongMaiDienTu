@@ -264,23 +264,70 @@ exports.updateProduct = (req, res) => {
 };
 
 // Xóa sản phẩm
+// exports.deleteProduct = (req, res) => {
+//   const productId = req.params.id;
+
+//   // Xóa sản phẩm và các hình ảnh liên quan
+//   const deleteImagesQuery = `DELETE FROM product_images WHERE product_id = ?`;
+//   const deleteProductQuery = `DELETE FROM products WHERE id = ?`;
+
+//   connection.query(deleteImagesQuery, [productId], (err) => {
+//     if (err) {
+//       return res.status(500).json({ error: err.message });
+//     }
+
+//     connection.query(deleteProductQuery, [productId], (err) => {
+//       if (err) {
+//         return res.status(500).json({ error: err.message });
+//       }
+//       res.status(200).json({ message: "Sản phẩm đã được xóa thành công" });
+//     });
+//   });
+// };
 exports.deleteProduct = (req, res) => {
   const productId = req.params.id;
 
-  // Xóa sản phẩm và các hình ảnh liên quan
-  const deleteImagesQuery = `DELETE FROM product_images WHERE product_id = ?`;
-  const deleteProductQuery = `DELETE FROM products WHERE id = ?`;
-
-  connection.query(deleteImagesQuery, [productId], (err) => {
+  // Transaction đảm bảo xóa dữ liệu liên quan
+  connection.beginTransaction((err) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
 
-    connection.query(deleteProductQuery, [productId], (err) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
+    // Xóa hình ảnh liên quan
+    connection.query(
+      "DELETE FROM product_images WHERE product_id = ?",
+      [productId],
+      (err) => {
+        if (err) {
+          return connection.rollback(() => {
+            res.status(500).json({ error: err.message });
+          });
+        }
+
+        // Xóa sản phẩm
+        connection.query(
+          "DELETE FROM products WHERE id = ?",
+          [productId],
+          (err) => {
+            if (err) {
+              return connection.rollback(() => {
+                res.status(500).json({ error: err.message });
+              });
+            }
+
+            // Commit transaction
+            connection.commit((err) => {
+              if (err) {
+                return connection.rollback(() => {
+                  res.status(500).json({ error: err.message });
+                });
+              }
+              res.status(200).json({ message: "Sản phẩm đã được xóa thành công" });
+            });
+          }
+        );
       }
-      res.status(200).json({ message: "Sản phẩm đã được xóa thành công" });
-    });
+    );
   });
 };
+

@@ -202,3 +202,7 @@
   font-family: 'Arial', sans-serif !important;
   border-radius: 8px !important;
 }
+
+.Toastify__progress-bar {
+  background: linear-gradient(to right, #ffffff, #ffffff);
+}

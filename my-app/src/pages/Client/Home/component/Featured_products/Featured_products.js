@@ -292,7 +292,18 @@ const FeaturedProducts = () => {
 
   return (
     <div className="FeaturedProducts">
-      <ToastContainer />
+        <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
 
       <div className="row align-items-center">
         <div className="col fix-title uppercase">

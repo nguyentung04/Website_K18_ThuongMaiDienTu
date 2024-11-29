@@ -197,7 +197,7 @@ const EditProduct = () => {
         <FormControl id="price" mb={4} isInvalid={errors.price}>
           <FormLabel>Giá</FormLabel>
           <Input
-            type="number"
+            type="test"
             min="0.01"
             step="0.01"
             value={price}

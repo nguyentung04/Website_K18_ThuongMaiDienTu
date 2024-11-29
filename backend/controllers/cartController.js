@@ -80,14 +80,19 @@ exports.getCartById = (req, res) => {
 
 // // Xóa bài đăng theo ID
 exports.deleteCartItem = (req, res) => {
-  const  product_id  = req.params.id;
+  const product_id = req.params.productId; // Lấy product_id từ params
+  const user_id = req.params.userId; // Lấy user_id từ params
 
-  // Câu truy vấn SQL để xóa sản phẩm khỏi giỏ hàng
-  const query = "DELETE FROM `cart_items` WHERE product_id = ?";
+  // Câu truy vấn SQL để xóa sản phẩm khỏi giỏ hàng dựa trên product_id và user_id
+  const query = `DELETE c_i
+FROM cart_items c_i
+JOIN cart ca ON ca.id = c_i.cart_id
+WHERE c_i.product_id = ? AND ca.user_id = ?;
+`;
 
   try {
     // Thực hiện câu truy vấn
-    connection.query(query, [product_id], (err, results) => {
+    connection.query(query, [product_id, user_id], (err, results) => {
       if (err) {
         console.error("Lỗi truy vấn CSDL:", err.message); // Ghi lại lỗi chi tiết
         return res
@@ -98,7 +103,7 @@ exports.deleteCartItem = (req, res) => {
       // Kiểm tra nếu không có hàng nào bị ảnh hưởng
       if (results.affectedRows === 0) {
         return res.status(404).json({
-          message: "Không tìm thấy sản phẩm trong giỏ hàng.",
+          message: "Không tìm thấy sản phẩm trong giỏ hàng với thông tin cung cấp.",
         });
       }
 
@@ -114,6 +119,7 @@ exports.deleteCartItem = (req, res) => {
       .json({ error: "Đã xảy ra lỗi không mong muốn trên server." });
   }
 };
+
 
 
 // // Xóa bài đăng theo user_id

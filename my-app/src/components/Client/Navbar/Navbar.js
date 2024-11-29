@@ -20,13 +20,15 @@ const Navbar = () => {
     // Xóa tất cả dữ liệu liên quan đến phiên người dùng
     localStorage.removeItem("token"); // Xóa token
     localStorage.removeItem("username"); // Xóa tên đăng nhập
-    localStorage.removeItem("userData");
+    localStorage.removeItem("userData"); 
     localStorage.removeItem("role");
     // localStorage.removeItem("id"); // Xóa ID người dùng
     localStorage.removeItem("userEmail"); // Xóa email người dùng
     localStorage.removeItem("userName"); // Xóa tên người dùng
     localStorage.removeItem("user"); // Xóa tên người dùng
-
+    localStorage.removeItem("userId");
+    // localStorage.removeItem("chakra-ui-color-mode");
+    
     // ... có thể thêm các mục khác nếu cần
 
     // Chuyển hướng người dùng về trang đăng nhập

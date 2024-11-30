@@ -331,3 +331,29 @@ exports.deleteProduct = (req, res) => {
   });
 };
 
+// Lấy sản phẩm theo loại
+exports.getProductsByCategory = (req, res) => {
+  const categoryId = req.params.categoryId; // ID của loại sản phẩm
+
+  const query = `
+    SELECT 
+      p.*, 
+      c.name AS category_name, 
+      GROUP_CONCAT(pi.image_url) AS images
+    FROM products p
+    LEFT JOIN categories c ON p.category_id = c.id
+    LEFT JOIN product_images pi ON p.id = pi.product_id
+    WHERE p.category_id = ?
+    GROUP BY p.id;
+  `;
+
+  connection.query(query, [categoryId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Không có sản phẩm nào thuộc loại này" });
+    }
+    res.status(200).json(results);
+  });
+};

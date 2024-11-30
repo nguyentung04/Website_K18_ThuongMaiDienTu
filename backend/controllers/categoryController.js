@@ -275,43 +275,5 @@ exports.postCategory = (req, res) => {
   });
 };
 
-// Lấy tất cả sản phẩm của một danh mục
-exports.getAllProductOfCategory = (req, res) => {
-  const productId = req.params.id;
 
-  connection.query(
-    `SELECT 
-      c.id AS category_id,
-      c.name AS category_name,
-      c.description,
-      c.logo,
-      p.*,
-      pd.machineType,
-      pd.identification,
-      pd.thickness,
-      pd.wireMaterial,
-      pd.antiWater,
-      pd.gender,
-      pd.color,
-      pd.product_id 
-    FROM 
-      categories c 
-    LEFT JOIN 
-      products p ON p.category_id = c.id
-    LEFT JOIN 
-      product_detail pd ON p.id = pd.product_id
-    WHERE 
-      c.id = ?
-    LIMIT 20;`,
-    [productId],
-    (err, results) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      if (results.length === 0) {
-        return res.status(404).json({ message: "No products found in this category" });
-      }
-      res.status(200).json(results);
-    }
-  );
-};
+

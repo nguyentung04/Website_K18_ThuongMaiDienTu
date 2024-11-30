@@ -23,6 +23,8 @@ import GoogleProfile from "../pages/Client/GoogleProfile/GoogleProfile.js";
 
 import MomoPayment from "../pages/Client/Payment/MomoPayment .js";
 
+import CategoryList from "../pages/Client/CategoryList/CategoryList.js"
+import ProductListByCategory from "../pages/Client/Products/component/CategoryProductsPage/ProductListByCategory.js"
 
 
 const ClientRoutes = () => {
@@ -43,11 +45,14 @@ const ClientRoutes = () => {
         <Route path="/orders/:id" element={<OrderDetail />} />
         <Route path="/ordermodel" element={<OrderModal />} />
         <Route path="/momoPayment" element={<MomoPayment />} />
+        <Route path="/categories/:categoryId" element={<ProductListByCategory />} />
       </Route>
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/google-profile" element={<GoogleProfile />} />
+      <Route path="/categories" element={<CategoryList />} />
+      
     </Routes>
   );
 };

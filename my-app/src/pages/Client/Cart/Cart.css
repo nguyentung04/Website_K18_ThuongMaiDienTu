@@ -33,6 +33,7 @@
   display: flex;
   gap: 20px;
   justify-content: center;
+
 }
 
 .card-button a {
@@ -140,7 +141,7 @@
   background-color: #0056b3;
 }
 
-input[type="number"] {
+.cart input[type="number"] {
   
   height: 35px;
   border-radius: 5px;
@@ -222,6 +223,7 @@ input[type="number"] {
 .fade-divider {
   opacity: 0;
   transition: border-color 1s ease;
+ 
 }
 
 .cart > .highlight {

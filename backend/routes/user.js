@@ -13,7 +13,6 @@ router.post("/users", userController.postUsers);
 router.put("/users/:id", userController.updateUser);
 router.delete("/users/:id", userController.deleteUser);
 // Cập nhật địa chỉ người dùng
-router.put("/users/:id/address", userController.updateUserWithAddress);
 
 // Login & Register routes
 router.get("/login", userController.getAllUsers);

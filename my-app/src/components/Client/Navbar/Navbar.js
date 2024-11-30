@@ -7,20 +7,39 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./Navbar.css";
 import { jwtDecode } from "jwt-decode";
+import { fetchCategories } from "../../../service/api/Category";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState(localStorage.getItem("username"));
   const [avatar, setAvatar] = useState("https://via.placeholder.com/150");
-  const isLoggedIn = !!username;  // Kiểm tra người dùng đã đăng nhập chưa
+  const isLoggedIn = !!username;
   const { getTotalUniqueItems } = useContext(CartContext);
 
-  // Đăng xuất và xóa thông tin localStorage
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await fetchCategories();
+        setCategories(data); // Lưu danh mục vào state
+      } catch (error) {
+        console.error("Lỗi khi tải danh mục:", error);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  const chunkedCategories = [];
+  for (let i = 0; i < categories.length; i += 4) {
+    chunkedCategories.push(categories.slice(i, i + 4));
+  }
+
   const handleLogout = () => {
     localStorage.clear();
     navigate("/signin");
   };
-  
 
   const [activeLink, setActiveLink] = useState(localStorage.getItem("activeLink") || "");
 
@@ -46,39 +65,35 @@ const Navbar = () => {
         setUsername(decodedUser.name);
       }
       if (decodedUser && decodedUser.avatar) {
-        setAvatar(decodedUser.avatar);  // Lưu avatar vào state nếu có
+        setAvatar(decodedUser.avatar);
       }
-  
-      // Xóa `token` khỏi URL để bảo mật
+
       window.history.replaceState(null, "", window.location.pathname);
     }
   }, []);
-  
-  
+
   return (
     <div className="stopnav">
-      <nav className="Navbar ">
+      <nav className="Navbar">
         <div className="container">
           <Link
             to="/"
             className="navbar-logo"
             onClick={() => handleLinkClick("/")}
           >
-            <img src="/assets//logo/logo.png" alt="Logo" className="logo-image" />
+            <img src="/assets/logo/logo.png" alt="Logo" className="logo-image" />
           </Link>
           <div className="navbar-links">
             <Link
               to="/"
-              className={`nav-link-trend ${activeLink === "/" ? "active-link" : ""
-                }`}
+              className={`nav-link-trend ${activeLink === "/" ? "active-link" : ""}`}
               onClick={() => handleLinkClick("/")}
             >
               Trang chủ
             </Link>
             <Link
               to="/about"
-              className={`nav-link-introduce ${activeLink === "/about" ? "active-link" : ""
-                }`}
+              className={`nav-link-introduce ${activeLink === "/about" ? "active-link" : ""}`}
               onClick={() => handleLinkClick("/about")}
             >
               Giới thiệu
@@ -86,207 +101,27 @@ const Navbar = () => {
             <div className="dropdown">
               <Link
                 to="/products"
-                className={`dropbtn ${activeLink === "/menu" ? "active-link" : ""
-                  }`}
+                className={`dropbtn ${activeLink === "/menu" ? "active-link" : ""}`}
                 onClick={() => handleLinkClick("/menu")}
               >
                 Menu <CgChevronDown />
               </Link>
               <div className="dropdown-content">
-                <div className="dropdown-section">
-                  <h4>Hãng Phổ biến</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      <Link to="/casio">Casio</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Hãng khác</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      <Link to="/carnival">Carnival</Link>
-                    </li>{" "}
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Hàng cao cấp</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/tissot">Tissot</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Phân loại đồng hồ</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/dai-da-tong-hop">Dây da tổng hợp</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Phong cách</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/quan-doi">Quân đội</Link>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div className="dropdown">
-              <Link
-                to="/men"
-                className={`nav-link-trend ${activeLink === "/men" ? "active-link" : ""
-                  }`}
-                onClick={() => handleLinkClick("/men")}
-              >
-                Nam
-                <CgChevronDown />
-              </Link>
-
-              <div className="dropdown-content">
-                {/* Dropdown Content for "Nam" */}
-                <div className="dropdown-section">
-                  <h4>Mức giá</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?price=under-1m">Dưới 1 triệu</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Hãng nổi bật</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      <Link to="/products?brand=casio">Casio</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Loại dây</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      <Link to="/products?strap=metal">Dây kim loại</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Loại máy</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?movement=automatic">
-                        Cơ (Automatic)
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Dòng đặc biệt</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?special=rolex-style">
-                        Giống Rolex
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div className="dropdown">
-              <Link
-                to="/women"
-                className={`nav-link-trend ${activeLink === "/women" ? "active-link" : ""
-                  }`}
-                onClick={() => handleLinkClick("/women")}
-              >
-                Nữ <CgChevronDown />
-              </Link>
-              <div className="dropdown-content">
-                {/* Dropdown Content for "Nữ" */}
-                <div className="dropdown-section">
-                  <h4>Mức giá</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?price=under-1m">Dưới 1 triệu</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Hãng nổi bật</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?brand=casio">Casio</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Loại dây</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?strap=metal">Dây kim loại</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Loại máy</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?movement=automatic">
-                        Cơ (Automatic)
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Dòng đặc biệt</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?special=rolex-style">
-                        Giống Rolex
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
+                {chunkedCategories.map((chunk, index) => (
+                  <div className="dropdown-section" key={index}>
+                    <ul className="category-row">
+                      {chunk.map((category) => (
+                        <li key={category.id}>
+                          <Link to={`/categories/${category.id}`}>{category.name}</Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <Link
-              to="/premium"
-              className={`nav-link-trend ${activeLink === "/premium" ? "active-link" : ""
-                }`}
-              onClick={() => handleLinkClick("/premium")}
-            >
-              Cũ cao cấp
-            </Link>
-            <form class="d-flex " role="search">
+            <form className="d-flex" role="search">
               <div className="search">
                 <button>
                   <svg
@@ -309,7 +144,7 @@ const Navbar = () => {
           </div>
 
           <div className="navbar-auth">
-            <button type="button" class="btn  position-relative">
+            <button type="button" className="btn position-relative">
               <Link to="/cart" className="cart-link">
                 <button style={{ marginTop: "-4px", marginRight: "11px" }}>
                   <FaShoppingCart
@@ -318,8 +153,8 @@ const Navbar = () => {
                     style={{ stroke: "#b29c6e", strokeWidth: 42 }}
                   />
                 </button>
-                <span class="position-absolute top-0  translate-middle badge rounded-pill bg-danger">
-                  {getTotalUniqueItems() > 0 && ( // Only render the badge if there are items
+                <span className="position-absolute top-0 translate-middle badge rounded-pill bg-danger">
+                  {getTotalUniqueItems() > 0 && (
                     <span className="position-absolute top-0 translate-middle badge rounded-pill bg-danger">
                       {getTotalUniqueItems()}
                     </span>
@@ -329,7 +164,7 @@ const Navbar = () => {
             </button>
             {isLoggedIn ? (
               <>
-                <nav className=" navbar-expand-lg">
+                <nav className="navbar-expand-lg">
                   <div className="container-fluid">
                     <button
                       className="navbar-toggler"
@@ -342,10 +177,7 @@ const Navbar = () => {
                     >
                       <span className="navbar-toggler-icon"></span>
                     </button>
-                    <div
-                      className="collapse navbar-collapse"
-                      id="navbarSupportedContent"
-                    >
+                    <div className="collapse navbar-collapse" id="navbarSupportedContent">
                       <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li className="nav-item dropdown">
                           <a
@@ -355,7 +187,6 @@ const Navbar = () => {
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                           >
-                            {/* Avatar image */}
                             <div className="avatar-container">
                               <img
                                 src="https://khoinguonsangtao.vn/wp-content/uploads/2022/10/hinh-anh-vu-tru-ngan-ha.jpg"
@@ -363,7 +194,6 @@ const Navbar = () => {
                                 className="avatar"
                               />
                             </div>
-                            {/* Username */}
                             <p className="mb-0 username-text">
                               <h4>{username}</h4>
                             </p>
@@ -373,67 +203,23 @@ const Navbar = () => {
                               <a
                                 className="dropdown-item "
                                 href="/profile"
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
+                                style={{ display: "flex", alignItems: "center" }}
                               >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 448 512"
-                                  width="16"
-                                  height="16"
-                                  fill="#b29c6e"
-                                >
-                                  <path d="M304 128a80 80 0 1 0 -160 0 80 80 0 1 0 160 0zM96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM49.3 464l349.5 0c-8.9-63.3-63.3-112-129-112l-91.4 0c-65.7 0-120.1 48.7-129 112zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3z" />
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="16" height="16" fill="#b29c6e">
+                                  <path d="M304 128a80 80 0 1 0 -160 0 80 80 0 1 0 160 0zM96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM49.3 464l349.5 0c-8.9-63.3-63.3-112-129-112l-91.4 0c-65.7 0-120.1 48.7-129 112zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3 448 486.4 444.7 490 440 490H8C3.3 490 0 486.4 0 482.3z" />
                                 </svg>
-                                Thông tin cá nhân
-                              </a>
-                            </li>
-                            <li>
-                              <a
-                                className="dropdown-item"
-                                href="/orderhistory"
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 512 512"
-                                  width="16"
-                                  height="16"
-                                  fill="#b29c6e"
-                                >
-                                  <path d="M40 48C26.7 48 16 58.7 16 72l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24L40 48zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L192 64zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-288 0zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-288 0zM16 232l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24l-48 0c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24l-48 0z" />
-                                </svg>
-                                Lịch sử đơn hàng
+                                <p className="mb-0">Hồ sơ</p>
                               </a>
                             </li>
                             <li>
                               <hr className="dropdown-divider" />
                             </li>
                             <li>
-                              <a
-                                className="dropdown-item"
-                                href="#"
-                                onClick={handleLogout}
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 512 512"
-                                  width="16"
-                                  height="16"
-                                  fill="#b29c6e"
-                                >
-                                  <path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" />
+                              <a className="dropdown-item" onClick={handleLogout} style={{ display: "flex", alignItems: "center" }}>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="16" height="16" fill="#b29c6e">
+                                  <path d="M512 232c0 13.3-10.7 24-24 24h-232v56c0 13.3-10.7 24-24 24h-96c-13.3 0-24-10.7-24-24v-56h-232c-13.3 0-24-10.7-24-24V56c0-13.3 10.7-24 24-24h232V-24c0-13.3 10.7-24 24-24h96c13.3 0 24 10.7 24 24v56h232c13.3 0 24 10.7 24 24v176z" />
                                 </svg>
-                                Đăng xuất
+                                <p className="mb-0">Đăng xuất</p>
                               </a>
                             </li>
                           </ul>
@@ -444,9 +230,14 @@ const Navbar = () => {
                 </nav>
               </>
             ) : (
-              <Link to="/signin" className="login">
-                Đăng nhập
-              </Link>
+              <>
+                <Link to="/signin">
+                  <button className="btn_login">Đăng nhập</button>
+                </Link>
+                <Link to="/signup">
+                  <button className="btn_signup">Đăng ký</button>
+                </Link>
+              </>
             )}
           </div>
         </div>

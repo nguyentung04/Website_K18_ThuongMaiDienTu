@@ -20,8 +20,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import OrderModal from "../components/Client/orderModel/orderModel.js";
 import GoogleProfile from "../pages/Client/GoogleProfile/GoogleProfile.js";
-
-
+import CategoryList from "../pages/Client/CategoryList/CategoryList.js"
+import ProductListByCategory from "../pages/Client/Products/component/CategoryProductsPage/ProductListByCategory.js"
 
 
 const ClientRoutes = () => {
@@ -41,11 +41,14 @@ const ClientRoutes = () => {
         <Route path="/orderhistory" element={<OrderHistory />} />
         <Route path="/orders/:id" element={<OrderDetail />} />
         <Route path="/ordermodel" element={<OrderModal />} />
+        <Route path="/categories/:categoryId" element={<ProductListByCategory />} />
       </Route>
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/google-profile" element={<GoogleProfile />} />
+      <Route path="/categories" element={<CategoryList />} />
+      
     </Routes>
   );
 };

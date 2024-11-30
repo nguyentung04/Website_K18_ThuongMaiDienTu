@@ -14,4 +14,7 @@ router.get("/products_banchay", productController.bestSellProducts);
 router.get("/products_noibat", productController.featuredProducts);
 router.get("/products_khuyenmai", productController.sellProducts);
 
+// Lấy sản phẩm theo loại
+router.get("/products/category/:categoryId", productController.getProductsByCategory);
+
 module.exports = router;

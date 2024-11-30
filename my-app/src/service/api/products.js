@@ -61,3 +61,14 @@ export const addProduct = async (productData) => {
     throw error;
   }
 };
+
+// Lấy sản phẩm theo loại
+export const fetchProductsByCategory = async (categoryId) => {
+  try {
+    const response = await api.get(`/products/category/${categoryId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching products by category:", error.response?.data || error.message);
+    throw error;
+  }
+};

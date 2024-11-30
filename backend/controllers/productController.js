@@ -118,6 +118,7 @@ exports.getAllProductsAdmin = (req, res) => {
     SELECT 
       p.id,
       p.name,
+      p.short_description,
       p.description,
       p.price,
       p.stock,
@@ -146,6 +147,7 @@ exports.getProductById = (req, res) => {
     SELECT 
       p.id,
       p.name,
+      p.short_description,
       p.description,
       p.price,
       p.stock,
@@ -173,14 +175,14 @@ exports.getProductById = (req, res) => {
 
 // Thêm sản phẩm mới
 exports.addProduct = (req, res) => {
-  const { name, description, price, stock, category_id, images } = req.body; // Lấy images từ body
+  const { name,short_description, description, price, stock, category_id, images } = req.body; // Lấy images từ body
 
   // Thêm sản phẩm vào bảng products
   const query = `
-    INSERT INTO products (name, description, price, stock, category_id, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, NOW(), NOW());
+    INSERT INTO products (name,short_description, description, price, stock, category_id, created_at, updated_at)
+    VALUES (?,?, ?, ?, ?, ?, NOW(), NOW());
   `;
-  const productData = [name, description, price, stock, category_id];
+  const productData = [name,short_description, description, price, stock, category_id];
 
   connection.query(query, productData, (err, result) => {
     if (err) {
@@ -214,7 +216,7 @@ exports.addProduct = (req, res) => {
 
 exports.updateProduct = (req, res) => {
   const productId = req.params.id;
-  const { name, description, price, stock, category_id, images } = req.body;
+  const { name,short_description, description, price, stock, category_id, images } = req.body;
 
   // Transaction để đảm bảo tính toàn vẹn
   connection.beginTransaction((err) => {
@@ -236,9 +238,9 @@ exports.updateProduct = (req, res) => {
         // Update products
         connection.query(
           `UPDATE products 
-          SET name = ?, description = ?, price = ?, stock = ?, category_id = ?, updated_at = NOW() 
+          SET name = ?, short_description = ?, description = ?, price = ?, stock = ?, category_id = ?, updated_at = NOW() 
           WHERE id = ?;`,
-          [name, description, price, stock, category_id, productId], // Assuming these variables are passed in the request body
+          [name,short_description, description, price, stock, category_id, productId], // Assuming these variables are passed in the request body
           (err) => {
             if (err) {
               return connection.rollback(() => {

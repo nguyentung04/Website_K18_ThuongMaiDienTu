@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState, useEffect, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -7,7 +6,7 @@ import "./Products.css";
 import CustomCheckbox from "./component/CustomCheckbox";
 import Slideshow from "./component/Slideshow/Slideshow";
 
-const BASE_URL = "http://localhost:3000"; // Adjust this if needed
+const BASE_URL = "http://localhost:3000";
 
 const FilterItem = ({ title, children, filters }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,7 +32,6 @@ const FilterItem = ({ title, children, filters }) => {
   useEffect(() => {
     const filterContent = filterRef.current;
 
-    // Kiểm tra xem filterContent có tồn tại trước khi truy cập style
     if (filterContent) {
       if (isOpen) {
         // Khi mở, tính toán chiều cao thực tế của nội dung và áp dụng vào max-height
@@ -52,22 +50,17 @@ const FilterItem = ({ title, children, filters }) => {
         className={`uppercase filter-title ${isOpen ? "active" : ""}`}
         onClick={toggleFilter}
       >
-        {title} {/* Hiển thị tiêu đề của bộ lọc */}
+        {title}
       </div>
 
       {/* Nếu isOpen là true, các tùy chọn của bộ lọc sẽ hiển thị (children). */}
       {isOpen && (
         <div ref={filterRef} className="filter-options">
-          {/* Hiển thị nội dung con (children) được truyền từ component cha */}
           {children}
-
-          {/* Danh sách các bộ lọc được map từ mảng filters */}
           <ul class="ul-2columns">
             {filters.map((filter) => (
-              // Mỗi bộ lọc sẽ tạo ra một thẻ li với key duy nhất là filter.id
               <li key={filter.id}>
                 <label>
-                  {/* Sử dụng CustomCheckbox component */}
                   <CustomCheckbox
                     key={filter.id} // Đặt key là filter.id để đảm bảo mỗi phần tử trong danh sách là duy nhất
                     id={`checkbox-${filter.id}`} // ID duy nhất cho checkbox
@@ -87,9 +80,6 @@ const FilterItem = ({ title, children, filters }) => {
   );
 };
 
-
-
-// =========================================================================================
 const Products = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -121,7 +111,6 @@ const Products = () => {
       }
     };
 
-    // Hàm xử lý cuộn trang
     const handleScroll = () => {
       if (
         window.innerHeight + window.scrollY >=
@@ -134,10 +123,7 @@ const Products = () => {
     // Gọi API để lấy sản phẩm
     fetchProducts();
 
-    // Lắng nghe sự kiện cuộn trang
     window.addEventListener("scroll", handleScroll);
-
-    // Xóa sự kiện cuộn khi component bị unmount
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
@@ -152,20 +138,20 @@ const Products = () => {
   const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
   const increaseQuantity = () => setQuantity(quantity + 1);
   //Phân trang 
-const [currentPage, setCurrentPage] = useState(1);
-const productsPerPage = 16;
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 16;
 
-// Tính toán sản phẩm để hiển thị trên trang hiện tại
-const indexOfLastProduct = currentPage * productsPerPage;
-const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-const currentProducts = featuredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+  // Tính toán sản phẩm để hiển thị trên trang hiện tại
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = featuredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
 
-// Tổng số trang
-const totalPages = Math.ceil(featuredProducts.length / productsPerPage);
+  // Tổng số trang
+  const totalPages = Math.ceil(featuredProducts.length / productsPerPage);
 
-const handlePageChange = (pageNumber) => {
-  setCurrentPage(pageNumber);
-};
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [id]: value }));
@@ -173,7 +159,6 @@ const handlePageChange = (pageNumber) => {
 
   const handleSubmitModel = (e) => {
     e.preventDefault();
-    // Form validation and submit logic
   };
 
   const formatPrice = (price) => {
@@ -189,7 +174,6 @@ const handlePageChange = (pageNumber) => {
 
   const [isOffcanvasVisible, setIsOffcanvasVisible] = useState(false);
 
-  // Hàm để mở offcanvas
   const openOffcanvas = () => {
     setIsOffcanvasVisible(true);
   };
@@ -203,21 +187,19 @@ const handlePageChange = (pageNumber) => {
     );
   };
 
-  const brands = [ ];
-  const loaiMayArray = [ ];
-  const dayArray = [ ];
-  const mauSacArray = [ ];
-  const duongKinhArray = [ ];
-  const styleArray = [ ];
-  const chucNangArray = [ ];
-  const chongNuocArray = [ ];
-  const giaArray = [ ];
+  const brands = [];
+  const loaiMayArray = [];
+  const dayArray = [];
+  const mauSacArray = [];
+  const duongKinhArray = [];
+  const styleArray = [];
+  const chucNangArray = [];
+  const chongNuocArray = [];
+  const giaArray = [];
 
   return (
     <div className="products">
-      <Slideshow />
-
-
+      {/* <Slideshow /> */}
       <section className="featured-products  container">
         <h2>SẢN PHẨM CỦA CHÚNG TÔI</h2>
         {/* ==================================== NÚT DANH MỤC VÀ SẮP XẾP ======================================== */}
@@ -386,7 +368,7 @@ const handlePageChange = (pageNumber) => {
             </button>
           </div>
         </div>
-        
+
 
         {/* ================== MENU CON ==================== */}
         <div

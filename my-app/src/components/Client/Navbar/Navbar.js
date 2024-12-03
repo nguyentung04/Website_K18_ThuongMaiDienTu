@@ -15,7 +15,6 @@ const Navbar = () => {
   const [avatar, setAvatar] = useState("https://via.placeholder.com/150");
   const isLoggedIn = !!username;
   const { getTotalUniqueItems } = useContext(CartContext);
-
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -40,7 +39,7 @@ const Navbar = () => {
     // Xóa tất cả dữ liệu liên quan đến phiên người dùng
     localStorage.removeItem("token"); // Xóa token
     localStorage.removeItem("username"); // Xóa tên đăng nhập
-    localStorage.removeItem("userData"); 
+    localStorage.removeItem("userData");
     localStorage.removeItem("role");
     // localStorage.removeItem("id"); // Xóa ID người dùng
     localStorage.removeItem("userEmail"); // Xóa email người dùng
@@ -48,10 +47,7 @@ const Navbar = () => {
     localStorage.removeItem("user"); // Xóa tên người dùng
     localStorage.removeItem("userId");
     // localStorage.removeItem("chakra-ui-color-mode");
-    
-    // ... có thể thêm các mục khác nếu cần
 
-    // Chuyển hướng người dùng về trang đăng nhập
     navigate("/signin");
   };
 
@@ -84,6 +80,19 @@ const Navbar = () => {
 
       window.history.replaceState(null, "", window.location.pathname);
     }
+  }, []);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await fetchCategories();
+        setCategories(data); // Lưu danh mục vào state
+      } catch (error) {
+        console.error("Lỗi khi tải danh mục:", error);
+      }
+    };
+
+    loadCategories();
   }, []);
 
   return (
@@ -126,7 +135,7 @@ const Navbar = () => {
                     <ul className="category-row">
                       {chunk.map((category) => (
                         <li key={category.id}>
-                          <Link to={`/categories/${category.id}`}>{category.name}</Link>
+                          <Link to={`/products?category=${category.id}`}>{category.name}</Link>
                         </li>
                       ))}
                     </ul>

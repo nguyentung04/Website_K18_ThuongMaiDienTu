@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchProductsByCategory } from "../../../../../service/api/products";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import { useParams, Link } from "react-router-dom"; // Import Link
+import { useParams, Link } from "react-router-dom"; 
 import { FaShoppingCart } from "react-icons/fa";
 import './ProductListByCategory.css';
 
@@ -15,12 +15,19 @@ const ProductListByCategory = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 16;
+  const [gender, setGender] = useState(""); // Thêm state cho giới tính
 
-  // Fetch sản phẩm theo categoryId
+  const [isOffcanvasVisible, setIsOffcanvasVisible] = useState(false);
+
+  const openOffcanvas = () => {
+    setIsOffcanvasVisible(true);
+  };
+
+  // Fetch sản phẩm theo categoryId và gender
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const data = await fetchProductsByCategory(categoryId);
+        const data = await fetchProductsByCategory(categoryId, gender);
         setProducts(data);
       } catch (error) {
         setError("Không thể tải danh sách sản phẩm.");
@@ -30,7 +37,7 @@ const ProductListByCategory = () => {
     };
 
     loadProducts();
-  }, [categoryId]);
+  }, [categoryId, gender]); // Thêm gender vào dependency để reload khi thay đổi giới tính
 
   // Tính toán phân trang
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -62,7 +69,76 @@ const ProductListByCategory = () => {
 
   return (
     <div className="product-list-container">
-      <h1 className="category-title">SẢN PHẨM CỦA CHÚNG TÔI</h1>
+      <h2>SẢN PHẨM CỦA CHÚNG TÔI</h2>
+      <div className="row filter-sort" id="filter-sort">
+        <div className="col p-0">
+          <div className="sorting-actions product-listing" id="product-search-results">
+            <div className="row grid-header no-gutters justify-content-center">
+              <div className="result-count d-flex">
+                <div className="search-result-filters">
+                  <button className="search-result">
+                    <select
+                      name="sort-order"
+                      className="custom-select filled"
+                      aria-label="Sắp xếp theo"
+                    >
+                      <option className="default" value="" data-id="default">
+                        Mặc định
+                      </option>
+                      <option
+                        className="Best-Sellers"
+                        value="best-seller"
+                        data-id="Best-Sellers"
+                      >
+                        Bán chạy
+                      </option>
+                      <option
+                        className="price-high-to-low"
+                        value="price-za"
+                        data-id="price-high-to-low"
+                      >
+                        Giá cao - thấp
+                      </option>
+                      <option
+                        className="price-low-to-high"
+                        value="price-az"
+                        data-id="price-low-to-high"
+                      >
+                        Giá thấp - cao
+                      </option>
+                      <option className="new-in" value="new" data-id="new-in">
+                        Sản phẩm mới
+                      </option>
+                    </select>
+                    Sắp xếp theo
+                  </button>
+                </div>
+                <div className="search-result-filters">
+                  <button className="search-result">
+                    <select
+                      name="gender"
+                      className="custom-select filled"
+                      aria-label="Giới tính"
+                      onChange={(e) => setGender(e.target.value)} // Cập nhật giới tính khi chọn
+                    >
+                      <option value="">Tất cả</option>
+                      <option value="nam">Nam</option>
+                      <option value="nữ">Nữ</option>
+                    </select>
+                    Giới tính
+                  </button>
+                </div>
+                <div className="search-result-filters">
+                  <button className="search-result">
+                    Tất cả
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {products.length > 0 ? (
         <div>
           <div className="product-grid">
@@ -72,7 +148,7 @@ const ProductListByCategory = () => {
                 : "";
               return (
                 <div key={product.id} className="product-card">
-                  <Link to={`/product/${product.id}`} className="product-item-link"> {/* Thêm Link vào đây */}
+                  <Link to={`/product/${product.id}`} className="product-item-link">
                     <div className="product-item">
                       <img
                         src={`${BASE_URL}/uploads/products/${product.images}`}
@@ -87,7 +163,7 @@ const ProductListByCategory = () => {
                     </div>
                     <div className="product-info">
                       <h3 className="product-name">{product.name}</h3>
-                      <p className="product-description">{product.short_description}</p> {/* Thay description thành short_description */}
+                      <p className="product-description">{product.short_description}</p>
                       <div className="product-footer">
                         <p className={`product-price ${discountPrice ? "line-through" : ""}`}>
                           {formatPrice(product.price)}

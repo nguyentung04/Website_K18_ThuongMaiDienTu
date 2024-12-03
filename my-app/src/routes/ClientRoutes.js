@@ -42,11 +42,9 @@ const ClientRoutes = () => {
         <Route path="/orderhistory" element={<OrderHistory />} />
         <Route path="/orders/:id" element={<OrderDetail />} />
         <Route path="/ordermodel" element={<OrderModal />} />
-        <Route path="/momoPayment" element={<MomoPayment />} />
         <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/google-profile" element={<GoogleProfile />} />
       </Route>
       
     </Routes>

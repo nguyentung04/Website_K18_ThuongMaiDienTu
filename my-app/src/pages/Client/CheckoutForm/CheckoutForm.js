@@ -154,13 +154,7 @@ useEffect(() => {
       setCart([]); // Xóa giỏ hàng trong state
       localStorage.removeItem("cart"); // Xóa giỏ hàng trong localStorage
 
-      toast({
-        title: "Thành công!",
-        description: "Giỏ hàng đã được xóa.",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
+  
     } catch (error) {
       console.error("Lỗi khi xóa giỏ hàng:", error);
       toast({
@@ -272,10 +266,12 @@ useEffect(() => {
       if (formData.paymentMethod === "momo") {
         // Xử lý thanh toán bằng MoMo
         const momoResponse = await axios.post(`${BASE_URL}/payment`, {
-          amount: totalAmount,
+          amount1: totalAmount,
           orderInfo: `${orderCode}`,
         });
   
+   
+        
         if (momoResponse.data?.payUrl) {
           // Chuyển hướng tới trang thanh toán MoMo
           window.location.href = momoResponse.data.payUrl;

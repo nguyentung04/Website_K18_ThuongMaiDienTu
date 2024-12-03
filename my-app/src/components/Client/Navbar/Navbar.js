@@ -7,15 +7,35 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./Navbar.css";
 import { jwtDecode } from "jwt-decode";
+import { fetchCategories } from "../../../service/api/Category";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState(localStorage.getItem("username"));
   const [avatar, setAvatar] = useState("https://via.placeholder.com/150");
-  const isLoggedIn = !!username;  // Kiểm tra người dùng đã đăng nhập chưa
+  const isLoggedIn = !!username;
   const { getTotalUniqueItems } = useContext(CartContext);
+  const [categories, setCategories] = useState([]);
 
- // Đăng xuất và xóa thông tin localStorage
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await fetchCategories();
+        setCategories(data); // Lưu danh mục vào state
+      } catch (error) {
+        console.error("Lỗi khi tải danh mục:", error);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  const chunkedCategories = [];
+  for (let i = 0; i < categories.length; i += 4) {
+    chunkedCategories.push(categories.slice(i, i + 4));
+  }
+
+// Đăng xuất và xóa thông tin localStorage
 const handleLogout = () => {
   // Xóa tất cả dữ liệu liên quan đến phiên người dùng
   localStorage.removeItem("token"); // Xóa token
@@ -35,8 +55,6 @@ const handleLogout = () => {
   // Tải lại trang
   window.location.reload();
 };
-
-  
 
   const [activeLink, setActiveLink] = useState(localStorage.getItem("activeLink") || "");
 
@@ -62,39 +80,48 @@ const handleLogout = () => {
         setUsername(decodedUser.name);
       }
       if (decodedUser && decodedUser.avatar) {
-        setAvatar(decodedUser.avatar);  // Lưu avatar vào state nếu có
+        setAvatar(decodedUser.avatar);
       }
-  
-      // Xóa `token` khỏi URL để bảo mật
+
       window.history.replaceState(null, "", window.location.pathname);
     }
   }, []);
-  
-  
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await fetchCategories();
+        setCategories(data); // Lưu danh mục vào state
+      } catch (error) {
+        console.error("Lỗi khi tải danh mục:", error);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
   return (
     <div className="stopnav">
-      <nav className="Navbar ">
+      <nav className="Navbar">
         <div className="container">
           <Link
             to="/"
             className="navbar-logo"
             onClick={() => handleLinkClick("/")}
           >
-            <img src="/assets//logo/logodongho.png" alt="Logo" className="logo-image" />
+            <img src="/assets/logo/logo-dong-ho.png" alt="Logo" className="logo-image" />
           </Link>
           <div className="navbar-links">
             <Link
               to="/"
-              className={`nav-link-trend ${activeLink === "/" ? "active-link" : ""
-                }`}
+              className={`nav-link-trend ${activeLink === "/" ? "active-link" : ""}`}
               onClick={() => handleLinkClick("/")}
             >
               Trang chủ
             </Link>
             <Link
               to="/about"
-              className={`nav-link-introduce ${activeLink === "/about" ? "active-link" : ""
-                }`}
+              className={`nav-link-introduce ${activeLink === "/about" ? "active-link" : ""}`}
               onClick={() => handleLinkClick("/about")}
             >
               Giới thiệu
@@ -102,195 +129,23 @@ const handleLogout = () => {
             <div className="dropdown">
               <Link
                 to="/products"
-                className={`dropbtn ${activeLink === "/menu" ? "active-link" : ""
-                  }`}
+                className={`dropbtn ${activeLink === "/menu" ? "active-link" : ""}`}
                 onClick={() => handleLinkClick("/menu")}
               >
                 Sản phẩm <CgChevronDown />
               </Link>
               <div className="dropdown-content">
-                <div className="dropdown-section">
-                  <h4>Hãng Phổ biến</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      <Link to="/casio">Casio</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Hãng khác</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      <Link to="/carnival">Carnival</Link>
-                    </li>{" "}
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Hàng cao cấp</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/tissot">Tissot</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Phân loại đồng hồ</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/dai-da-tong-hop">Dây da tổng hợp</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Phong cách</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/quan-doi">Quân đội</Link>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div className="dropdown">
-              <Link
-                to="/men"
-                className={`nav-link-trend ${activeLink === "/men" ? "active-link" : ""
-                  }`}
-                onClick={() => handleLinkClick("/men")}
-              >
-                Nam
-                <CgChevronDown />
-              </Link>
-
-              <div className="dropdown-content">
-                {/* Dropdown Content for "Nam" */}
-                <div className="dropdown-section">
-                  <h4>Mức giá</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?price=under-1m">Dưới 1 triệu</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Hãng nổi bật</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      <Link to="/products?brand=casio">Casio</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Loại dây</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      <Link to="/products?strap=metal">Dây kim loại</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Loại máy</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?movement=automatic">
-                        Cơ (Automatic)
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Dòng đặc biệt</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?special=rolex-style">
-                        Giống Rolex
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div className="dropdown">
-              <Link
-                to="/women"
-                className={`nav-link-trend ${activeLink === "/women" ? "active-link" : ""
-                  }`}
-                onClick={() => handleLinkClick("/women")}
-              >
-                Nữ <CgChevronDown />
-              </Link>
-              <div className="dropdown-content">
-                {/* Dropdown Content for "Nữ" */}
-                <div className="dropdown-section">
-                  <h4>Mức giá</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?price=under-1m">Dưới 1 triệu</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Hãng nổi bật</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?brand=casio">Casio</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Loại dây</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?strap=metal">Dây kim loại</Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Loại máy</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?movement=automatic">
-                        Cơ (Automatic)
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown-section">
-                  <h4>Dòng đặc biệt</h4>
-                  <hr />
-                  <ul>
-                    <li>
-                      {" "}
-                      <Link to="/products?special=rolex-style">
-                        Giống Rolex
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
+                {chunkedCategories.map((chunk, index) => (
+                  <div className="dropdown-section" key={index}>
+                    <ul className="category-row">
+                      {chunk.map((category) => (
+                        <li key={category.id}>
+                          <Link to={`/products?category=${category.id}`}>{category.name}</Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -300,7 +155,7 @@ const handleLogout = () => {
                 }`}
               onClick={() => handleLinkClick("/premium")}
             >
-              Cũ cao cấp
+              Liên hệ
             </Link>
             <Link
               to="/post"
@@ -333,7 +188,7 @@ const handleLogout = () => {
           </div>
 
           <div className="navbar-auth">
-            <button type="button" class="btn  position-relative">
+            <button type="button" className="btn position-relative">
               <Link to="/cart" className="cart-link">
                 <button style={{ marginTop: "-4px", marginRight: "11px" }}>
                   <FaShoppingCart
@@ -342,8 +197,8 @@ const handleLogout = () => {
                     style={{ stroke: "#b29c6e", strokeWidth: 42 }}
                   />
                 </button>
-                <span class="position-absolute top-0  translate-middle badge rounded-pill bg-danger">
-                  {getTotalUniqueItems() > 0 && ( // Only render the badge if there are items
+                <span className="position-absolute top-0 translate-middle badge rounded-pill bg-danger">
+                  {getTotalUniqueItems() > 0 && (
                     <span className="position-absolute top-0 translate-middle badge rounded-pill bg-danger">
                       {getTotalUniqueItems()}
                     </span>
@@ -409,7 +264,7 @@ const handleLogout = () => {
                                   height="16"
                                   fill="#b29c6e"
                                 >
-                                  <path d="M304 128a80 80 0 1 0 -160 0 80 80 0 1 0 160 0zM96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM49.3 464l349.5 0c-8.9-63.3-63.3-112-129-112l-91.4 0c-65.7 0-120.1 48.7-129 112zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3z" />
+<path d="M304 128a80 80 0 1 0 -160 0 80 80 0 1 0 160 0zM96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM49.3 464l349.5 0c-8.9-63.3-63.3-112-129-112l-91.4 0c-65.7 0-120.1 48.7-129 112zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3z" />
                                 </svg>
                                 Thông tin cá nhân
                               </a>
@@ -455,7 +310,7 @@ const handleLogout = () => {
                                   height="16"
                                   fill="#b29c6e"
                                 >
-                                  <path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" />
+<path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" />
                                 </svg>
                                 Đăng xuất
                               </a>
@@ -467,10 +322,16 @@ const handleLogout = () => {
                   </div>
                 </nav>
               </>
+        
             ) : (
-              <Link to="/signin" className="login">
-                Đăng nhập
-              </Link>
+              <>
+                <Link to="/signin">
+                  <button className="btn_login">Đăng nhập</button>
+                </Link>
+                <Link to="/signup">
+                  <button className="btn_signup">Đăng ký</button>
+                </Link>
+              </>
             )}
           </div>
         </div>

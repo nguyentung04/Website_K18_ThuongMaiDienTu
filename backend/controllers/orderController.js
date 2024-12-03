@@ -70,7 +70,7 @@ exports.orderByName1 = (req, res) => {
 // Lấy toàn bộ đơn hàng theo trạng thái đã thanh toán
 exports.orderByStatusPaid = (req, res) => {
   connection.query(
-    `SELECT o.*, od.* , u.name AS name , p.name AS pr_name FROM orders o JOIN order_items od ON o.id = od.order_id JOIN users u ON u.id = o.user_id JOIN products p ON p.id = od.product_id WHERE o.status = "pending"`,
+    `SELECT o.*, od.* , u.name AS name , p.name AS pr_name FROM orders o JOIN order_items od ON o.id = od.order_id JOIN users u ON u.id = o.user_id JOIN products p ON p.id = od.product_id WHERE o.payment_method = "momo"`,
 
     (err, results) => {
       if (err) {
@@ -88,16 +88,12 @@ exports.orderByStatusPaid = (req, res) => {
 
 // Lấy toàn bộ đơn hàng theo  trạng thái chưa thanh toán
 exports.orderByStatusUnpaid = (req, res) => {
-  const { id } = req.params;
 
-  // Kiểm tra xem id có hợp lệ không
-  if (!id || isNaN(id)) {
-    return res.status(400).json({ error: "Invalid order ID" });
-  }
+
 
   connection.query(
-    `SELECT o.*, od.*, p.* FROM orders o JOIN order_items od ON o.id = od.order_id JOIN products p ON od.product_id = p.id WHERE o.status =  pending ;`,
-    [id],
+    `SELECT o.*, od.*, p.* FROM orders o JOIN order_items od ON o.id = od.order_id JOIN products p ON od.product_id = p.id WHERE o.payment_method = 'COD'`,
+  
     (err, results) => {
       if (err) {
         return res

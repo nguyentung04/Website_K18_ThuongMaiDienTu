@@ -90,8 +90,9 @@ const PaidTable = () => {
             <Th>Tên người nhận</Th>
             <Th>Địa chỉ</Th>
             <Th>Tỉnh</Th>
+             <Th>Quận/Huyện</Th>
             <Th>trạng thái</Th>
-            <Th>Quận/Huyện</Th>
+           
             <Th>Phương thức thanh toán</Th>
             <Th>Chi tiết</Th>
             <Th>Xóa</Th>

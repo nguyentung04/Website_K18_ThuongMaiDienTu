@@ -12,10 +12,11 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "../../../components/icon/icon";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import CartProvider from "../../../components/Client/componentss/Cart_Context";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { toast, ToastContainer } from "react-toastify";
 const BASE_URL = "http://localhost:3000"; // Cập nhật đúng URL của server
 
 const Cart = () => {
@@ -31,12 +32,13 @@ const Cart = () => {
     const fetchUserIdFromToken = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) throw new Error("Token không tồn tại, vui lòng đăng nhập lại.");
-  
+        if (!token)
+          throw new Error("Token không tồn tại, vui lòng đăng nhập lại.");
+
         const decodedToken = jwtDecode(token);
         const userId = decodedToken.id;
         if (!userId) throw new Error("Không tìm thấy userId trong token.");
-  
+
         localStorage.setItem("userId", userId);
         return userId;
       } catch (error) {
@@ -46,7 +48,7 @@ const Cart = () => {
         return null;
       }
     };
-  
+
     fetchUserIdFromToken();
   }, []);
 
@@ -55,14 +57,16 @@ const Cart = () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("User not authenticated");
-  
+
         const userId = localStorage.getItem("userId");
         if (!userId) throw new Error("User ID không tồn tại.");
-  
-        const response = await axios.get(`${BASE_URL}/api/cart_userId/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        // console.log("Fetched Cart Data:", userId);
+
+        const response = await axios.get(
+          `${BASE_URL}/api/cart_userId/${userId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const cartData = response.data || [];
         setCart(cartData);
         localStorage.setItem(`cart_${userId}`, JSON.stringify(cartData)); // Save cart to localStorage
@@ -73,7 +77,7 @@ const Cart = () => {
         setLoading(false);
       }
     };
-  
+
     fetchCart();
   }, []);
 
@@ -88,24 +92,53 @@ const Cart = () => {
   // Lấy user_id từ localStorage
   // ====================================================================================
   // Hàm xóa sản phẩm khỏi giỏ hàng
-  // const removeFromCart = (id) => {
-  //   // Lọc ra các sản phẩm không có id tương ứng để xóa
-  //   const updatedCart = cart.filter((product) => product.id !== id);
-  //   setCart(updatedCart); // Cập nhật lại trạng thái giỏ hàng
-  //   localStorage.setItem("cart", JSON.stringify(updatedCart)); // Lưu giỏ hàng mới vào localStorage
-  // };
+
 
   const removeFromCart = async (product_id) => {
     try {
-      await axios.delete(`${BASE_URL}/api/cart_id/${product_id}`);
-      setCart((prevCart) => prevCart.filter((item) => item.product_id !== product_id)); // Cập nhật state sau khi xóa
-      alert("Đã xóa sản phẩm khỏi giỏ hàng!");
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("User not authenticated");
+  
+      const userId = localStorage.getItem("userId");
+      if (!userId) throw new Error("User ID không tồn tại.");
+  
+      // Gọi API để xóa sản phẩm khỏi giỏ hàng
+      await axios.delete(`${BASE_URL}/api/cart/${userId}/${product_id}`);
+  
+      // Cập nhật state sau khi xóa
+      setCart((prevCart) =>
+        prevCart.filter((item) => item.product_id !== product_id)
+      );
+  
+      // Kiểm tra xem toast có được gọi không
+      console.log("Gọi toast thành công!");
+      
+      // Hiển thị thông báo thành công
+      toast({
+        title: "Thành công!",
+        description: "Sản phẩm đã được xóa khỏi giỏ hàng.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error("Error removing item:", error);
-      alert("Không thể xóa sản phẩm. Vui lòng thử lại sau.");
+  
+      // Kiểm tra lỗi
+      console.log("Gọi toast lỗi!");
+      
+      // Hiển thị thông báo lỗi
+      toast({
+        title: "Lỗi",
+        description: error.message || "Không thể xóa sản phẩm. Vui lòng thử lại sau.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
-
+  
+ 
 
   // ====================================================================================================
   // Hàm kích hoạt hiệu ứng fade cho giá
@@ -128,93 +161,77 @@ const Cart = () => {
 
   // =========================================================================================================
   // Hàm tăng số lượng sản phẩm trong giỏ hàng
-  const increaseQuantity = async (id, product_id, cart_id) => {
-    try {
-      const updatedCart = cart.map((item) =>
-        item.product_id === product_id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      );
-      setCart(updatedCart);
-      saveCartToLocal(updatedCart); // Save updated cart
-  
-      const token = localStorage.getItem("token");
-      await axios.put(
-        `${BASE_URL}/api/cart/${id}`,
-        { cart_id, cart_items: updatedCart },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    } catch (error) {
-      console.error("Error increasing quantity:", error);
-      alert("Không thể cập nhật số lượng. Vui lòng thử lại sau.");
-    }
-  };
-  
+const increaseQuantity = async (cart_id, product_id) => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("User not authenticated");
+    const updatedCart = cart.map((item) =>
+      item.product_id === product_id
+        ? { ...item, total_quantity: item.total_quantity + 1 }
+        : item
+    );
+    setCart(updatedCart); // Cập nhật giỏ hàng trên giao diện
+    saveCartToLocal(updatedCart); // Lưu vào localStorage
+
+
+    // Gửi yêu cầu cập nhật server
+    await axios.put(
+      `${BASE_URL}/api/cart/${cart_id}`,
+      {
+        cart_id,
+        cart_items: updatedCart.map((item) => ({
+          product_id: item.product_id,
+          total_quantity: item.total_quantity,
+          product_price: item.product_price,
+        })),
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+  } catch (error) {
+    console.error("Error increasing quantity:", error);
+    toast.error("Không thể tăng số lượng. Vui lòng thử lại sau.");
+  }
+};
+
 
   // Hàm giảm số lượng sản phẩm trong giỏ hàng
   const decreaseQuantity = async (cart_id, product_id) => {
     try {
-      // Cập nhật số lượng trên giao diện
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("User not authenticated");
       const updatedCart = cart.map((item) =>
         item.product_id === product_id
-          ? { ...item, quantity: Math.max(item.quantity - 1, 1) }
+          ? { ...item, total_quantity: Math.max(item.total_quantity - 1, 1) }
           : item
       );
       setCart(updatedCart);
+      saveCartToLocal(updatedCart);
   
-      // Lấy sản phẩm được cập nhật
-      const updatedItem = updatedCart.find((item) => item.product_id === product_id);
-      const cart_items = updatedCart.map((item) => ({
-        product_id: item.product_id,
-        quantity: item.quantity,
-        price: item.price,
-      }));
-  
-      // Gửi yêu cầu lên server
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("Token không tồn tại, vui lòng đăng nhập lại.");
-  
+      // Gửi yêu cầu cập nhật server
       await axios.put(
-        `${BASE_URL}/api/cart/update`,
+        `${BASE_URL}/api/cart/${cart_id}`,
         {
-          cart_id,
-          cart_items,
+          cart_id: cart_id,
+          cart_items: updatedCart.map((item) => ({
+            product_id: item.product_id,
+            quantity: item.total_quantity,
+            price: item.product_price,
+          })),
         },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
     } catch (error) {
-      console.error("Lỗi khi giảm số lượng sản phẩm:", error);
-      alert("Không thể cập nhật số lượng. Vui lòng thử lại sau.");
+      console.error("Error decreasing quantity:", error);
+      toast.error("Không thể giảm số lượng. Vui lòng thử lại sau.");
     }
   };
   
 
-  // ========================================================================================================
-  // Hàm xử lý thay đổi số lượng khi người dùng nhập tay
-  const handleQuantityChange = (e, id) => {
-    const value = e.target.value; // Lấy giá trị từ input
-    if (!isNaN(value) && value > 0) {
-      // Kiểm tra nếu giá trị là số và lớn hơn 0
-      const updatedCart = cart.map(
-        (item) =>
-          item.id === id ? { ...item, quantity: parseInt(value, 10) } : item // Cập nhật số lượng
-      );
-      setCart(updatedCart); // Cập nhật lại giỏ hàng
-      localStorage.setItem("cart", JSON.stringify(updatedCart)); // Lưu giỏ hàng mới vào localStorage
-    }
-  };
 
-  // const handleQuantityChange = (e, id) => {
-  //   const value = parseInt(e.target.value, 10);
-  //   if (isNaN(value) || value <= 0) return; // Prevent invalid input
-  //   const updatedCart = cart.map((item) =>
-  //     item.id === id ? { ...item, quantity: value } : item
-  //   );
-  //   setCart(updatedCart);
-  //   localStorage.setItem("cart", JSON.stringify(updatedCart));
-  // };
 
   // ==================================================================================================
   // Hàm tính tổng giá trị giỏ hàng
@@ -292,13 +309,12 @@ const Cart = () => {
   return (
     <div className="cart" ref={cartContainerRef}>
       <h3>GIỎ HÀNG CỦA BẠN</h3>
-
+      <ToastContainer />
       <Box background="fff" mb="40px" p="20px" borderRadius="6px">
         {cart.map((item, index) => (
-          <Box >
+          <Box>
             {" "}
             <CartProvider>
-              
               <Box
                 className="d-flex justify-content-between "
                 style={{
@@ -307,7 +323,7 @@ const Cart = () => {
                   justifyContent: "space-around",
                   alignItems: "Center",
                 }}
-              >
+              > <Box> {item.cart_id} </Box>
                 <Flex>
                   <Img
                     style={{ mixBlendMode: "multiply" }}
@@ -316,6 +332,7 @@ const Cart = () => {
                     alt={item.product_name}
                     maxWidth="114px"
                   />
+                 
                   <Heading
                     style={{
                       width: "300px",
@@ -347,7 +364,7 @@ const Cart = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => decreaseQuantity(item.id)}
+                    onClick={() => decreaseQuantity(item.cart_id)}
                     width="33px"
                     height="35px"
                   >
@@ -356,7 +373,7 @@ const Cart = () => {
                   <Input
                     px={2}
                     value={item.total_quantity}
-                    onChange={(e) => handleQuantityChange(e, item.id)}
+                
                     textAlign="center"
                     width="60px"
                     background="#ffffff"
@@ -365,7 +382,7 @@ const Cart = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => increaseQuantity(item.id)}
+                    onClick={() => increaseQuantity(item.cart_id)}
                   >
                     +
                   </Button>
@@ -375,7 +392,6 @@ const Cart = () => {
                     {" "}
                     Tổng giá: <br></br>
                   </span>
-              
 
                   <Text
                     fontWeight="bold"

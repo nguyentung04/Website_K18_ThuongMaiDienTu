@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -11,10 +10,7 @@ import {
   useToast,
   FormErrorMessage,
 } from "@chakra-ui/react";
-import {
-  fetchProductById,
-  updateProduct,
-} from "../../../../service/api/products";
+import { fetchProductById, updateProduct } from "../../../../service/api/products";
 import { fetchCategories } from "../../../../service/api/Category";
 import axios from "axios";
 
@@ -28,6 +24,8 @@ const EditProduct = () => {
   const [imageFile, setImageFile] = useState(null);
   const [categories, setCategories] = useState([]);
   const [description, setDescription] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
+  const [gender, setGender] = useState(""); // Thêm giới tính
   const [errors, setErrors] = useState({});
   const toast = useToast();
   const navigate = useNavigate();
@@ -43,8 +41,10 @@ const EditProduct = () => {
           setCategory(data.category_id || "");
           setPrice(data.price || "");
           setDescription(data.description || "");
+          setShortDescription(data.short_description || "");
           setImage(data.image || "");
           setStock(data.stock || "");
+          setGender(data.gender || ""); // Gán giá trị giới tính
         }
       } catch (error) {
         toast({
@@ -87,8 +87,10 @@ const EditProduct = () => {
     if (!price || isNaN(price) || parseFloat(price) <= 0)
       newErrors.price = "Giá là bắt buộc và phải là số lớn hơn 0.";
     if (!description) newErrors.description = "Mô tả là bắt buộc.";
+    if (!shortDescription) newErrors.shortDescription = "Mô tả ngắn là bắt buộc.";
     if (!stock || isNaN(stock) || parseInt(stock) <= 0)
       newErrors.stock = "Số lượng là bắt buộc và phải là số nguyên dương.";
+    if (!gender) newErrors.gender = "Giới tính là bắt buộc."; // Kiểm tra giới tính
     return newErrors;
   };
 
@@ -116,7 +118,7 @@ const EditProduct = () => {
           }
         );
         imageUrl = response.data.filePath;
-        setImage(imageUrl); // Cập nhật hiển thị ảnh mới trên giao diện
+        setImage(imageUrl);
       } catch (error) {
         toast({
           title: "Lỗi tải hình ảnh lên",
@@ -128,19 +130,18 @@ const EditProduct = () => {
         return;
       }
     }
-    
 
     const productData = {
       name,
       price: parseFloat(price),
       stock: parseInt(stock),
       description,
+      short_description: shortDescription,
       images: imageUrl,
       category_id: category,
+      gender, // Thêm giới tính vào dữ liệu
     };
 
-    console.log(productData);
-    
     try {
       await updateProduct(id, productData);
       toast({
@@ -190,37 +191,44 @@ const EditProduct = () => {
               </option>
             ))}
           </Select>
-          {errors.category && (
-            <FormErrorMessage>{errors.category}</FormErrorMessage>
-          )}
+          {errors.category && <FormErrorMessage>{errors.category}</FormErrorMessage>}
         </FormControl>
         <FormControl id="price" mb={4} isInvalid={errors.price}>
           <FormLabel>Giá</FormLabel>
-          <Input
-            
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-          />
+          <Input value={price} onChange={(e) => setPrice(e.target.value)} />
           {errors.price && <FormErrorMessage>{errors.price}</FormErrorMessage>}
         </FormControl>
         <FormControl id="stock" mb={4} isInvalid={errors.stock}>
           <FormLabel>Số lượng</FormLabel>
-          <Input
-            
-            value={stock}
-            onChange={(e) => setStock(e.target.value)}
-          />
+          <Input value={stock} onChange={(e) => setStock(e.target.value)} />
           {errors.stock && <FormErrorMessage>{errors.stock}</FormErrorMessage>}
         </FormControl>
         <FormControl id="description" mb={4} isInvalid={errors.description}>
           <FormLabel>Mô tả</FormLabel>
+          <Input value={description} onChange={(e) => setDescription(e.target.value)} />
+          {errors.description && <FormErrorMessage>{errors.description}</FormErrorMessage>}
+        </FormControl>
+        <FormControl id="shortDescription" mb={4} isInvalid={errors.shortDescription}>
+          <FormLabel>Mô tả ngắn</FormLabel>
           <Input
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={shortDescription}
+            onChange={(e) => setShortDescription(e.target.value)}
           />
-          {errors.description && (
-            <FormErrorMessage>{errors.description}</FormErrorMessage>
+          {errors.shortDescription && (
+            <FormErrorMessage>{errors.shortDescription}</FormErrorMessage>
           )}
+        </FormControl>
+        <FormControl id="gender" mb={4} isInvalid={errors.gender}>
+          <FormLabel>Giới tính</FormLabel>
+          <Select
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
+            placeholder="Chọn giới tính"
+          >
+            <option value="male">Nam</option>
+            <option value="female">Nữ</option>
+          </Select>
+          {errors.gender && <FormErrorMessage>{errors.gender}</FormErrorMessage>}
         </FormControl>
         <FormControl id="image" mb={4}>
           <FormLabel>Ảnh sản phẩm</FormLabel>

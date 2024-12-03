@@ -206,12 +206,12 @@ const Profile = () => {
       <div className="profile-container">
         <div className="profile-container1">
           <img src={values.avatar} alt="Avatar" className="avatar" />
-          {/* <h3>{values.name}</h3> */}
-          {/* <p>{values.email}</p> */}
+          <h3>{values.name}</h3>
+          <p>{values.email}</p>
         </div>
-        {/* <button className="logout-button" onClick={() => navigate("/login")}>
+        <button className="logout-button" onClick={() => navigate("/login")}>
           Đăng xuất
-        </button> */}
+        </button>
       </div>
 
       <div className="personal-info">

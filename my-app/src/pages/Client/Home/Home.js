@@ -205,19 +205,14 @@ const Home = ({ loading }) => {
               <div className="introduce-information">
                 <h5>Đồng hồ Store</h5>
                 <p>
-                  Được thành lập vào năm 2020, trải qua 4 năm hoạt động và phát triển, Đồng hồ
-                  Store trở thành đại lý ủy quyền cho rất nhiều thương hiệu đến từ Nhật Bản và
-                  Thụy Sỹ chuyên bán đồng hồ chính hãng.
-                  <br />
-                  Chính sách bảo hành 5 năm cùng với các chương trình giảm giá tốt sẽ giúp bạn
-                  mua sắm dễ dàng. Với đội ngũ nhân viên tận tình, am hiểu về đồng hồ, Tiệm Đồng
-                  Hồ Đồng hồ Store rất vui được phục vụ quý khách. Đồng hồ Store hứa sẽ hoàn
-                  thiện hơn mỗi ngày để mang đến trải nghiệm tuyệt vời nhất có thể cho mọi khách
-                  hàng. Chúc quý khách mọi điều tốt lành!
+                  Từ năm 2020, Đồng hồ Store đã trở thành người bạn đồng hành
+                  tin cậy của những tín đồ yêu đồng hồ. Với đa dạng các mẫu mã
+                  đến từ những thương hiệu nổi tiếng Nhật Bản và Thụy Sỹ, chúng
+                  tôi cam kết mang đến cho bạn những trải nghiệm mua sắm tuyệt
+                  vời nhất. Đừng ngần ngại ghé thăm Đồng hồ Store để được tư vấn
+                  và lựa chọn chiếc đồng hồ ưng ý nhé!
                 </p>
               </div>
-
-
             </div>
           </div>
         </section>

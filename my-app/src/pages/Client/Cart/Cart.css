@@ -33,6 +33,7 @@
   display: flex;
   gap: 20px;
   justify-content: center;
+
 }
 
 .card-button a {
@@ -140,6 +141,15 @@
   background-color: #0056b3;
 }
 
+.cart input[type="number"] {
+  
+  height: 35px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  margin: 0 5px;
+}
 
 
 /* Tổng giá trị giỏ hàng và thông tin vận chuyển */
@@ -214,6 +224,7 @@
 .fade-divider {
   opacity: 0;
   transition: border-color 1s ease;
+ 
 }
 
 .cart > .highlight {

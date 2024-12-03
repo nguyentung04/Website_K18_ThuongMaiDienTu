@@ -12,7 +12,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "../../../components/icon/icon";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import CartProvider from "../../../components/Client/componentss/Cart_Context";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
@@ -67,7 +67,6 @@ const Cart = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        // console.log("Fetched Cart Data:", userId);
         const cartData = response.data || [];
         setCart(cartData);
         localStorage.setItem(`cart_${userId}`, JSON.stringify(cartData)); // Save cart to localStorage
@@ -162,94 +161,77 @@ const Cart = () => {
 
   // =========================================================================================================
   // Hàm tăng số lượng sản phẩm trong giỏ hàng
-  const increaseQuantity = async (id, product_id, cart_id) => {
-    try {
-      const updatedCart = cart.map((item) =>
-        item.product_id === product_id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      );
-      setCart(updatedCart);
-      saveCartToLocal(updatedCart); // Save updated cart
+const increaseQuantity = async (cart_id, product_id) => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("User not authenticated");
+    const updatedCart = cart.map((item) =>
+      item.product_id === product_id
+        ? { ...item, total_quantity: item.total_quantity + 1 }
+        : item
+    );
+    setCart(updatedCart); // Cập nhật giỏ hàng trên giao diện
+    saveCartToLocal(updatedCart); // Lưu vào localStorage
 
-      const token = localStorage.getItem("token");
-      await axios.put(
-        `${BASE_URL}/api/cart/${id}`,
-        { cart_id, cart_items: updatedCart },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    } catch (error) {
-      console.error("Error increasing quantity:", error);
-      alert("Không thể cập nhật số lượng. Vui lòng thử lại sau.");
-    }
-  };
+
+    // Gửi yêu cầu cập nhật server
+    await axios.put(
+      `${BASE_URL}/api/cart/${cart_id}`,
+      {
+        cart_id,
+        cart_items: updatedCart.map((item) => ({
+          product_id: item.product_id,
+          total_quantity: item.total_quantity,
+          product_price: item.product_price,
+        })),
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+  } catch (error) {
+    console.error("Error increasing quantity:", error);
+    toast.error("Không thể tăng số lượng. Vui lòng thử lại sau.");
+  }
+};
+
 
   // Hàm giảm số lượng sản phẩm trong giỏ hàng
   const decreaseQuantity = async (cart_id, product_id) => {
     try {
-      // Cập nhật số lượng trên giao diện
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("User not authenticated");
       const updatedCart = cart.map((item) =>
         item.product_id === product_id
-          ? { ...item, quantity: Math.max(item.quantity - 1, 1) }
+          ? { ...item, total_quantity: Math.max(item.total_quantity - 1, 1) }
           : item
       );
       setCart(updatedCart);
-
-      // Lấy sản phẩm được cập nhật
-      const updatedItem = updatedCart.find(
-        (item) => item.product_id === product_id
-      );
-      const cart_items = updatedCart.map((item) => ({
-        product_id: item.product_id,
-        quantity: item.quantity,
-        price: item.price,
-      }));
-
-      // Gửi yêu cầu lên server
-      const token = localStorage.getItem("token");
-      if (!token)
-        throw new Error("Token không tồn tại, vui lòng đăng nhập lại.");
-
+      saveCartToLocal(updatedCart);
+  
+      // Gửi yêu cầu cập nhật server
       await axios.put(
-        `${BASE_URL}/api/cart/update`,
+        `${BASE_URL}/api/cart/${cart_id}`,
         {
-          cart_id,
-          cart_items,
+          cart_id: cart_id,
+          cart_items: updatedCart.map((item) => ({
+            product_id: item.product_id,
+            quantity: item.total_quantity,
+            price: item.product_price,
+          })),
         },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
     } catch (error) {
-      console.error("Lỗi khi giảm số lượng sản phẩm:", error);
-      alert("Không thể cập nhật số lượng. Vui lòng thử lại sau.");
+      console.error("Error decreasing quantity:", error);
+      toast.error("Không thể giảm số lượng. Vui lòng thử lại sau.");
     }
   };
+  
 
-  // ========================================================================================================
-  // Hàm xử lý thay đổi số lượng khi người dùng nhập tay
-  const handleQuantityChange = (e, id) => {
-    const value = e.target.value; // Lấy giá trị từ input
-    if (!isNaN(value) && value > 0) {
-      // Kiểm tra nếu giá trị là số và lớn hơn 0
-      const updatedCart = cart.map(
-        (item) =>
-          item.id === id ? { ...item, quantity: parseInt(value, 10) } : item // Cập nhật số lượng
-      );
-      setCart(updatedCart); // Cập nhật lại giỏ hàng
-      localStorage.setItem("cart", JSON.stringify(updatedCart)); // Lưu giỏ hàng mới vào localStorage
-    }
-  };
 
-  // const handleQuantityChange = (e, id) => {
-  //   const value = parseInt(e.target.value, 10);
-  //   if (isNaN(value) || value <= 0) return; // Prevent invalid input
-  //   const updatedCart = cart.map((item) =>
-  //     item.id === id ? { ...item, quantity: value } : item
-  //   );
-  //   setCart(updatedCart);
-  //   localStorage.setItem("cart", JSON.stringify(updatedCart));
-  // };
 
   // ==================================================================================================
   // Hàm tính tổng giá trị giỏ hàng
@@ -341,7 +323,7 @@ const Cart = () => {
                   justifyContent: "space-around",
                   alignItems: "Center",
                 }}
-              >
+              > <Box> {item.cart_id} </Box>
                 <Flex>
                   <Img
                     style={{ mixBlendMode: "multiply" }}
@@ -350,6 +332,7 @@ const Cart = () => {
                     alt={item.product_name}
                     maxWidth="114px"
                   />
+                 
                   <Heading
                     style={{
                       width: "300px",
@@ -381,7 +364,7 @@ const Cart = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => decreaseQuantity(item.id)}
+                    onClick={() => decreaseQuantity(item.cart_id)}
                     width="33px"
                     height="35px"
                   >
@@ -390,7 +373,7 @@ const Cart = () => {
                   <Input
                     px={2}
                     value={item.total_quantity}
-                    onChange={(e) => handleQuantityChange(e, item.id)}
+                
                     textAlign="center"
                     width="60px"
                     background="#ffffff"
@@ -399,7 +382,7 @@ const Cart = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => increaseQuantity(item.id)}
+                    onClick={() => increaseQuantity(item.cart_id)}
                   >
                     +
                   </Button>

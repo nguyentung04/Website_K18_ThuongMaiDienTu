@@ -445,3 +445,8 @@ section h2 {
   color: white;
   transform: translateY(0); /* Ngừng hiệu ứng nâng */
 }
+
+.btn-selected {
+  background-color: #007bff; /* Màu xanh khi chọn */
+  color: white;
+}

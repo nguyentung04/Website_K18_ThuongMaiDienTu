@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -28,6 +27,7 @@ const EditProduct = () => {
   const [imageFile, setImageFile] = useState(null);
   const [categories, setCategories] = useState([]);
   const [description, setDescription] = useState("");
+  const [shortDescription, setShortDescription] = useState(""); // Mới thêm
   const [errors, setErrors] = useState({});
   const toast = useToast();
   const navigate = useNavigate();
@@ -43,6 +43,7 @@ const EditProduct = () => {
           setCategory(data.category_id || "");
           setPrice(data.price || "");
           setDescription(data.description || "");
+          setShortDescription(data.short_description || ""); // Cập nhật giá trị mô tả ngắn
           setImage(data.image || "");
           setStock(data.stock || "");
         }
@@ -89,6 +90,7 @@ const EditProduct = () => {
     if (!description) newErrors.description = "Mô tả là bắt buộc.";
     if (!stock || isNaN(stock) || parseInt(stock) <= 0)
       newErrors.stock = "Số lượng là bắt buộc và phải là số nguyên dương.";
+    if (!shortDescription) newErrors.shortDescription = "Mô tả ngắn là bắt buộc."; // Kiểm tra mô tả ngắn
     return newErrors;
   };
 
@@ -128,13 +130,13 @@ const EditProduct = () => {
         return;
       }
     }
-    
 
     const productData = {
       name,
       price: parseFloat(price),
       stock: parseInt(stock),
       description,
+      short_description: shortDescription, // Thêm mô tả ngắn vào dữ liệu gửi lên
       images: imageUrl,
       category_id: category,
     };
@@ -220,6 +222,16 @@ const EditProduct = () => {
           />
           {errors.description && (
             <FormErrorMessage>{errors.description}</FormErrorMessage>
+          )}
+        </FormControl>
+        <FormControl id="shortDescription" mb={4} isInvalid={errors.shortDescription}>
+          <FormLabel>Mô tả ngắn</FormLabel>
+          <Input
+            value={shortDescription}
+            onChange={(e) => setShortDescription(e.target.value)}
+          />
+          {errors.shortDescription && (
+            <FormErrorMessage>{errors.shortDescription}</FormErrorMessage>
           )}
         </FormControl>
         <FormControl id="image" mb={4}>

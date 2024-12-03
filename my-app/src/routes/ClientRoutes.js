@@ -20,13 +20,10 @@ import ClientLayout from "../layout/Clientlayout";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import OrderModal from "../components/Client/orderModel/orderModel.js";
-import GoogleProfile from "../pages/Client/GoogleProfile/GoogleProfile.js";
-
-
 import CategoryList from "../pages/Client/CategoryList/CategoryList.js"
 import ProductListByCategory from "../pages/Client/Products/component/CategoryProductsPage/ProductListByCategory.js"
-
-
+import FilteredProducts from "../pages/Client/Products/component/FilteredProducts/FilteredProducts.js"
+import ProductsByGender from "../pages/Client/Products/component/fetchProductsByGender/fetchProductsByGender.js"
 const ClientRoutes = () => {
   return (
     <Routes>

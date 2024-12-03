@@ -20,6 +20,7 @@ const AddProduct = () => {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [description, setDescription] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
@@ -55,9 +56,11 @@ const AddProduct = () => {
     if (!category) newErrors.category = "Loại sản phẩm là bắt buộc.";
     if (!price || isNaN(price) || parseFloat(price) <= 0)
       newErrors.price = "Giá là bắt buộc và phải là số lớn hơn 0.";
-    if (!description) newErrors.description = "Mô tả là bắt buộc.";
     if (!stock || isNaN(stock) || parseInt(stock) <= 0)
       newErrors.stock = "Số lượng là bắt buộc và phải là số nguyên dương.";
+    if (!description) newErrors.description = "Mô tả là bắt buộc.";
+    if (!shortDescription)
+      newErrors.shortDescription = "Mô tả ngắn là bắt buộc.";
     if (!imageFile) newErrors.image = "Ảnh sản phẩm là bắt buộc.";
 
     return newErrors;
@@ -106,6 +109,7 @@ const AddProduct = () => {
       price,
       stock: parseInt(stock),
       description,
+      short_description: shortDescription,
       images: [imageUrl],
       category_id: category,
     };
@@ -195,13 +199,28 @@ const AddProduct = () => {
           {errors.description && <FormErrorMessage>{errors.description}</FormErrorMessage>}
         </FormControl>
 
+        <FormControl
+          id="shortDescription"
+          mb={4}
+          isInvalid={errors.shortDescription}
+        >
+          <FormLabel>Mô tả ngắn</FormLabel>
+          <Input
+            value={shortDescription}
+            onChange={(e) => setShortDescription(e.target.value)}
+          />
+          {errors.shortDescription && (
+            <FormErrorMessage>{errors.shortDescription}</FormErrorMessage>
+          )}
+        </FormControl>
+
         <FormControl id="image" mb={4} isInvalid={errors.image}>
           <FormLabel>Ảnh sản phẩm</FormLabel>
           <Input type="file" onChange={handleImageChange} />
           {errors.image && <FormErrorMessage>{errors.image}</FormErrorMessage>}
         </FormControl>
 
-        <Button type="submit" colorScheme="teal">
+        <Button type="submit" colorScheme="blue">
           Thêm sản phẩm
         </Button>
       </form>

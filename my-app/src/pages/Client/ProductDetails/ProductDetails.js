@@ -76,6 +76,7 @@ const ProductDetails = ({ user }) => {
         price: product.price,
         description: product.description,
         image: product.image,
+        short_description: product.short_description,
         quantity: quantity,
       };
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -98,6 +99,7 @@ const ProductDetails = ({ user }) => {
         price: product.price,
         description: product.description,
         image: product.image,
+        short_description: product.short_description,
         quantity: quantity,
       };
       setProductDetails(details);
@@ -150,6 +152,12 @@ const ProductDetails = ({ user }) => {
           </div>
           <div className="product-info-section">
             <h1 className="product-name">{product.name}</h1>
+            <p className="product-rating">{product.short_description}</p>
+            
+            <div className="flex_item">
+              <p className="product-price">Giá: {formatPrice(product.price)}</p>
+            </div>
+
             <div className="product-rating">
               {[...Array(5)].map((star, index) => (
                 <FontAwesomeIcon
@@ -168,9 +176,6 @@ const ProductDetails = ({ user }) => {
                   ? `${averageRating.toFixed(1)}/5`
                   : "Chưa có bình luận nào"}
               </span>
-            </div>
-            <div className="flex_item">
-              <p className="product-price">{formatPrice(product.price)}</p>
             </div>
             {/* Action Buttons */}
             <div className="action-buttons">

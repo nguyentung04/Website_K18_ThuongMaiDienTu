@@ -43,31 +43,45 @@ exports.getPost_categoriesId = (req, res) => {
 
 // Xóa bài đăng theo ID
 exports.deletePost_categories = (req, res) => {
-  const postId = req.params.id; // Sử dụng cách đặt tên camelCase nhất quán
+  const postId = req.params.id; // Lấy ID danh mục từ params
 
-  // Chuẩn bị câu truy vấn SQL để xóa bài đăng
-  const query = "DELETE FROM post_categories WHERE id = ?";
+  // Kiểm tra xem danh mục có chứa bài viết nào không
+  const checkPostQuery = "SELECT COUNT(*) AS postCount FROM posts WHERE post_categories_id = ?";
 
-  // Thực hiện câu truy vấn
-  connection.query(query, [postId], (err, results) => {
+  connection.query(checkPostQuery, [postId], (err, results) => {
     if (err) {
-      // Ghi lại lỗi và phản hồi bằng mã trạng thái 500
-      console.error("Lỗi truy vấn CSDL:", err);
-      return res
-        .status(500)
-        .json({ error: "Có lỗi xảy ra khi xóa bài đăng." });
+      console.error("Lỗi khi kiểm tra bài viết trong danh mục:", err);
+      return res.status(500).json({ error: "Có lỗi xảy ra khi kiểm tra bài viết trong danh mục." });
     }
 
-    // Kiểm tra nếu không có hàng nào bị ảnh hưởng (tức là không có bài đăng nào bị xóa)
-    if (results.affectedRows === 0) {
-      // Nếu không có hàng nào bị ảnh hưởng, trả về mã trạng thái 404
-      return res.status(404).json({ message: "Không tìm thấy bài đăng" });
+    const postCount = results[0].postCount;
+
+    if (postCount > 0) {
+      // Nếu có bài viết trong danh mục, trả về thông báo lỗi
+      return res.status(400).json({ message: "Không thể xóa danh mục vì có bài viết trong danh mục này." });
     }
 
-    // Phản hồi thành công khi bài đăng đã được xóa
-    res.status(200).json({ message: "Bài đăng đã được xóa thành công" });
+    // Nếu không có bài viết, tiếp tục xóa danh mục
+    const deleteQuery = "DELETE FROM post_categories WHERE id = ?";
+
+    connection.query(deleteQuery, [postId], (err, results) => {
+      if (err) {
+        console.error("Lỗi khi xóa danh mục:", err);
+        return res.status(500).json({ error: "Có lỗi xảy ra khi xóa danh mục." });
+      }
+
+      if (results.affectedRows === 0) {
+        // Nếu không có danh mục nào bị xóa, trả về lỗi
+        return res.status(404).json({ message: "Không tìm thấy danh mục" });
+      }
+
+      // Phản hồi thành công khi xóa danh mục
+      res.status(200).json({ message: "Danh mục đã được xóa thành công" });
+    });
   });
 };
+
+
 
 // Cập nhật bài đăng theo ID
 exports.updatePost_categories  = (req, res) => {

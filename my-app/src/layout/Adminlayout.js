@@ -7,13 +7,6 @@ import { Flex } from "@chakra-ui/react";
 const AdminLayout = () => {
   const location = useLocation();
 
-  // List of routes where the Footer should not be displayed
-  const noFooterRoutes = ["/signin", "/signup", "/cart", "/orderhistory"];
-
-  // Check if the current route matches any noFooterRoutes or is /orders/:id
-  const shouldHideFooter =
-    noFooterRoutes.includes(location.pathname) ||
-    /^\/orders\/\d+$/.test(location.pathname);
 
   return (
     <Flex direction="column" height="100vh" bg="#f7fafc" fontFamily="math">

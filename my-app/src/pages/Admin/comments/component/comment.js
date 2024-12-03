@@ -126,16 +126,7 @@ const CommentPage = () => {
                 </List>
               )}
             </Flex>
-            <Button
-              fontFamily="math"
-              variant="solid"
-              colorScheme="teal"
-              bg="#00aa9f"
-              _hover={{ bg: "#32dfd4" }}
-              mr={4}
-            >
-              Tìm kiếm
-            </Button>
+            
           </Flex>
         </Box>
         <Button colorScheme="green" onClick={handleUpdateCounts}>

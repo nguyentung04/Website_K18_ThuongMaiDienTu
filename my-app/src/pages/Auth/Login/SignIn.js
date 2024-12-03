@@ -31,20 +31,6 @@ const SignIn = () => {
     }
   };
 
-
-  useEffect(() => {
-    // Thêm script của Dialogflow vào DOM
-    const script = document.createElement("script");
-    script.src = "https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1";
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      // Cleanup script khi component bị unmount
-      document.body.removeChild(script);
-    };
-  }, []);
-  
   // Kiểm tra và xử lý token Google khi redirect về
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -66,15 +52,15 @@ const SignIn = () => {
         username: decoded.given_name,
         avatar: decoded.picture || 'default-avatar.png',
       };
-    
+
       // Lưu thông tin người dùng vào localStorage
       localStorage.setItem('token', googleToken);
       localStorage.setItem('userData', JSON.stringify(userData));
-    
+
       // Điều hướng sau khi đăng nhập thành công
       navigate('/');
+      window.location.reload();
     }
-    
   }, [navigate]);
 
   // Xử lý đăng nhập bằng Google
@@ -146,7 +132,10 @@ const SignIn = () => {
           localStorage.setItem('userData', JSON.stringify(data.user));
           console.log(localStorage.getItem("userData"));
           setShowSuccessModal(true);
-          setTimeout(() => navigate('/'), 2000);  // Điều hướng đến trang profile
+          setTimeout(() => {
+            navigate('/'); // Điều hướng đến trang chủ
+            window.location.reload(); // Tải lại trang
+          }, 1000);
         } else {
           setError(data.message || 'Đăng nhập thất bại');
           setShowErrorModal(true);
@@ -157,7 +146,7 @@ const SignIn = () => {
         setError('Tên đăng nhập hoặc mật khẩu không đúng');
         setShowErrorModal(true);
         console.error('Lỗi đăng nhập:', error);
-      });    
+      });
   };
 
   // Xử lý load tên đăng nhập đã ghi nhớ
@@ -175,7 +164,6 @@ const SignIn = () => {
         <header className="signin-header">
           <h1>Đăng nhập</h1>
         </header>
-
         <section className="signin-form">
           <form onSubmit={handleSubmit}>
             <div className="form-group">

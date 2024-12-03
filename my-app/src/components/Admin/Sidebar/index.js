@@ -25,7 +25,7 @@ import CategoryIcon, {
 const Sidebar = () => {
   const user = {
     name: localStorage.getItem("username") || "John Doe",
-    email: localStorage.getItem("email") || "admin@gmail.com",
+    
     avatar: localStorage.getItem("avatar") || "https://bit.ly/broken-link",
   };
 
@@ -64,9 +64,7 @@ const Sidebar = () => {
               <Text fontSize="lg" fontWeight="bold" color={linkColor}>
                 {user.name}
               </Text>
-              <Text fontSize="sm" color="gray.500">
-                {user.email}
-              </Text>
+              
             </Box>
             <NavLink to="/admin/dashboard">
               {({ isActive }) => (

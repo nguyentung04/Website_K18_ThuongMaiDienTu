@@ -197,9 +197,7 @@ const EditProduct = () => {
         <FormControl id="price" mb={4} isInvalid={errors.price}>
           <FormLabel>Giá</FormLabel>
           <Input
-            type="test"
-            min="0.01"
-            step="0.01"
+            
             value={price}
             onChange={(e) => setPrice(e.target.value)}
           />
@@ -208,9 +206,7 @@ const EditProduct = () => {
         <FormControl id="stock" mb={4} isInvalid={errors.stock}>
           <FormLabel>Số lượng</FormLabel>
           <Input
-            type="number"
-            min="1"
-            step="1"
+            
             value={stock}
             onChange={(e) => setStock(e.target.value)}
           />

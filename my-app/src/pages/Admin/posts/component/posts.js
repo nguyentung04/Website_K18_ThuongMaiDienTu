@@ -171,8 +171,8 @@ const PostsPage = () => {
             <Th>Logo</Th>
             <Th>Tiêu đề</Th>
             <Th>Nội dung</Th>
-            <Th>Lượt xem</Th>
-            <Th>Danh mục</Th>
+            {/* <Th>Lượt xem</Th> */}
+            <Th>ID danh mục</Th>
             <Th>Người đăng</Th>
             <Th>Hoạt động</Th>
           </Tr>
@@ -194,9 +194,9 @@ const PostsPage = () => {
               <Td maxW="200px" isTruncated>
                 {post.content}
               </Td>
-              <Td>{post.views}</Td>
+              {/* <Td>{post.views}</Td> */}
               <Td>{post.post_categories_id}</Td>
-              <Td>{post.author_id}</Td>
+              <Td>{post.auth_name}</Td>
               <Td>
                 <Link to={`edit/${post.id}`}>
                   <Button colorScheme="blue" size="sm" mr={2}>

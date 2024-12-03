@@ -146,7 +146,7 @@ exports.getUserById = (req, res) => {
   const userId = req.params.id;
 
   connection.query(
-    "SELECT id, name, username, email, phone, address1, address2, status, role FROM users WHERE id = ?",
+    "SELECT id, name, username, email, phone, status, role FROM users WHERE id = ?",
     [userId],
     (err, results) => {
       if (err) {
@@ -275,16 +275,16 @@ exports.updateUser = (req, res) => {
     try {
       console.log("Dữ liệu gửi từ yêu cầu:", req.body);
 
-      const { name, phone, password, email, username, role, address1, address2 } = req.body;
+      const { name, phone, password, email, username, role } = req.body;
 
       // Mã hóa mật khẩu
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const query = `
-        INSERT INTO users(name, phone, password, email, username, role, address1, address2)
+        INSERT INTO users(name, phone, password, email, username, role)
         VALUES (?, ?, ?, ?, ?, ?)
       `;
-      const values = [name, phone, hashedPassword, email, username, role, address1, address2];
+      const values = [name, phone, hashedPassword, email, username, role];
 
       connection.query(query, values, (err, results) => {
         if (err) {
@@ -393,7 +393,7 @@ exports.resetPassword = (req, res) => {
         'UPDATE users SET password = ?, resetToken = NULL, resetTokenExpires = NULL WHERE resetToken = ?',
         [hashedPassword, token],
         (err) => {
-          if (err) return res.status(500).json({ message: 'Cập nhaat thất bại', error: err });
+          if (err) return res.status(500).json({ message: 'Cập nhật thất bại', error: err });
 
           res.status(200).json({ message: 'Cập nhật maatj khẩu thành công' });
         }

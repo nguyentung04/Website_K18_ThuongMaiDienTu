@@ -88,11 +88,15 @@
   border-radius: 6px;
 }
 .FeaturedProducts .product-title {
-  font-size: 1.1rem;
-  color: #000000; /* Đổi màu tên sản phẩm thành đen */
-  margin: 0.5rem 0;
-  font-weight: 700;
+  font-size: 1.2rem;
+  color: #000000;
+  margin: 10px 0;
+  font-weight: bold;
   text-align: center;
+  flex-grow: 1; /* Đảm bảo tên chiếm không gian linh hoạt */
+  display: flex;
+  align-items: center; /* Căn giữa nội dung tên theo chiều dọc */
+  justify-content: center; /* Căn giữa theo chiều ngang */
 }
 
 .FeaturedProducts .plain {

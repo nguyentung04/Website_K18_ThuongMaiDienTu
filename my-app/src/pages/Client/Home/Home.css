@@ -1,6 +1,6 @@
 .home {
-  margin: 0 auto;
-  padding: 0 40px;
+  margin: 0 ;
+  padding: 0 ;
   display: flex;
   box-sizing: border-box;
   flex-direction: column;
@@ -103,7 +103,7 @@
 /* ============================================================================================================ */
 .home .introduce{
   background: #efecea;
-  width: 1853px;
+  width: 1519px;
   display: flex;
   flex-direction: column;
   align-items: center;

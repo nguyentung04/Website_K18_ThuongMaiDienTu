@@ -402,7 +402,7 @@ const BestSellingProducts = () => {
           speed={3000}
           modules={[Autoplay]}
           className="main-slider"
-          slidesPerView={4}
+          slidesPerView={6}
         >
           {loading ? (
             <SwiperSlide>Loading...</SwiperSlide>

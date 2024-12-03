@@ -134,16 +134,15 @@
 
 .custom-slider-container .product-info .product-title,
 .custom-slider-container .product-info .product-sku {
-  font-size: 14px;
-  margin-bottom: 8px;
-  line-height: 23px;
-  color: var(--black);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  font-family: 'SVN-Humanst 521 BT', Arial, sans-serif;
+  font-size: 1.2rem;
+  color: #000000;
+  margin: 10px 0;
+  font-weight: bold;
+  text-align: center;
+  flex-grow: 1; /* Đảm bảo tên chiếm không gian linh hoạt */
+  display: flex;
+  align-items: center; /* Căn giữa nội dung tên theo chiều dọc */
+  justify-content: center; /* Căn giữa theo chiều ngang */
 }
 
 
@@ -171,6 +170,7 @@
   color: #df5454;
   margin: 0.5rem 0;
   font-weight: 700;
+  text-align: center;
 }
 
 .custom-slider-container .line-through {

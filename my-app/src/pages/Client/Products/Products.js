@@ -148,7 +148,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { Link, useLocation } from "react-router-dom";
 import { FaShoppingCart } from "react-icons/fa";
-import './Products.css';
+// import './Products.css';
 
 const BASE_URL = "http://localhost:3000";
 

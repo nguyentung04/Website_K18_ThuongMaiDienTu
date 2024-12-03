@@ -6,6 +6,7 @@ import Women from "../pages/Client/ProductsWomen/Products";
 import Men from "../pages/Client/ProductsMen/Products";
 import OldProductsPremium from "../pages/Client/OldProductsPremium/Products";
 import About from "../pages/Client/About/About";
+import Post from "../pages/Client/Post/Post.js";
 import SignIn from "../pages/Auth/Login/SignIn";
 import SignUp from "../pages/Auth/Register/SignUp";
 import ForgotPassword from "../pages/Auth/ForgotPassword/ForgotPassword.js";
@@ -36,6 +37,7 @@ const ClientRoutes = () => {
         <Route path="/men" element={<Men />} />
         <Route path="/premium" element={<OldProductsPremium />} />
         <Route path="/about" element={<About />} />
+        <Route path="/post" element={<Post />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/formcheckout" element={<CheckoutForm />} />
@@ -43,11 +45,12 @@ const ClientRoutes = () => {
         <Route path="/orders/:id" element={<OrderDetail />} />
         <Route path="/ordermodel" element={<OrderModal />} />
         <Route path="/momoPayment" element={<MomoPayment />} />
-      </Route>
-      <Route path="/signin" element={<SignIn />} />
+        <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/google-profile" element={<GoogleProfile />} />
+      </Route>
+      
     </Routes>
   );
 };

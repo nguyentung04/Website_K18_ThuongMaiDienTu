@@ -140,15 +140,7 @@
   background-color: #0056b3;
 }
 
-input[type="number"] {
-  max-width: 60px;
-  height: 35px;
-  border-radius: 5px;
-  text-align: center;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  margin: 0 5px;
-}
+
 
 /* Tổng giá trị giỏ hàng và thông tin vận chuyển */
 .cart-total {

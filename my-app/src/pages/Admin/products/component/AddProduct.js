@@ -141,9 +141,14 @@ const AddProduct = () => {
       <form onSubmit={handleSubmit}>
         <FormControl id="name" mb={4} isInvalid={errors.name}>
           <FormLabel>Tên sản phẩm</FormLabel>
-          <Input value={name} onChange={(e) => setName(e.target.value)} />
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Nhập tên sản phẩm"
+          />
           {errors.name && <FormErrorMessage>{errors.name}</FormErrorMessage>}
         </FormControl>
+
         <FormControl id="category" mb={4} isInvalid={errors.category}>
           <FormLabel>Loại sản phẩm</FormLabel>
           <Select
@@ -157,18 +162,15 @@ const AddProduct = () => {
               </option>
             ))}
           </Select>
-          {errors.category && (
-            <FormErrorMessage>{errors.category}</FormErrorMessage>
-          )}
+          {errors.category && <FormErrorMessage>{errors.category}</FormErrorMessage>}
         </FormControl>
+
         <FormControl id="price" mb={4} isInvalid={errors.price}>
           <FormLabel>Giá</FormLabel>
           <Input
-            type="number"
-            min="0.01"
-            step="0.01"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
+            placeholder="Nhập giá sản phẩm"
           />
           {errors.price && <FormErrorMessage>{errors.price}</FormErrorMessage>}
         </FormControl>
@@ -176,11 +178,9 @@ const AddProduct = () => {
         <FormControl id="stock" mb={4} isInvalid={errors.stock}>
           <FormLabel>Số lượng</FormLabel>
           <Input
-            type="number"
-            min="1"
-            step="1"
             value={stock}
             onChange={(e) => setStock(e.target.value)}
+            placeholder="Nhập số lượng"
           />
           {errors.stock && <FormErrorMessage>{errors.stock}</FormErrorMessage>}
         </FormControl>
@@ -190,10 +190,9 @@ const AddProduct = () => {
           <Input
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            placeholder="Nhập mô tả sản phẩm"
           />
-          {errors.description && (
-            <FormErrorMessage>{errors.description}</FormErrorMessage>
-          )}
+          {errors.description && <FormErrorMessage>{errors.description}</FormErrorMessage>}
         </FormControl>
 
         <FormControl id="image" mb={4} isInvalid={errors.image}>
@@ -201,7 +200,8 @@ const AddProduct = () => {
           <Input type="file" onChange={handleImageChange} />
           {errors.image && <FormErrorMessage>{errors.image}</FormErrorMessage>}
         </FormControl>
-        <Button type="submit" colorScheme="blue">
+
+        <Button type="submit" colorScheme="teal">
           Thêm sản phẩm
         </Button>
       </form>

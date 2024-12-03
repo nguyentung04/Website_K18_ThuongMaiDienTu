@@ -15,25 +15,27 @@ const Navbar = () => {
   const isLoggedIn = !!username;  // Kiểm tra người dùng đã đăng nhập chưa
   const { getTotalUniqueItems } = useContext(CartContext);
 
-  // Đăng xuất và xóa thông tin localStorage
-  const handleLogout = () => {
-    // Xóa tất cả dữ liệu liên quan đến phiên người dùng
-    localStorage.removeItem("token"); // Xóa token
-    localStorage.removeItem("username"); // Xóa tên đăng nhập
-    localStorage.removeItem("userData"); 
-    localStorage.removeItem("role");
-    // localStorage.removeItem("id"); // Xóa ID người dùng
-    localStorage.removeItem("userEmail"); // Xóa email người dùng
-    localStorage.removeItem("userName"); // Xóa tên người dùng
-    localStorage.removeItem("user"); // Xóa tên người dùng
-    localStorage.removeItem("userId");
-    // localStorage.removeItem("chakra-ui-color-mode");
-    
-    // ... có thể thêm các mục khác nếu cần
+ // Đăng xuất và xóa thông tin localStorage
+const handleLogout = () => {
+  // Xóa tất cả dữ liệu liên quan đến phiên người dùng
+  localStorage.removeItem("token"); // Xóa token
+  localStorage.removeItem("username"); // Xóa tên đăng nhập
+  localStorage.removeItem("userData"); 
+  localStorage.removeItem("role");
+  localStorage.removeItem("userEmail"); // Xóa email người dùng
+  localStorage.removeItem("userName"); // Xóa tên người dùng
+  localStorage.removeItem("user"); 
+  localStorage.removeItem("userId");
+  
+  // ... có thể thêm các mục khác nếu cần
+  
+  // Chuyển hướng người dùng về trang đăng nhập
+  navigate("/signin");
+  
+  // Tải lại trang
+  window.location.reload();
+};
 
-    // Chuyển hướng người dùng về trang đăng nhập
-    navigate("/signin");
-  };
   
 
   const [activeLink, setActiveLink] = useState(localStorage.getItem("activeLink") || "");
@@ -299,6 +301,14 @@ const Navbar = () => {
               onClick={() => handleLinkClick("/premium")}
             >
               Cũ cao cấp
+            </Link>
+            <Link
+              to="/post"
+              className={`nav-link-trend ${activeLink === "/post" ? "active-link" : ""
+                }`}
+              onClick={() => handleLinkClick("/post")}
+            >
+              Bài viết
             </Link>
             <form class="d-flex " role="search">
               <div className="search">

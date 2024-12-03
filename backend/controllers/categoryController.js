@@ -1,185 +1,13 @@
-// const connection = require("../config/database");
-
-// // Example function to get all categoris
-// exports.getAllcategoris = (req, res) => {
-//   connection.query("SELECT * FROM categories", (err, results) => {
-//     if (err) {
-//       return res.status(500).json({ error: err.message });
-//     }
-//     res.status(200).json(results);
-//   });
-// };
-
-// exports.getCategoryById = (req, res) => {
-//   const categoryId = req.params.id; //Sử dụng cách đặt tên camelCase nhất quán
-
-//   // Query the database to get user by ID
-//   connection.query(
-//     "SELECT * FROM categories WHERE id = ?", // SQL query
-//     [categoryId], // Truy vấn tham số hóa để ngăn chặn SQL injection
-//     (err, results) => {
-//       if (err) {
-//         // Ghi lại lỗi và phản hồi bằng mã trạng thái 500
-//         console.error("Database query error:", err);
-//         return res
-//           .status(500)
-//           .json({ error: "An error occurred while fetching the user." });
-//       }
-
-//       if (results.length === 0) {
-//         // Nếu không tìm thấy người dùng, hãy trả lời bằng mã trạng thái 404
-//         return res.status(404).json({ message: "User not found" });
-//       }
-
-//       // Respond with the user data
-//       res.status(200).json(results[0]);
-//     }
-//   );
-// };
-
-// exports.deleteCategory = (req, res) => {
-//   const categoryId = req.params.id; // Use consistent camelCase naming
-
-//   // Prepare the SQL query to delete the user
-//   const query = "DELETE FROM categories WHERE id = ?";
-
-//   // Execute the query
-//   connection.query(query, [categoryId], (err, results) => {
-//     if (err) {
-//       // Log the error and respond with a 500 status code
-//       console.error("Database query error:", err);
-//       return res
-//         .status(500)
-//         .json({ error: "An error occurred while deleting the category." });
-//     }
-
-//     // Check if any rows were affected (i.e., if the user was deleted)
-//     if (results.affectedRows === 0) {
-//       // If no rows were affected, respond with a 404 status code
-//       return res.status(404).json({ message: "category not found" });
-//     }
-
-//     // Respond with a success message
-//     res.status(200).json({ message: "category deleted successfully" });
-//   });
-// };
-
-// exports.updateCategory = (req, res) => {
-//   const categoryId = req.params.id;
-//   const { name, logo } = req.body; // Nhận dữ liệu từ body
-
-//   // Log dữ liệu nhận được để kiểm tra
-//   console.log("Received data:", req.body);
-
-//   // Kiểm tra nếu không có tên hoặc ID danh mục
-//   if (!name || !categoryId) {
-//     return res.status(400).json({ error: "Tên danh mục và ID là bắt buộc." });
-//   }
-
-//   // Nếu không có logo, gán giá trị null
-//   const logoValue = logo || null;
-
-//   // Chuẩn bị câu truy vấn SQL
-//   const query = `
-//     UPDATE categories SET name=?, logo=? 
-//     WHERE id = ?;
-//   `;
-//   const values = [name, logoValue, categoryId];
-
-//   // Thực hiện câu truy vấn
-//   connection.query(query, values, (err, results) => {
-//     if (err) {
-//       console.error("Database query error:", err); // Log lỗi ra console
-//       return res.status(500).json({ error: "Database query failed", details: err.message });
-//     }
-//     if (results.affectedRows === 0) {
-//       return res.status(404).json({ message: "Category not found" });
-//     }
-//     res.status(200).json({ message: "Category updated successfully" });
-//   });
-// };
-
-
-
-// exports.postCategory = (req, res) => {
-//   const { name, logo } = req.body; // Thêm trường logo
-
-//   // Validate input
-//   if (!name) {
-//     return res.status(400).json({ message: "Name is required" });
-//   }
-
-//   // Prepare the SQL query
-//   const query = `
-//     INSERT INTO categories (name, logo)
-//     VALUES (?, ?);
-//   `;
-//   const values = [name || "", logo || ""]; // Sử dụng chuỗi rỗng nếu không có logo
-
-//   // Execute the query
-//   connection.query(query, values, (err, results) => {
-//     if (err) {
-//       return res.status(500).json({ error: err.message });
-//     }
-//     res.status(201).json({
-//       message: "Category created successfully",
-//       categoryId: results.insertId, // Return the ID of the newly created category
-//     });
-//   });
-// };
-
-// exports.GetAllProductOfCategories = (req, res) => {
-//   // Lấy giá trị ID từ URL params
-//   const productId = req.params.id;
-//   // Thực hiện truy vấn SQL với giá trị ID
-//   connection.query(
-//     `SELECT 
-//     c.id AS category_id,
-//     c.name AS category_name,
-//     c.logo,
-//     p.*,
-//     pd.machineType,
-//      pd.identification,
-//       pd.thickness,
-//        pd.wireMaterial,
-//         pd.antiWater,
-//          pd.gender,
-//           pd.coler,
-//            pd.product_id 
-           
-// FROM 
-//     categories c 
-// LEFT JOIN 
-//     products p ON p.category_id = c.id
-// LEFT JOIN 
-//     product_detail pd ON p.id = pd.product_id
-// WHERE 
-//     c.id = ?
-// LIMIT 20;
-// `,
-//     [productId], // Truyền giá trị ID vào câu lệnh SQL
-//     (err, results) => {
-//       if (err) {
-//         return res.status(500).json({ error: err.message });
-//       }
-//       if (results.length === 0) {
-//         return res.status(404).json({ message: "Sản phẩm không tồn tại" });
-//       }
-//       res.status(200).json(results); // Trả về tất cả sản phẩm
-
-//     }
-//   );
-// };
-
-
-
 const connection = require("../config/database");
 
 // Lấy tất cả danh mục
 exports.getAllCategories = (req, res) => {
-  connection.query("SELECT id, name, description, logo FROM categories", (err, results) => {
+  const query = "SELECT id, name, description, logo FROM categories";
+
+  connection.query(query, (err, results) => {
     if (err) {
-      return res.status(500).json({ error: err.message });
+      console.error("Lỗi khi lấy danh mục:", err);
+      return res.status(500).json({ error: "Không thể lấy danh mục. Vui lòng thử lại sau." });
     }
     res.status(200).json(results);
   });
@@ -189,37 +17,49 @@ exports.getAllCategories = (req, res) => {
 exports.getCategoryById = (req, res) => {
   const categoryId = req.params.id;
 
-  connection.query(
-    "SELECT id, name, description, logo FROM categories WHERE id = ?",
-    [categoryId],
-    (err, results) => {
-      if (err) {
-        console.error("Database query error:", err);
-        return res.status(500).json({ error: "An error occurred while fetching the category." });
-      }
-      if (results.length === 0) {
-        return res.status(404).json({ message: "Category not found" });
-      }
-      res.status(200).json(results[0]);
+  const query = "SELECT id, name, description, logo FROM categories WHERE id = ?";
+
+  connection.query(query, [categoryId], (err, results) => {
+    if (err) {
+      console.error("Lỗi khi lấy danh mục:", err);
+      return res.status(500).json({ error: "Không thể lấy danh mục. Vui lòng thử lại sau." });
     }
-  );
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Không tìm thấy danh mục." });
+    }
+    res.status(200).json(results[0]);
+  });
 };
 
 // Xóa danh mục theo ID
 exports.deleteCategory = (req, res) => {
   const categoryId = req.params.id;
 
-  const query = "DELETE FROM categories WHERE id = ?";
-
-  connection.query(query, [categoryId], (err, results) => {
+  // Kiểm tra danh mục có chứa sản phẩm không
+  const checkQuery = "SELECT COUNT(*) AS productCount FROM products WHERE category_id = ?";
+  connection.query(checkQuery, [categoryId], (err, results) => {
     if (err) {
-      console.error("Database query error:", err);
-      return res.status(500).json({ error: "An error occurred while deleting the category." });
+      console.error("Lỗi khi kiểm tra sản phẩm trong danh mục:", err);
+      return res.status(500).json({ error: "Không thể kiểm tra danh mục. Vui lòng thử lại sau." });
     }
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ message: "Category not found" });
+
+    const productCount = results[0].productCount;
+    if (productCount > 0) {
+      return res.status(400).json({ message: "Không thể xóa danh mục vì có sản phẩm liên quan." });
     }
-    res.status(200).json({ message: "Category deleted successfully" });
+
+    // Nếu không có sản phẩm, tiến hành xóa
+    const deleteQuery = "DELETE FROM categories WHERE id = ?";
+    connection.query(deleteQuery, [categoryId], (err, results) => {
+      if (err) {
+        console.error("Lỗi khi xóa danh mục:", err);
+        return res.status(500).json({ error: "Không thể xóa danh mục. Vui lòng thử lại sau." });
+      }
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ message: "Không tìm thấy danh mục." });
+      }
+      res.status(200).json({ message: "Xóa danh mục thành công." });
+    });
   });
 };
 
@@ -228,25 +68,22 @@ exports.updateCategory = (req, res) => {
   const categoryId = req.params.id;
   const { name, description, logo } = req.body;
 
-  if (!name || !description || !categoryId) {
-    return res.status(400).json({ error: "Name, description, and ID are required." });
+  if (!name || !description) {
+    return res.status(400).json({ error: "Tên và mô tả danh mục là bắt buộc." });
   }
 
-  const query = `
-    UPDATE categories SET name=?, description=?, logo=? 
-    WHERE id = ?;
-  `;
+  const query = "UPDATE categories SET name = ?, description = ?, logo = ? WHERE id = ?";
   const values = [name, description, logo || null, categoryId];
 
   connection.query(query, values, (err, results) => {
     if (err) {
-      console.error("Database query error:", err);
-      return res.status(500).json({ error: "Database query failed", details: err.message });
+      console.error("Lỗi khi cập nhật danh mục:", err);
+      return res.status(500).json({ error: "Không thể cập nhật danh mục. Vui lòng thử lại sau." });
     }
     if (results.affectedRows === 0) {
-      return res.status(404).json({ message: "Category not found" });
+      return res.status(404).json({ message: "Không tìm thấy danh mục." });
     }
-    res.status(200).json({ message: "Category updated successfully" });
+    res.status(200).json({ message: "Cập nhật danh mục thành công." });
   });
 };
 
@@ -255,21 +92,19 @@ exports.postCategory = (req, res) => {
   const { name, description, logo } = req.body;
 
   if (!name || !description) {
-    return res.status(400).json({ message: "Name and description are required" });
+    return res.status(400).json({ message: "Tên và mô tả danh mục là bắt buộc." });
   }
 
-  const query = `
-    INSERT INTO categories (name, description, logo)
-    VALUES (?, ?, ?);
-  `;
-  const values = [name, description, logo || ""];
+  const query = "INSERT INTO categories (name, description, logo) VALUES (?, ?, ?)";
+  const values = [name, description, logo || null];
 
   connection.query(query, values, (err, results) => {
     if (err) {
-      return res.status(500).json({ error: err.message });
+      console.error("Lỗi khi thêm danh mục:", err);
+      return res.status(500).json({ error: "Không thể thêm danh mục. Vui lòng thử lại sau." });
     }
-    res.status(201).json({ 
-      message: "Category created successfully",
+    res.status(201).json({
+      message: "Thêm danh mục thành công.",
       categoryId: results.insertId,
     });
   });
@@ -277,41 +112,44 @@ exports.postCategory = (req, res) => {
 
 // Lấy tất cả sản phẩm của một danh mục
 exports.getAllProductOfCategory = (req, res) => {
-  const productId = req.params.id;
+  const categoryId = req.params.id;
 
-  connection.query(
-    `SELECT 
+  const query = `
+    SELECT 
       c.id AS category_id,
       c.name AS category_name,
       c.description,
       c.logo,
-      p.*,
+      p.id AS product_id,
+      p.name AS product_name,
+      p.price,
+      p.stock,
       pd.machineType,
       pd.identification,
       pd.thickness,
       pd.wireMaterial,
       pd.antiWater,
       pd.gender,
-      pd.color,
-      pd.product_id 
+      pd.color
     FROM 
-      categories c 
+      categories c
     LEFT JOIN 
       products p ON p.category_id = c.id
     LEFT JOIN 
       product_detail pd ON p.id = pd.product_id
     WHERE 
       c.id = ?
-    LIMIT 20;`,
-    [productId],
-    (err, results) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      if (results.length === 0) {
-        return res.status(404).json({ message: "No products found in this category" });
-      }
-      res.status(200).json(results);
+    LIMIT 20;
+  `;
+
+  connection.query(query, [categoryId], (err, results) => {
+    if (err) {
+      console.error("Lỗi khi lấy sản phẩm trong danh mục:", err);
+      return res.status(500).json({ error: "Không thể lấy sản phẩm. Vui lòng thử lại sau." });
     }
-  );
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Không tìm thấy sản phẩm trong danh mục này." });
+    }
+    res.status(200).json(results);
+  });
 };

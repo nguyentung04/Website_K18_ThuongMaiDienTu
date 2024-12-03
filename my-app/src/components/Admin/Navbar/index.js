@@ -31,14 +31,14 @@ const Navbar = () => {
       color="white"
       justify="space-between"
       align="center"
-      w={'83%'}
+      w={'80%'}
       position={"fixed"} zIndex={1} top={0} 
       background= '#f7fafc'
      
     >
       <Box>
         <Text fontSize="xl" fontWeight="bold" color="black" fontFamily="math">
-          Admin Panel
+          TRANG QUẢN TRỊ
         </Text>
       </Box>
 

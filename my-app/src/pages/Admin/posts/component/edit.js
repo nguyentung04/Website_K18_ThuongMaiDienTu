@@ -171,21 +171,7 @@ const EditPostPage = () => {
           {errors.content && <FormErrorMessage>{errors.content}</FormErrorMessage>}
         </FormControl>
 
-        <FormControl id="author" mb={4} isInvalid={errors.author}>
-          <FormLabel>Người đăng</FormLabel>
-          <Select
-            placeholder="Chọn người đăng"
-            value={author_id}
-            onChange={(e) => setAuthorId(e.target.value)}
-          >
-            {authors.map((author) => (
-              <option key={author.id} value={author.id}>
-                {author.name}
-              </option>
-            ))}
-          </Select>
-          {errors.author && <FormErrorMessage>{errors.author}</FormErrorMessage>}
-        </FormControl>
+        
 
         <FormControl id="category" mb={4} isInvalid={errors.category}>
           <FormLabel>Danh mục bài viết</FormLabel>

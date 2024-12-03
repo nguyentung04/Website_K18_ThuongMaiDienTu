@@ -76,7 +76,7 @@ const CategoryPage = () => {
         );
         toast({
           title: "Thông báo",
-          description: "Đã xóa 1 danh mục!!!",
+          description: "Đã xóa danh mục thành công!",
           status: "success",
           duration: 5000,
           isClosable: true,
@@ -84,16 +84,15 @@ const CategoryPage = () => {
       }
     } catch (error) {
       toast({
-        title: "Error deleting category",
-        description: "Failed to delete the category.",
+        title: "Không thể xóa danh mục do danh mục này có chứa sản phẩm",
         status: "error",
         duration: 5000,
         isClosable: true,
       });
-      console.error("Failed to delete category:", error);
     }
     setIsOpen(false);
   };
+  
 
   const onClose = () => setIsOpen(false);
 

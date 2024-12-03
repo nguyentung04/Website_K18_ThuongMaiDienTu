@@ -70,9 +70,10 @@ const CategoryPage = () => {
         });
       }
     } catch (error) {
+      // Xử lý lỗi khi xóa, ví dụ: nếu danh mục chứa bài viết
       toast({
-        title: "Error deleting category",
-        description: "Failed to delete the category.",
+        title: "Lỗi khi xóa danh mục bài viết",
+        description: error.response?.data?.message || "Có lỗi xảy ra",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -80,6 +81,7 @@ const CategoryPage = () => {
     }
     setIsOpen(false);
   };
+  
 
   const onClose = () => setIsOpen(false);
 

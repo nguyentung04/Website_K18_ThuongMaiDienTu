@@ -25,7 +25,7 @@ const CheckoutForm = () => {
     note: "",
     paymentMethod: "COD",
   });
-  
+
   const location = useLocation();
   const [cart, setCart] = useState([]);
   const [locations, setLocations] = useState([]);
@@ -36,16 +36,16 @@ const CheckoutForm = () => {
   const toast = useToast();
   const [user, setUser] = useState(null);
   const BASE_URL = "http://localhost:3000"; // Cập nhật đúng URL của server
-  
- // Đồng bộ user_id vào formData khi state `user` thay đổi
- useEffect(() => {
-  if (user) {
-    setFormData((prev) => ({
-      ...prev,
-      user_id: user.id,
-    }));
-  }
-}, [user]);
+
+  // Đồng bộ user_id vào formData khi state `user` thay đổi
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        user_id: user.id,
+      }));
+    }
+  }, [user]);
 
   // Lấy thông tin người dùng và giỏ hàng từ server
   useEffect(() => {
@@ -66,12 +66,15 @@ const CheckoutForm = () => {
         }));
 
         // Lấy giỏ hàng từ server theo user_id
-        const response = await axios.get(`${BASE_URL}/api/cart_userId/${user_id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      
+        const response = await axios.get(
+          `${BASE_URL}/api/cart_userId/${user_id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
         console.log("Dữ liệu giỏ hàng từ API:", response.data);
-        
+
         setCart(response.data || []); // Lưu dữ liệu giỏ hàng
       } catch (error) {
         console.error("Lỗi khi lấy thông tin người dùng và giỏ hàng:", error);
@@ -89,56 +92,62 @@ const CheckoutForm = () => {
     fetchUserAndCart(); // Gọi hàm lấy dữ liệu khi component được render
   }, []);
 
+  // Xử lý thanh toán MoMo từ URL callback
+  useEffect(() => {
+    const processMoMoCallback = async () => {
+      if (location.search && user) {
+        const urlParams = new URLSearchParams(location.search);
 
-// Xử lý thanh toán MoMo từ URL callback
-useEffect(() => {
-  const processMoMoCallback = async () => {
-    if (location.search && user) {
-      const urlParams = new URLSearchParams(location.search);
+        const orderId = urlParams.get("orderId");
+        const amount = urlParams.get("amount");
+        const resultCode = urlParams.get("resultCode");
 
-      const orderId = urlParams.get("orderId");
-      const amount = urlParams.get("amount");
-      const resultCode = urlParams.get("resultCode");
+        if (orderId && amount && resultCode) {
+          try {
+            // Lấy formData từ localStorage
+            const savedFormData =
+              JSON.parse(localStorage.getItem("checkoutForm")) || {};
 
-      if (orderId && amount && resultCode) {
-        try {
-          // Lấy formData từ localStorage
-          const savedFormData = JSON.parse(localStorage.getItem("checkoutForm")) || {};
+            // Gọi API để lấy thông tin giỏ hàng
+            const token = localStorage.getItem("token"); // Đảm bảo token được truyền
+            const response = await axios.get(
+              `${BASE_URL}/api/cart_userId/${user.id}`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+            const cartData = response.data || [];
+            setCart(cartData);
+            const savedOrderItems = response.data?.items?.cartData || [];
+            if (!Array.isArray(savedOrderItems)) {
+              console.warn("Dữ liệu giỏ hàng không hợp lệ:", savedOrderItems);
+            }
+            // Đảm bảo giá trị mặc định
 
-          // Gọi API để lấy thông tin giỏ hàng
-          const token = localStorage.getItem("token"); // Đảm bảo token được truyền
-          const response = await axios.get(`${BASE_URL}/api/cart_userId/${user.id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          const cartData = response.data || [];
-          setCart(cartData);
-          const savedOrderItems = response.data?.items?.cartData || [];
-          if (!Array.isArray(savedOrderItems)) {
-            console.warn("Dữ liệu giỏ hàng không hợp lệ:", savedOrderItems);
+            // Cập nhật dữ liệu vào state
+            setFormData((prev) => ({
+              ...prev,
+              ...savedFormData,
+            }));
+
+            // Gọi addOrderMomo
+            addOrderMomo(
+              orderId,
+              amount,
+              resultCode,
+              savedFormData,
+              savedOrderItems
+            );
+          } catch (error) {
+            console.error("Lỗi khi lấy thông tin giỏ hàng:", error.message);
+            // Xử lý fallback nếu cần
           }
-           // Đảm bảo giá trị mặc định
-
-          // Cập nhật dữ liệu vào state
-          setFormData((prev) => ({
-            ...prev,
-            ...savedFormData,
-          }));
-
-          // Gọi addOrderMomo
-          addOrderMomo(orderId, amount, resultCode, savedFormData, savedOrderItems);
-        } catch (error) {
-          console.error("Lỗi khi lấy thông tin giỏ hàng:", error.message);
-          // Xử lý fallback nếu cần
         }
       }
-    }
-  };
+    };
 
-  processMoMoCallback();
-}, [location, user]);
-
-
-
+    processMoMoCallback();
+  }, [location, user]);
 
   const clearCart = async (user_id) => {
     try {
@@ -153,8 +162,6 @@ useEffect(() => {
 
       setCart([]); // Xóa giỏ hàng trong state
       localStorage.removeItem("cart"); // Xóa giỏ hàng trong localStorage
-
-  
     } catch (error) {
       console.error("Lỗi khi xóa giỏ hàng:", error);
       toast({
@@ -189,12 +196,18 @@ useEffect(() => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const addOrderMomo = async (orderId, amount, resultCode, formDataOverride, savedOrderItems) => {
-       // Xóa giỏ hàng sau khi đặt hàng thành công
-       await clearCart();
+  const addOrderMomo = async (
+    orderId,
+    amount,
+    resultCode,
+    formDataOverride,
+    savedOrderItems
+  ) => {
+    // Xóa giỏ hàng sau khi đặt hàng thành công
+    await clearCart();
     try {
       const updatedFormData = formDataOverride || formData;
-  
+
       if (Number(resultCode) === 0) {
         const orderItems = cart.map((item) => ({
           product_id: item.product_id,
@@ -202,7 +215,7 @@ useEffect(() => {
           total_price: parseFloat(item.total_price),
           total: parseFloat(item.total_price) * item.total_quantity,
         }));
-  
+
         const payload = {
           ...updatedFormData,
           orderCode: orderId,
@@ -213,15 +226,14 @@ useEffect(() => {
           user_id: user.id,
           total_amount: parseFloat(amount),
         };
-  
+
         console.log("Payload gửi lên server:", payload);
-  
+
         const response = await axios.post(`${BASE_URL}/api/orders`, payload, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-  
+
         console.log("Đơn hàng MoMo đã được thêm:", response.data);
-  
       } else {
         console.warn("Giao dịch không thành công, resultCode:", resultCode);
       }
@@ -229,49 +241,54 @@ useEffect(() => {
       console.error("Lỗi khi tạo đơn hàng MoMo:", error.message);
     }
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!validateForm()) return;
-  
+
     setIsSubmitting(true);
     try {
       const totalAmount = cart.reduce(
         (total, item) => total + item.total_quantity * item.total_price,
         0
       );
-  
+
       // Tạo mã đơn hàng ngẫu nhiên
       const orderCode = `ORD-${Date.now()}-${Math.random()
         .toString(36)
         .substr(2, 5)
         .toUpperCase()}`;
-       
+
       // Lưu formData vào localStorage
       const formDataToSave = {
-          ...formData,
-          orderCode,
-          totalAmount,
-          shipping_address: formData.address,
-          orderItems: cart.map((item) => ({
-            product_id: item.product_id,
-            total_quantity: item.total_quantity,
-            total_price: parseFloat(item.total_price),
-            total: parseFloat(item.total_price) * item.total_quantity,
-          })),
-        }
-        localStorage.setItem("checkoutForm", JSON.stringify(formDataToSave)); // Lưu formData
+        ...formData,
+        orderCode,
+        totalAmount,
+        shipping_address: formData.address,
+        orderItems: cart.map((item) => ({
+          product_id: item.product_id,
+          total_quantity: item.total_quantity,
+          total_price: parseFloat(item.total_price),
+          total: parseFloat(item.total_price) * item.total_quantity,
+        })),
+      };
+      localStorage.setItem("checkoutForm", JSON.stringify(formDataToSave)); // Lưu formData
       if (formData.paymentMethod === "momo") {
         // Xử lý thanh toán bằng MoMo
-        const momoResponse = await axios.post(`${BASE_URL}/payment`, {
-          amount1: totalAmount,
-          orderInfo: `${orderCode}`,
-        });
-  
-   
-        
+        const momoResponse = await axios.post(
+          `${BASE_URL}/payment`,
+          {
+            amount: totalAmount,
+            orderInfo: `${orderCode}`,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
         if (momoResponse.data?.payUrl) {
           // Chuyển hướng tới trang thanh toán MoMo
           window.location.href = momoResponse.data.payUrl;
@@ -280,7 +297,7 @@ useEffect(() => {
           throw new Error("Không thể tạo giao dịch thanh toán bằng MoMo.");
         }
       }
-  
+
       // Xử lý đơn hàng COD
       const response = await axios.post(
         `${BASE_URL}/api/orders`,
@@ -303,10 +320,10 @@ useEffect(() => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
-  
+
       // Xóa giỏ hàng sau khi đặt hàng thành công
       await clearCart();
-  
+
       toast({
         title: "Thành công!",
         description: response.data.message || "Đơn hàng đã được xử lý.",
@@ -314,7 +331,7 @@ useEffect(() => {
         duration: 5000,
         isClosable: true,
       });
-  
+
       navigate("/");
     } catch (error) {
       console.error("Lỗi khi đặt hàng:", error);
@@ -329,7 +346,7 @@ useEffect(() => {
       setIsSubmitting(false);
     }
   };
-  
+
   // Hàm xóa giỏ hàng
 
   return (
@@ -416,7 +433,7 @@ useEffect(() => {
               onChange={handleChange}
             >
               <option value="COD">Thanh toán khi nhận hàng</option>
-              <option value="momo" > Chuyển khoản MoMo</option>
+              <option value="momo"> Chuyển khoản MoMo</option>
             </Select>
             <FormErrorMessage>{errors.paymentMethod}</FormErrorMessage>
           </FormControl>

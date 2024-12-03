@@ -87,11 +87,11 @@ const ProductDetails = () => {
             <Text as="h2" fontSize="2xl">
               Thông tin sản phẩm
             </Text>
-            <Link to="/admin/productsdetail/add">
+            {/* <Link to="/admin/productsdetail/add">
               <Button bg="#1ba43b" color="white" _hover={{ bg: "#189537" }}>
                 Thêm
               </Button>
-            </Link>
+            </Link> */}
           </Flex>
         </Box>
 

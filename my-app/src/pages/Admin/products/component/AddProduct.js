@@ -19,6 +19,7 @@ const AddProduct = () => {
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
+  const [gender, setGender] = useState(""); 
   const [description, setDescription] = useState("");
   const [shortDescription, setShortDescription] = useState("");
   const [imageFile, setImageFile] = useState(null);
@@ -59,12 +60,13 @@ const AddProduct = () => {
     if (!stock || isNaN(stock) || parseInt(stock) <= 0)
       newErrors.stock = "Số lượng là bắt buộc và phải là số nguyên dương.";
     if (!description) newErrors.description = "Mô tả là bắt buộc.";
-    if (!shortDescription)
-      newErrors.shortDescription = "Mô tả ngắn là bắt buộc.";
+    if (!shortDescription) newErrors.shortDescription = "Mô tả ngắn là bắt buộc.";
     if (!imageFile) newErrors.image = "Ảnh sản phẩm là bắt buộc.";
+    if (!gender) newErrors.gender = "Giới tính là bắt buộc."; // Thêm kiểm tra giới tính
 
     return newErrors;
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -112,6 +114,7 @@ const AddProduct = () => {
       short_description: shortDescription,
       images: [imageUrl],
       category_id: category,
+      gender,
     };
 
     try {
@@ -188,6 +191,20 @@ const AddProduct = () => {
           />
           {errors.stock && <FormErrorMessage>{errors.stock}</FormErrorMessage>}
         </FormControl>
+        <FormControl id="gender" mb={4} isInvalid={errors.gender}>
+          <FormLabel>Giới tính</FormLabel>
+          <Select
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
+            placeholder="Chọn giới tính"
+          >
+            <option value="male">Nam</option>
+            <option value="female">Nữ</option>
+          </Select>
+          {errors.gender && <FormErrorMessage>{errors.gender}</FormErrorMessage>}
+        </FormControl>
+
+
 
         <FormControl id="description" mb={4} isInvalid={errors.description}>
           <FormLabel>Mô tả</FormLabel>

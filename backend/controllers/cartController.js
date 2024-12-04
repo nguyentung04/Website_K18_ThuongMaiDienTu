@@ -41,7 +41,7 @@ exports.getCartById = (req, res) => {
   connection.query(
     `
   SELECT 
-
+ca.id AS cart_id,
 
  	     pr.id AS product_id,
         u.name AS user_name, -- Tên người dùng
@@ -63,7 +63,7 @@ exports.getCartById = (req, res) => {
     WHERE 
         ca.user_id = ? -- Lọc theo cart_id
     GROUP BY 
-        pr.id, pr.name, pr.price, u.name; -- Nhóm theo sản phẩm, giá và người dùng
+      ca.id,  pr.id, pr.name, pr.price, u.name; -- Nhóm theo sản phẩm, giá và người dùng
     `,
     [user_id], // Sử dụng tham số hóa để bảo vệ khỏi SQL Injection
     (err, results) => {
@@ -183,12 +183,12 @@ exports.deleteCartUser_id = (req, res) => {
 // =========================================================================================================================
 // // Cập nhật giỏ hàng
 exports.updateCartItems = (req, res) => {
-  const { user_id, cart_items } = req.body;
+  const { cart_id, cart_items } = req.body;
 
-  if (!user_id || !Array.isArray(cart_items) || cart_items.length === 0) {
+  if (!cart_id || !Array.isArray(cart_items) || cart_items.length === 0) {
     return res.status(400).json({
       error:
-        "Dữ liệu đầu vào không hợp lệ. Vui lòng cung cấp user_id và danh sách sản phẩm.",
+        "Dữ liệu đầu vào không hợp lệ. Vui lòng cung cấp cart_id và danh sách sản phẩm.",
     });
   }
 
@@ -209,10 +209,10 @@ exports.updateCartItems = (req, res) => {
       return res.status(500).json({ error: "Không thể khởi tạo giao dịch." });
     }
 
-    // Truy vấn để lấy cart_id dựa trên user_id
-    const getCartQuery = "SELECT id AS cart_id FROM cart WHERE user_id = ?";
+    // Truy vấn để lấy cart_id dựa trên cart_id
+    const getCartQuery = "SELECT id AS cart_id FROM cart WHERE id = ?";
 
-    connection.query(getCartQuery, [user_id], (getCartErr, results) => {
+    connection.query(getCartQuery, [cart_id], (getCartErr, results) => {
       if (getCartErr || results.length === 0) {
         console.error("Get cart error:", getCartErr);
         return connection.rollback(() => {

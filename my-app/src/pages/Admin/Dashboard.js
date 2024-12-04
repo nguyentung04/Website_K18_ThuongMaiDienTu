@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Flex, Text, Spinner, Box, Select } from "@chakra-ui/react";
+import { Flex, Text, Spinner, Box } from "@chakra-ui/react";
 import { Bar } from "react-chartjs-2";
 import Sidebar from "../../components/Admin/Sidebar";
-import Navbar from "../../components/Admin/Navbar";
 import { fetchUsers } from "../../service/api/users";
-import { fetchDistricts } from "../../service/api/city";
+import { fetchProducts } from "../../service/api/products";
+import { fetchOrders } from "../../service/api/orders"; // Import the new fetchOrders function
 import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
@@ -13,58 +13,48 @@ const Dashboard = () => {
   const [users, setUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [userCounts, setUserCounts] = useState({});
-  const [locations, setLocations] = useState([]);
-  const [loadingLocations, setLoadingLocations] = useState(true);
-  const [selectedProvince, setSelectedProvince] = useState("");
-  const [districts, setDistricts] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [productCounts, setProductCounts] = useState({});
+  const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [orderCounts, setOrderCounts] = useState({});
 
   useEffect(() => {
-    const getUsers = async () => {
+    const fetchData = async () => {
       try {
-        const data = await fetchUsers();
-        setUsers(data);
-        countUsersForLastFourMonths(data);
+        const [userData, productData, orderData] = await Promise.all([
+          fetchUsers(),
+          fetchProducts(),
+          fetchOrders(), // Fetch orders data
+        ]);
+
+        setUsers(userData);
+        countUsersForLastFourMonths(userData);
+
+        setProducts(productData);
+        countProductsByCategory(productData);
+
+        setOrders(orderData);
+        countOrdersByMonth(orderData); // Count orders by month
       } catch (error) {
-        console.error("Failed to fetch users:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoadingUsers(false);
+        setLoadingProducts(false);
+        setLoadingOrders(false);
       }
     };
-
-    const getLocations = async () => {
-      try {
-        const data = await fetchDistricts();
-        setLocations(data);
-      } catch (error) {
-        console.error("Failed to fetch locations:", error);
-      } finally {
-        setLoadingLocations(false);
-      }
-    };
-
-    getUsers();
-    getLocations();
+    fetchData();
   }, []);
-
-  useEffect(() => {
-    // Cập nhật danh sách quận/huyện khi thay đổi Tỉnh/Thành phố
-    if (selectedProvince) {
-      const province = locations.find((loc) => loc.name === selectedProvince);
-      setDistricts(province ? province.districts : []);
-    } else {
-      setDistricts([]);
-    }
-  }, [selectedProvince, locations]);
 
   const countUsersForLastFourMonths = (users) => {
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
-
     const counts = {};
 
     for (let i = 0; i < 4; i++) {
-      const monthIndex =
-        currentMonth - i < 0 ? 12 + (currentMonth - i) : currentMonth - i;
+      const monthIndex = currentMonth - i < 0 ? 12 + (currentMonth - i) : currentMonth - i;
       const monthKey = `${monthIndex + 1}/${currentYear}`;
       counts[monthKey] = 0;
     }
@@ -75,8 +65,7 @@ const Dashboard = () => {
       const userYear = userDate.getFullYear();
 
       for (let i = 0; i < 4; i++) {
-        const monthIndex =
-          currentMonth - i < 0 ? 12 + (currentMonth - i) : currentMonth - i;
+        const monthIndex = currentMonth - i < 0 ? 12 + (currentMonth - i) : currentMonth - i;
         const monthKey = `${monthIndex + 1}/${currentYear}`;
 
         if (userMonth === monthIndex && userYear === currentYear) {
@@ -88,112 +77,114 @@ const Dashboard = () => {
     setUserCounts(counts);
   };
 
-  const getColorForCounts = (counts) => {
-    const values = Object.values(counts);
-    const maxCount = Math.max(...values);
-    const minCount = Math.min(...values);
-    const avgCount =
-      values.reduce((sum, value) => sum + value, 0) / values.length;
-
-    return values.map((count) => {
-      if (count === maxCount) {
-        return "rgba(75, 192, 192, 1)";
-      } else if (count === minCount) {
-        return "rgba(255, 99, 132, 1)";
-      } else {
-        return "rgba(54, 162, 235, 1)";
-      }
+  const countProductsByCategory = (products) => {
+    const counts = {};
+    products.forEach((product) => {
+      const category = product.category || "Khác";
+      counts[category] = (counts[category] || 0) + 1;
     });
+    setProductCounts(counts);
   };
 
-  const chartData = {
-    labels: Object.keys(userCounts),
+  // New function to count orders by month
+  const countOrdersByMonth = (orders) => {
+    const counts = {};
+    orders.forEach((order) => {
+      const orderDate = new Date(order.created_at);
+      const orderMonth = orderDate.getMonth();
+      const orderYear = orderDate.getFullYear();
+      const monthKey = `${orderMonth + 1}/${orderYear}`;
+
+      counts[monthKey] = (counts[monthKey] || 0) + 1;
+    });
+
+    setOrderCounts(counts);
+  };
+
+  const chartData = (counts, label, bgColor, borderColor) => ({
+    labels: Object.keys(counts),
     datasets: [
       {
-        label: "Số người dùng đã đăng ký",
-        data: Object.values(userCounts),
-        backgroundColor: getColorForCounts(userCounts),
-        borderColor: "rgba(0, 0, 0, 1)",
+        label,
+        data: Object.values(counts),
+        backgroundColor: bgColor,
+        borderColor,
         borderWidth: 1,
       },
     ],
-  };
+  });
 
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
-      y: {
-        beginAtZero: true,
-      },
+      y: { beginAtZero: true },
     },
-    barPercentage: 0.5,
-    categoryPercentage: 0.5,
   };
 
-  return (
-    <Flex direction="column" height="100vh" bg="#f7fafc" fontFamily="math">
-      <Flex>
-        <Sidebar />
-        <Flex
-          // ml={{ base: 0, md: "250px" }}
-          direction="column"
-          flex="1"
-          p={4}
-          bg="#f7fafc"
-        >
-          <Flex direction="column" p={4} mt="60px" gap={8}>
-            <Flex direction="column" flex="1" mb={8}>
-              <Text fontSize="2xl" fontWeight="bold">
-                Thống kê người dùng
-              </Text>
-              {loadingUsers ? (
-                <Spinner />
-              ) : (
-                <>
-                  <Text fontSize="xl">
-                    Số người dùng đã đăng ký trong 4 tháng gần nhất:
-                  </Text>
-                  <Box width="100%" height="300px" mt={4}>
-                    <Bar data={chartData} options={chartOptions} />
-                  </Box>
-                </>
-              )}
-            </Flex>
+  const LoadingSpinner = () => (
+    <Flex justify="center" align="center" height="100%">
+      <Spinner />
+    </Flex>
+  );
 
-            <Flex direction="column" flex="1" style={{display:"none"}}>
-              <Text fontSize="2xl" fontWeight="bold">
-                Tỉnh Thành và Quận Huyện
-              </Text>
-              {loadingLocations ? (
-                <Spinner />
-              ) : (
-                <>
-                  <Select
-                    placeholder="Chọn Tỉnh/Thành phố"
-                    onChange={(e) => setSelectedProvince(e.target.value)}
-                    mb={4}
-                  >
-                    {locations.map((location, index) => (
-                      <option key={index} value={location.name}>
-                        {location.name}
-                      </option>
-                    ))}
-                  </Select>
-                  <Select
-                    placeholder="Chọn Quận/Huyện"
-                    isDisabled={!selectedProvince}
-                  >
-                    {districts.map((district, index) => (
-                      <option key={index} value={district}>
-                        {district}
-                      </option>
-                    ))}
-                  </Select>
-                </>
-              )}
-            </Flex>
-          </Flex>
+  const ChartBox = ({ title, data, loading }) => (
+    <Box flex="1" mb={6} p={4} bg="white" borderRadius="md" boxShadow="sm">
+      <Text fontSize="lg" fontWeight="semibold" mb={4}>
+        {title}
+      </Text>
+      {loading ? (
+        <LoadingSpinner />
+      ) : (
+        <Box width="100%" height="300px">
+          <Bar data={data} options={chartOptions} />
+        </Box>
+      )}
+    </Box>
+  );
+
+  return (
+    <Flex direction="row" height="100vh" bg="#f7fafc">
+      <Sidebar />
+      <Flex direction="column" flex="1" p={6} bg="#f7fafc">
+        <Text fontSize="2xl" fontWeight="bold" mb={6}>
+          Trang chủ
+        </Text>
+        <Flex direction={{ base: "column", lg: "row" }} gap={4}>
+          <ChartBox
+            title="Thống kê người dùng"
+            data={chartData(
+              userCounts,
+              "Số người dùng đã đăng ký",
+              "rgba(75, 192, 192, 0.2)",
+              "rgba(75, 192, 192, 1)"
+            )}
+            loading={loadingUsers}
+          />
+          <ChartBox
+            title="Thống kê sản phẩm"
+            data={chartData(
+              productCounts,
+              "Số lượng sản phẩm theo loại",
+              "rgba(54, 162, 235, 0.2)",
+              "rgba(54, 162, 235, 1)"
+            )}
+            loading={loadingProducts}
+          />
+        </Flex>
+
+        {/* Remove Posts statistics section */}
+        <Flex direction={{ base: "column", lg: "row" }} gap={4} mt={6}>
+          <ChartBox
+            title="Thống kê đơn hàng"
+            data={chartData(
+              orderCounts,
+              "Số lượng đơn hàng trong tháng",
+              "rgba(255, 99, 132, 0.2)",
+              "rgba(255, 99, 132, 1)"
+            )}
+            loading={loadingOrders}
+          />
         </Flex>
       </Flex>
     </Flex>

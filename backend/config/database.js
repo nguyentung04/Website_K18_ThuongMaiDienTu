@@ -26,7 +26,7 @@ const connection = mysql.createConnection({
   host: 'localhost',       // Địa chỉ máy chủ MySQL
   user: 'root',            // Tên đăng nhập MySQL
   password: '', // Mật khẩu MySQL
-  database: 'dong_ho_bee'  // Tên cơ sở dữ liệu
+  database: 'mau2'  // Tên cơ sở dữ liệu
 });
 
 // Kiểm tra kết nối

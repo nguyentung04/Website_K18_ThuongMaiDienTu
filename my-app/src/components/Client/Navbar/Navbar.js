@@ -150,10 +150,10 @@ const handleLogout = () => {
             </div>
 
             <Link
-              to="/premium"
-              className={`nav-link-trend ${activeLink === "/premium" ? "active-link" : ""
+              to="/contact"
+              className={`nav-link-trend ${activeLink === "/contact" ? "active-link" : ""
                 }`}
-              onClick={() => handleLinkClick("/premium")}
+              onClick={() => handleLinkClick("/contact")}
             >
               Liên hệ
             </Link>

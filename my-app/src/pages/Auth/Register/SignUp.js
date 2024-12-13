@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SignUp.css';
-import SuccessModal from '../../../components/Modals/SuccessModal'; // Import modal thành công
+import SuccessModal from '../../../components/Modals/SuccessModal';
 
 const SignUp = () => {
   const [name, setName] = useState('');
@@ -11,7 +11,7 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState(''); // Lưu thông báo thành công
+  const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
   const validateForm = () => {
@@ -74,75 +74,92 @@ const SignUp = () => {
 
   const handleModalClose = () => {
     setSuccessMessage('');
-    navigate('/signin'); 
+    navigate('/signin');
   };
 
   return (
-    <div className="signup">
+    <div className="signup-container">
       <header className="signup-header">
-        <h1>Đăng ký</h1>
+        <h1 className="signup-title">Đăng ký</h1>
       </header>
       <section className="signup-form">
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="name">Họ và tên:</label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+        <form onSubmit={handleSubmit} className="form-container">
+          <div className="form-group">
+            <label htmlFor="name">Họ và tên:</label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="form-input"
+            />
+          </div>
 
-          <label htmlFor="username">Tên đăng nhập:</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+          <div className="form-group">
+            <label htmlFor="username">Tên đăng nhập:</label>
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="form-input"
+            />
+          </div>
 
-          <label htmlFor="phone">Số điện thoại:</label>
-          <input
-            type="text"
-            id="phone"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
+          <div className="form-group">
+            <label htmlFor="phone">Số điện thoại:</label>
+            <input
+              type="text"
+              id="phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="form-input"
+            />
+          </div>
 
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          <div className="form-group">
+            <label htmlFor="email">Email:</label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="form-input"
+            />
+          </div>
 
-          <label htmlFor="password">Mật khẩu:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="form-group">
+            <label htmlFor="password">Mật khẩu:</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="form-input"
+            />
+          </div>
 
-          <label htmlFor="confirm-password">Xác thực mật khẩu:</label>
-          <input
-            type="password"
-            id="confirm-password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
+          <div className="form-group">
+            <label htmlFor="confirm-password">Xác thực mật khẩu:</label>
+            <input
+              type="password"
+              id="confirm-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="form-input"
+            />
+          </div>
 
-          <button type="submit">Đăng ký</button>
+          <button type="submit" className="form-submit">Đăng ký</button>
 
           {error && <p className="error-message">{error}</p>}
 
           <p className="signin-link">
-            Đã có tài khoản? <a href="/signin">Đăng nhập</a>
+            Đã có tài khoản? <a href="/signin" className="signin-anchor">Đăng nhập</a>
           </p>
         </form>
       </section>
 
-      {/* Modal thành công */}
       {successMessage && (
         <SuccessModal message={successMessage} onClose={handleModalClose} />
       )}

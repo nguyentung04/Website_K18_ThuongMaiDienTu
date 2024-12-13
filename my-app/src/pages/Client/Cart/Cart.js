@@ -161,39 +161,51 @@ const Cart = () => {
 
   // =========================================================================================================
   // Hàm tăng số lượng sản phẩm trong giỏ hàng
-const increaseQuantity = async (cart_id, product_id) => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("User not authenticated");
-    const updatedCart = cart.map((item) =>
-      item.product_id === product_id
-        ? { ...item, total_quantity: item.total_quantity + 1 }
-        : item
-    );
-    setCart(updatedCart); // Cập nhật giỏ hàng trên giao diện
-    saveCartToLocal(updatedCart); // Lưu vào localStorage
-
-
-    // Gửi yêu cầu cập nhật server
-    await axios.put(
-      `${BASE_URL}/api/cart/${cart_id}`,
-      {
-        cart_id,
-        cart_items: updatedCart.map((item) => ({
-          product_id: item.product_id,
-          total_quantity: item.total_quantity,
-          product_price: item.product_price,
-        })),
-      },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-  } catch (error) {
-    console.error("Error increasing quantity:", error);
-    toast.error("Không thể tăng số lượng. Vui lòng thử lại sau.");
-  }
-};
+  const increaseQuantity = async (cart_id, product_id) => {
+    try {
+      console.log("cart_id:", cart_id, "product_id:", product_id); // Kiểm tra dữ liệu truyền vào
+      if (!cart_id) throw new Error("Cart ID is missing.");
+      
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("User not authenticated");
+  
+      const userId = localStorage.getItem("userId");
+      if (!userId) throw new Error("User ID không tồn tại.");
+  
+      // Cập nhật giỏ hàng trên giao diện
+      const updatedCart = cart.map((item) =>
+        item.cart_id === cart_id
+          ? { ...item, total_quantity: item.total_quantity + 1 }
+          : item
+      );
+      setCart(updatedCart);
+      saveCartToLocal(updatedCart);
+  
+      // Gửi yêu cầu cập nhật lên server
+      await axios.put(
+        `${BASE_URL}/api/cart/${cart_id}`,
+        {
+          cart_id,
+          cart_items: updatedCart.map((item) => ({
+            product_id: item.product_id,
+            total_quantity: item.total_quantity,
+            product_price: item.product_price,
+          })),
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+  
+      toast.success("Tăng số lượng sản phẩm thành công!");
+    } catch (error) {
+      console.error("Error increasing quantity:", error);
+      toast.error(
+        error.message || "Không thể tăng số lượng. Vui lòng thử lại sau."
+      );
+    }
+  };
+  
 
 
   // Hàm giảm số lượng sản phẩm trong giỏ hàng
@@ -382,7 +394,7 @@ const increaseQuantity = async (cart_id, product_id) => {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => increaseQuantity(item.cart_id)}
+                    onClick={() => increaseQuantity(item.cart_id,item.product_id)}
                   >
                     +
                   </Button>

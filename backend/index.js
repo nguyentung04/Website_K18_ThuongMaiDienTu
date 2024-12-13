@@ -131,7 +131,8 @@ app.use(express.urlencoded({ extended: true }));
 
 //payment
 app.post("/payment", async (req, res) => {
-  console.log(req.body.amount);
+
+  console.log(`tổng tiền cần thanh toán:${req.body.amount}`);
   
  //https://developers.momo.vn/#/docs/en/aiov2/?id=payment-method
 //parameters
@@ -142,7 +143,7 @@ var partnerCode = 'MOMO';
 var redirectUrl = "http://localhost:3001/formcheckout";
 var ipnUrl = 'https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b';
 var requestType = "payWithMethod";
-var amount =  req.body.amount;
+var amount =   req.body.amount;
 var orderId = partnerCode + new Date().getTime();
 var requestId = orderId;
 var extraData ='';

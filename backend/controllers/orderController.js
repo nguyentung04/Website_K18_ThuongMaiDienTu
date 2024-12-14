@@ -280,12 +280,12 @@ exports.PostOrders = (req, res) => {
 
       // Chèn vào bảng order_detail và thêm user_id
       const orderDetailSql =
-        "INSERT INTO order_items (	order_id	, product_id, total_quantity, total_price) VALUES ?";
+        "INSERT INTO order_items (	order_id	, product_id, total_quantity, product_price) VALUES ?";
       const orderDetailValues = orderItems.map((item) => [
         orderId,
         item.product_id,
         item.total_quantity,
-        item.total_price,
+        item.product_price,
       ]);
 
       // Kiểm tra log để đảm bảo dữ liệu order_detail chính xác

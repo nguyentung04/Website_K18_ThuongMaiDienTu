@@ -250,10 +250,11 @@ const CheckoutForm = () => {
     setIsSubmitting(true);
     try {
       const totalAmount = cart.reduce(
-        (total, item) => total + item.total_quantity * item.total_price,
+        (total, item) => total + item.total_quantity * item.product_price,
         0
       );
 
+      
       // Tạo mã đơn hàng ngẫu nhiên
       const orderCode = `ORD-${Date.now()}-${Math.random()
         .toString(36)
@@ -357,6 +358,7 @@ const CheckoutForm = () => {
           <FormControl mb={3} isInvalid={errors.name}>
             <FormLabel htmlFor="name">Tên khách hàng</FormLabel>
             <Input
+            typeof="text"
               className="custom-input"
               id="name"
               name="name"
@@ -384,6 +386,7 @@ const CheckoutForm = () => {
             <FormControl mb={3} isInvalid={errors.province}>
               <FormLabel htmlFor="province">Tỉnh/Thành phố</FormLabel>
               <Input
+              type=""
                 className="custom-input"
                 id="province"
                 name="province"

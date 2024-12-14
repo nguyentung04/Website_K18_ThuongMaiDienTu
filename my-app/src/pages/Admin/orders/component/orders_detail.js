@@ -20,11 +20,11 @@ import { useParams } from "react-router-dom";
 import {
   fetchOrderDetailById,
   updateOrderDetailStatus,
-   deleteOrderDetail
+  deleteOrderDetail,
 } from "../../../../service/api/order_items";
 
 const OrderDetailTable = () => {
-  const { orderId } = useParams();
+  const { id } = useParams();
   const [orderDetails, setOrderDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -38,7 +38,7 @@ const OrderDetailTable = () => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        const data = await fetchOrderDetailById(orderId);
+        const data = await fetchOrderDetailById(id);
         setOrderDetails(data);
       } catch (error) {
         setError("Failed to fetch order details");
@@ -49,7 +49,8 @@ const OrderDetailTable = () => {
     };
 
     fetchOrderDetails();
-  }, [orderId]);
+  }, [id]);
+
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -57,22 +58,27 @@ const OrderDetailTable = () => {
       currency: "VND",
     }).format(value);
   };
-
   const handleApprove = async (itemId) => {
     try {
       console.log(`Updating status for order ID: ${itemId}`);
-      await updateOrderDetailStatus(itemId, "Đã xác nhận");
+      await updateOrderDetailStatus(itemId, "delivering");
+  
+      // Cập nhật trạng thái trong state
       setOrderDetails((prevDetails) =>
         prevDetails.map((item) =>
-          item.order_id === itemId ? { ...item, status: "Đã xác nhận" } : item
+          item.id === itemId ? { ...item, status: "delivering" } : item
         )
       );
+  
       toast({
         title: "Đơn hàng đã được duyệt.",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
+  
+      // Tải lại trang sau khi duyệt thành công
+      window.location.reload(); // Tải lại trang
     } catch (error) {
       console.error("Error updating order status:", error);
       toast({
@@ -84,6 +90,8 @@ const OrderDetailTable = () => {
       });
     }
   };
+  
+  
 
   const handleDeleteConfirmation = (itemId) => {
     setItemToDelete(itemId);
@@ -118,7 +126,12 @@ const OrderDetailTable = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="300px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="300px"
+      >
         <Spinner size="xl" />
       </Box>
     );
@@ -137,10 +150,17 @@ const OrderDetailTable = () => {
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md">
       <Text fontSize="2xl" fontWeight="bold" mb={4}>
-        Chi tiết đơn hàng #{orderId}
+        Chi tiết đơn hàng #{id}
       </Text>
       {orderDetails.map((item) => (
-        <Box key={item.id} mb={4} p={4} borderWidth="1px" borderRadius="lg" _hover={{ bg: hoverBgColor }}>
+        <Box
+          key={item.id}
+          mb={4}
+          p={4}
+          borderWidth="1px"
+          borderRadius="lg"
+          _hover={{ bg: hoverBgColor }}
+        >
           <Grid templateColumns="repeat(3, 1fr)" gap={4}>
             <GridItem colSpan={1}>
               <Text>
@@ -159,7 +179,7 @@ const OrderDetailTable = () => {
             </GridItem>
             <GridItem colSpan={1}>
               <Text>
-                <strong>Phương thức thanh toán:</strong> {item.paymentMethod}
+                <strong>Phương thức thanh toán:</strong> {item.payment_method}
               </Text>
             </GridItem>
             <GridItem colSpan={1}>
@@ -169,12 +189,12 @@ const OrderDetailTable = () => {
             </GridItem>
             <GridItem colSpan={1}>
               <Text>
-                <strong>Giá:</strong> {formatCurrency(item.price)}
+                <strong>Giá:</strong> {formatCurrency(item.total_price)}
               </Text>
             </GridItem>
             <GridItem colSpan={1}>
               <Text>
-                <strong>Số lượng:</strong> {item.quantity}
+                <strong>Số lượng:</strong> {item.total_quantity}
               </Text>
             </GridItem>
             <GridItem colSpan={1}>
@@ -188,13 +208,22 @@ const OrderDetailTable = () => {
               </Text>
             </GridItem>
             <GridItem colSpan={3} textAlign="right">
-              {item.status === "Chờ xác nhận" && (
-                <Button colorScheme="green" size="sm" margin="10px" onClick={() => handleApprove(item.order_id)}>
+              {item.status === "pending" && (
+                <Button
+                  colorScheme="green"
+                  size="sm"
+                  margin="10px"
+                  onClick={() => handleApprove(item.order_id)}
+                >
                   Duyệt
                 </Button>
               )}
               {item.status !== "Đã hủy" && (
-                <Button colorScheme="red" size="sm" onClick={() => handleDeleteConfirmation(item.id)}>
+                <Button
+                  colorScheme="red"
+                  size="sm"
+                  onClick={() => handleDeleteConfirmation(item.id)}
+                >
                   Hủy đơn hàng
                 </Button>
               )}
@@ -203,7 +232,11 @@ const OrderDetailTable = () => {
         </Box>
       ))}
 
-      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+      >
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">

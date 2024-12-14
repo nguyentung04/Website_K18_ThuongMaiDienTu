@@ -25,9 +25,9 @@ export const fetchOrderDetailById = async (id) => {
 };
 
 // Function to update the status of an order
-export const updateOrderDetailStatus = async (orderId, statuss) => {
+export const updateOrderDetailStatus = async (orderId, status) => {
     try {
-      const response = await axios.put(`${BASE_URL}/order_items/${orderId}`, { statuss });
+      const response = await axios.put(`${BASE_URL}/order_items/${orderId}`, { status });
       return response.data;
     } catch (error) {
       console.error("Error updating order status:", error);

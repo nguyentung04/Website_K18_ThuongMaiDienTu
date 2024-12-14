@@ -51,7 +51,12 @@ exports.orderByName1 = (req, res) => {
   }
 
   connection.query(
-    `SELECT o.*, od.*, p.* FROM orders o JOIN order_items od ON o.id = od.order_id JOIN products p ON od.product_id = p.id WHERE o.user_id =  ?;`,
+    ` SELECT o.*, od.*, p.* ,pi.image_url AS images
+ FROM orders o 
+ JOIN order_items od ON o.id = od.order_id 
+ JOIN products p ON od.product_id = p.id 
+  JOIN product_images pi ON pi.product_id = p.id 
+ WHERE o.user_id =   ?;`,
     [id],
     (err, results) => {
       if (err) {
@@ -70,7 +75,7 @@ exports.orderByName1 = (req, res) => {
 // Lấy toàn bộ đơn hàng theo trạng thái đã thanh toán
 exports.orderByStatusPaid = (req, res) => {
   connection.query(
-    `SELECT o.*, od.* , u.name AS name , p.name AS pr_name FROM orders o JOIN order_items od ON o.id = od.order_id JOIN users u ON u.id = o.user_id JOIN products p ON p.id = od.product_id WHERE o.payment_method = "momo"`,
+    `SELECT o.*,o.id AS orderid,u.* FROM orders o JOIN users u ON o.user_id = u.id WHERE o.payment_method = 'momo';`,
 
     (err, results) => {
       if (err) {
@@ -92,7 +97,7 @@ exports.orderByStatusUnpaid = (req, res) => {
 
 
   connection.query(
-    `SELECT o.*, od.*, p.* FROM orders o JOIN order_items od ON o.id = od.order_id JOIN products p ON od.product_id = p.id WHERE o.payment_method = 'COD'`,
+    `SELECT o.*,o.id AS orderid,u.* FROM orders o JOIN users u ON o.user_id = u.id WHERE o.payment_method = 'COD';`,
   
     (err, results) => {
       if (err) {

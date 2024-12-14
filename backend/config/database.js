@@ -2,6 +2,10 @@ const mysql = require('mysql2');
 require('dotenv').config();
 
 const connection = mysql.createConnection({
+  host: 'localhost',       // Địa chỉ máy chủ MySQL
+  user: 'root',            // Tên đăng nhập MySQL
+  password: 'mysql', // Mật khẩu MySQL
+  database: 'dong_ho_bee', // Tên cơ sở dữ liệu
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,

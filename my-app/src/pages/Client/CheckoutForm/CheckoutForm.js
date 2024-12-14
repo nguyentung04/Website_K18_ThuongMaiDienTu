@@ -212,8 +212,8 @@ const CheckoutForm = () => {
         const orderItems = cart.map((item) => ({
           product_id: item.product_id,
           total_quantity: item.total_quantity,
-          total_price: parseFloat(item.total_price),
-          total: parseFloat(item.total_price) * item.total_quantity,
+          product_price: parseFloat(item.product_price),
+          total: parseFloat(item.product_price) * item.total_quantity,
         }));
 
         const payload = {
@@ -270,8 +270,8 @@ const CheckoutForm = () => {
         orderItems: cart.map((item) => ({
           product_id: item.product_id,
           total_quantity: item.total_quantity,
-          total_price: parseFloat(item.total_price),
-          total: parseFloat(item.total_price) * item.total_quantity,
+          product_price: parseFloat(item.product_price),
+          total: parseFloat(item.product_price) * item.total_quantity,
         })),
       };
       localStorage.setItem("checkoutForm", JSON.stringify(formDataToSave)); // Lưu formData
@@ -311,8 +311,8 @@ const CheckoutForm = () => {
           orderItems: cart.map((item) => ({
             product_id: item.product_id,
             total_quantity: item.total_quantity,
-            total_price: parseFloat(item.total_price),
-            total: parseFloat(item.total_price) * item.total_quantity,
+            product_price: parseFloat(item.product_price),
+            total: parseFloat(item.product_price) * item.total_quantity,
           })),
           user_id: user?.id,
           total_amount: totalAmount,

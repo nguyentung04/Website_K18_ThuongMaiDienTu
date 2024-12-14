@@ -1,11 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode"; // Đảm bảo import đúng cách
 import "./OrderHistory.css";
 import { Divider } from "@chakra-ui/react";
-
 
 const BASE_URL = "http://localhost:3000"; // Đảm bảo BASE_URL đúng với cấu hình API của bạn
 
@@ -70,18 +68,23 @@ const OrderHistory = () => {
             <div className="order-card" key={order.order_id}>
               <div className="order-header">
                 <strong>Đơn hàng: #{order.order_id}</strong>
-                <span className="order-status">Đã nhận hàng</span>
+                <span className="order-status">
+                 
+                  <span>{order.status}</span>
+                </span>
               </div>
               <Divider />
               <div className="order-body">
                 <img
-                  src={`${BASE_URL}/uploads/products/${order.image}`}
+                  src={`${BASE_URL}/uploads/products/${order.images}`}
                   alt={order.name}
                   className="product-image"
                 />
 
                 <div className="order-info mb-3">
                   <span>{order.name}</span>
+                  <span>Giá: {order.total_price}</span>
+                  <span>số lượng: {order.total_quantity}</span>
                   <span>
                     Tổng tiền:{" "}
                     <span className="span-price">
@@ -91,7 +94,10 @@ const OrderHistory = () => {
                 </div>
               </div>
               <div className="order-actions">
-                <Link to={`/orders/${order.order_id}`} className="detail-button">
+                <Link
+                  to={`/orders/${order.order_id}`}
+                  className="detail-button"
+                >
                   Xem chi tiết
                 </Link>
               </div>

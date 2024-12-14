@@ -60,7 +60,9 @@ const PaidTable = () => {
     if (selectedOrderId) {
       try {
         await deleteOrder(selectedOrderId);
-        setOrders((prevOrders) => prevOrders.filter(order => order.id !== selectedOrderId));
+        setOrders((prevOrders) =>
+          prevOrders.filter((order) => order.id !== selectedOrderId)
+        );
         handleCloseDialog();
         toast({
           title: "Order deleted.",
@@ -81,6 +83,8 @@ const PaidTable = () => {
     }
   };
 
+  console.log(`hgshda:`,orders);
+
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md">
       <Table variant="simple">
@@ -90,9 +94,9 @@ const PaidTable = () => {
             <Th>Tên người nhận</Th>
             <Th>Địa chỉ</Th>
             <Th>Tỉnh</Th>
-             <Th>Quận/Huyện</Th>
+            <Th>Quận/Huyện</Th>
             <Th>trạng thái</Th>
-           
+
             <Th>Phương thức thanh toán</Th>
             <Th>Chi tiết</Th>
             <Th>Xóa</Th>
@@ -100,21 +104,27 @@ const PaidTable = () => {
         </Thead>
         <Tbody>
           {orders.map((order, index) => (
-            <Tr key={order.id} _hover={{ bg: hoverBgColor }}>
+            <Tr key={order.orderid} _hover={{ bg: hoverBgColor }}>
               <Td fontWeight="bold">{index + 1}</Td>
               <Td>{order.name}</Td>
               <Td>{order.shipping_address}</Td>
               <Td>{order.Districts}</Td>
-              <Td>{order.Provinces}</Td> 
+              <Td>{order.Provinces}</Td>
               <Td>{order.status}</Td>
               <Td>{order.payment_method}</Td>
               <Td>
-                <Link to={`order_items/${order.id}`}>
-                  <Button colorScheme="blue" size="sm">Chi tiết</Button>
+                <Link to={`/admin/orders/paid/order_items/${order.orderid}`}>
+                  <Button colorScheme="blue" size="sm">
+                    Chi tiết
+                  </Button>
                 </Link>
               </Td>
               <Td>
-                <Button colorScheme="red" size="sm" onClick={() => handleOpenDialog(order.id)}>
+                <Button
+                  colorScheme="red"
+                  size="sm"
+                  onClick={() => handleOpenDialog(order.orderid)}
+                >
                   Xóa
                 </Button>
               </Td>
@@ -124,14 +134,26 @@ const PaidTable = () => {
       </Table>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog isOpen={isDialogOpen} leastDestructiveRef={cancelRef} onClose={handleCloseDialog}>
+      <AlertDialog
+        isOpen={isDialogOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={handleCloseDialog}
+      >
         <AlertDialogOverlay>
           <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">Xác nhận xóa</AlertDialogHeader>
-            <AlertDialogBody>Bạn có chắc chắn muốn xóa đơn hàng này không?</AlertDialogBody>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Xác nhận xóa
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              Bạn có chắc chắn muốn xóa đơn hàng này không?
+            </AlertDialogBody>
             <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={handleCloseDialog}>Hủy</Button>
-              <Button colorScheme="red" onClick={handleConfirmDelete} ml={3}>Xóa</Button>
+              <Button ref={cancelRef} onClick={handleCloseDialog}>
+                Hủy
+              </Button>
+              <Button colorScheme="red" onClick={handleConfirmDelete} ml={3}>
+                Xóa
+              </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialogOverlay>

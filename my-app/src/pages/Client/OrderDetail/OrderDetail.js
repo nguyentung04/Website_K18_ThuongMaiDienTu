@@ -15,6 +15,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Toast,
 } from "@chakra-ui/react";
 import "./OrderDetail.css";
 import { AddressIcon, CardIcon } from "../../../components/icon/icon";
@@ -101,6 +102,39 @@ const OrderDetail = () => {
     }
   };
 
+  //để cập nhật trạng thái đơn hàng thành completed.
+
+  const handleMarkAsReceived = async (order_id) => {
+    try {
+      // Gửi yêu cầu cập nhật trạng thái của sản phẩm thành "completed"
+      const response = await axios.put(
+        `${BASE_URL}/api/order_items/${order_id}`, // URL API kèm theo ID của sản phẩm
+        { status: "completed" }, // Dữ liệu cần cập nhật, trong trường hợp này là trạng thái "completed"
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Header chứa token để xác thực
+          },
+        }
+      );
+
+      // Kiểm tra nếu yêu cầu thành công (HTTP status 200)
+      if (response.status === 200) {
+        // Cập nhật trạng thái sản phẩm trong danh sách `order_items` (state)
+        setOrder((prevOrder) =>
+          prevOrder.map(
+            (item) =>
+              item.id === order_id ? { ...item, status: "completed" } : item // Nếu ID trùng, thay đổi trạng thái thành "completed"
+          )
+        );
+      }
+      window.location.reload(); // Tải lại trang
+    } catch (error) {
+      // Xử lý khi có lỗi xảy ra trong quá trình gọi API
+      console.error("Lỗi khi cập nhật trạng thái:", error); // Ghi lỗi vào console để debug
+      setError("Có lỗi xảy ra khi xác nhận nhận hàng."); // Cập nhật lỗi vào state để hiển thị cho người dùng
+    }
+  };
+
   const closeSuccessModal = () => {
     setIsSuccessModalOpen(false);
   };
@@ -151,13 +185,12 @@ const OrderDetail = () => {
       <div className="product-info">
         <h3>THÔNG TIN SẢN PHẨM</h3>
         {order_items.map((item) => (
-          <div key={item.id} className="product-card  ">
-          
-            <div className=" d-flex justify-content-between  align-items-center">
-            <img
-              src={`${BASE_URL}/uploads/products/${item.image}`}
-              alt={item.pr_name}
-            />
+          <div key={item.id} className="product-card">
+            <div className=" d-flex justify-content-around align-items-center">
+              <img
+                src={`${BASE_URL}/uploads/products/${item.images}`}
+                alt={item.pr_name}
+              />
               <h4>{item.pr_name}</h4>
               <p>
                 <strong>Giá:</strong>{" "}
@@ -174,16 +207,34 @@ const OrderDetail = () => {
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
-                }).format(item.total_price * item.total_quantity|| 0)}
+                }).format(item.total_price * item.total_quantity || 0)}
               </p>
               <div className="d-flex justify-content-end">
-                <button
-                  type="button"
-                  className="btn btn-danger action-button cancel-button p-2"
-                  onClick={() => handleCancelProduct(item.id)}
-                >
-                  Hủy sản phẩm
-                </button>
+                {item.status !== "completed" && (
+                  <>
+                    {item.status === "pending" && (
+                      <button
+                        type="button"
+                        className="btn btn-danger action-button cancel-button p-2"
+                        onClick={() => handleCancelProduct(item.id)}
+                      >
+                        Hủy sản phẩm
+                      </button>
+                    )}
+                    {item.status === "delivering" && (
+                      <button
+                        type="button"
+                        className="btn btn-success action-button received-button p-2"
+                        onClick={() => handleMarkAsReceived(item.order_id)}
+                      >
+                        Đã nhận hàng
+                      </button>
+                    )}
+                  </>
+                )}
+                {item.status === "completed" && (
+                  <p className="text-success">Đơn hàng đã hoàn thành</p>
+                )}
               </div>
             </div>
           </div>

@@ -2,18 +2,25 @@ import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as faStarSolid, faThumbsUp } from "@fortawesome/free-solid-svg-icons";
 import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
-import axios from "axios";
+import {
+  fetchProductReviews,
+  fetchProductReviewById,
+  postReview,
+  postReply,
+} from "../../../../../service/api/comments";
 import "./Reviews.css";
-
-const BASE_URL = "http://localhost:3000/api";
 
 // Hàm format ngày
 const formatDate = (date) => {
+  const parsedDate = new Date(date);
+  if (isNaN(parsedDate)) {
+    return "Ngày không hợp lệ";
+  }
   const options = { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" };
-  return new Date(date).toLocaleDateString("vi-VN", options);
+  return parsedDate.toLocaleDateString("vi-VN", options);
 };
 
-// Component con Review
+
 const Review = ({
   review,
   handleReplySubmit,
@@ -25,6 +32,13 @@ const Review = ({
   showReplies,
   replies,
 }) => {
+
+  const handleReplyToReplySubmit = (e, replyId) => {
+    e.preventDefault();
+    handleReplySubmit(e, review.review_id, replyId);  // Trả lời cho một bình luận đã có phản hồi
+  };
+  
+
   return (
     <div className="review">
       <div className="review-header">
@@ -43,15 +57,12 @@ const Review = ({
           ))}
         </div>
         <button onClick={() => toggleReplies(review.review_id)}>
-          {showReplies[review.review_id] ? "Ẩn trả lời" : "Hiện trả lời"}
+          {showReplies[review.review_id] ? "Ẩn trả lời" : `Hiện trả lời || `}
         </button>
         <button onClick={() => toggleReplyForm(review.review_id)}>Trả lời</button>
       </div>
       {showReplyForm[review.review_id] && (
-        <form
-          onSubmit={(e) => handleReplySubmit(e, review.review_id)}
-          className="reply-form"
-        >
+        <form onSubmit={(e) => handleReplySubmit(e, review.review_id)} className="reply-form">
           <textarea
             value={replyContents[review.review_id] || ""}
             onChange={(e) =>
@@ -72,13 +83,29 @@ const Review = ({
               <strong>{reply.username}</strong>
               <span>{formatDate(reply.created_at)}</span>
               <p>{reply.content}</p>
+              <button onClick={(e) => handleReplyToReplySubmit(e, reply.id)}>Trả lời</button> {/* Cập nhật này */}
+
+              {/* Xử lý "Trả lời trên trả lời" */}
+              {reply.replies && reply.replies.length > 0 && (
+                <div className="nested-replies">
+                  {reply.replies.map((nestedReply) => (
+                    <div key={nestedReply.id} className="nested-reply">
+                      <strong>{nestedReply.username}</strong>
+                      <span>{formatDate(nestedReply.created_at)}</span>
+                      <p>{nestedReply.content}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
+
     </div>
   );
 };
+
 
 const Reviews = ({ productId }) => {
   const evaluateRef = useRef(null);
@@ -95,13 +122,18 @@ const Reviews = ({ productId }) => {
   const userId = JSON.parse(localStorage.getItem("userData"))?.id;
 
   useEffect(() => {
+    if (!productId) {
+      setMessage("Không có ID sản phẩm!");
+      return;
+    }
+
     const fetchReviews = async () => {
       try {
-        const { data } = await axios.get(`${BASE_URL}/product_reviews/${productId}`);
+        const data = await fetchProductReviews(productId);
         setReviews(data);
         setLoading(false);
       } catch (error) {
-        setMessage("Không thể tải đánh giá!");
+        setMessage(`Bạn hãy là người đầu tiên đánh giá về sản phẩm...`);
         setLoading(false);
       }
     };
@@ -109,26 +141,27 @@ const Reviews = ({ productId }) => {
     fetchReviews();
   }, [productId]);
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!userId) {
       setMessage("Vui lòng đăng nhập để đánh giá!");
       return;
     }
+
     try {
-      const { data } = await axios.post(`${BASE_URL}/product_reviews/${productId}`, {
-        user_id: userId,
-        rating: userRating,
-        content: comment,
-      });
+      const data = await postReview(productId, userId, userRating, comment);
       setReviews([data, ...reviews]);
       setComment("");
       setUserRating(0);
       setMessage("Đánh giá thành công!");
     } catch (error) {
+      console.log("Error posting review:", error);
       setMessage("Gửi đánh giá thất bại!");
     }
   };
+
+
 
   const handleUserRatingClick = (index) => {
     setUserRating(index + 1);
@@ -144,11 +177,10 @@ const Reviews = ({ productId }) => {
   const toggleReplies = async (reviewId) => {
     if (!showReplies[reviewId]) {
       try {
-        const { data } = await axios.get(
-          `${BASE_URL}/product_reviews/detail/${reviewId}/replies`
-        );
+        const data = await fetchProductReviewById(reviewId);
         setReplies((prev) => ({ ...prev, [reviewId]: data.replies }));
       } catch (error) {
+        console.error("Error fetching review by ID:", error);
         setMessage("Không thể tải phản hồi!");
       }
     }
@@ -157,6 +189,9 @@ const Reviews = ({ productId }) => {
       [reviewId]: !prevState[reviewId],
     }));
   };
+  
+
+
 
   const handleReplySubmit = async (e, reviewId) => {
     e.preventDefault();
@@ -166,13 +201,8 @@ const Reviews = ({ productId }) => {
     }
     try {
       const content = replyContents[reviewId];
-      const { data } = await axios.post(
-        `${BASE_URL}/product_reviews/detail/${reviewId}/reply`,
-        {
-          user_id: userId,
-          content,
-        }
-      );
+      const data = await postReply(reviewId, userId, content);  // Gửi phản hồi đến API
+      // Cập nhật lại danh sách phản hồi cho review
       setReplies((prev) => ({
         ...prev,
         [reviewId]: [...(prev[reviewId] || []), data],
@@ -183,6 +213,7 @@ const Reviews = ({ productId }) => {
       setMessage("Gửi phản hồi thất bại!");
     }
   };
+
 
   return (
     <div ref={evaluateRef} className="reviews-section">
@@ -214,7 +245,7 @@ const Reviews = ({ productId }) => {
 
       <div className="reviews-list">
         {loading ? (
-          <p>Đang tải...</p>
+          <p>Đang tải...</p> // Hiển thị khi đang tải dữ liệu
         ) : (
           reviews.map((review) => (
             <Review
@@ -232,6 +263,7 @@ const Reviews = ({ productId }) => {
           ))
         )}
       </div>
+
     </div>
   );
 };

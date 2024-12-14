@@ -20,7 +20,6 @@ import OrderDetail from "../pages/Client/OrderDetail/OrderDetail";
 import ClientLayout from "../layout/Clientlayout";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import OrderModal from "../components/Client/orderModel/orderModel.js";
 import CategoryList from "../pages/Client/CategoryList/CategoryList.js"
 import ProductListByCategory from "../pages/Client/Products/component/CategoryProductsPage/ProductListByCategory.js"
 import FilteredProducts from "../pages/Client/Products/component/FilteredProducts/FilteredProducts.js"
@@ -43,12 +42,10 @@ const ClientRoutes = () => {
         <Route path="/formcheckout" element={<CheckoutForm />} />
         <Route path="/orderhistory" element={<OrderHistory />} />
         <Route path="/orders/:id" element={<OrderDetail />} />
-        <Route path="/ordermodel" element={<OrderModal />} />
         <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       </Route>
-      
     </Routes>
   );
 };

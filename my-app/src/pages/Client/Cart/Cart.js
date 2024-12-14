@@ -67,6 +67,8 @@ const Cart = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+
+        console.log("Dữ liệu trả về từ API:", response.data); // Kiểm tra dữ liệu từ API
         const cartData = response.data || [];
         setCart(cartData);
         localStorage.setItem(`cart_${userId}`, JSON.stringify(cartData)); // Save cart to localStorage
@@ -93,26 +95,25 @@ const Cart = () => {
   // ====================================================================================
   // Hàm xóa sản phẩm khỏi giỏ hàng
 
-
   const removeFromCart = async (product_id) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("User not authenticated");
-  
+
       const userId = localStorage.getItem("userId");
       if (!userId) throw new Error("User ID không tồn tại.");
-  
+
       // Gọi API để xóa sản phẩm khỏi giỏ hàng
       await axios.delete(`${BASE_URL}/api/cart/${userId}/${product_id}`);
-  
+
       // Cập nhật state sau khi xóa
       setCart((prevCart) =>
         prevCart.filter((item) => item.product_id !== product_id)
       );
-  
+
       // Kiểm tra xem toast có được gọi không
       console.log("Gọi toast thành công!");
-      
+
       // Hiển thị thông báo thành công
       toast({
         title: "Thành công!",
@@ -123,101 +124,47 @@ const Cart = () => {
       });
     } catch (error) {
       console.error("Error removing item:", error);
-  
+
       // Kiểm tra lỗi
       console.log("Gọi toast lỗi!");
-      
+
       // Hiển thị thông báo lỗi
       toast({
         title: "Lỗi",
-        description: error.message || "Không thể xóa sản phẩm. Vui lòng thử lại sau.",
+        description:
+          error.message || "Không thể xóa sản phẩm. Vui lòng thử lại sau.",
         status: "error",
         duration: 5000,
         isClosable: true,
       });
     }
   };
-  
- 
 
   // ====================================================================================================
   // Hàm kích hoạt hiệu ứng fade cho giá
-  // const triggerFade = (id) => {
-  //   setFadePrice(id); // Thiết lập sản phẩm có hiệu ứng fade
-  //   setTimeout(() => setFadePrice(null), 300); // Hiển thị giá sau 300ms
-  // };
-
   const triggerFade = (id) => {
-    if (fadePrice !== id) {
-      // Kiểm tra nếu hiệu ứng chưa kích hoạt cho id này
-      setFadePrice(id); // Thiết lập sản phẩm có hiệu ứng fade
-      setTimeout(() => {
-        if (fadePrice === id) {
-          setFadePrice(null); // Chỉ tắt hiệu ứng nếu id vẫn khớp
-        }
-      }, 300); // Hiển thị giá sau 300ms
-    }
+    setFadePrice(id); // Thiết lập sản phẩm có hiệu ứng fade
+    setTimeout(() => setFadePrice(null), 500); // Hiển thị giá sau 300ms
   };
 
   // =========================================================================================================
-  // Hàm tăng số lượng sản phẩm trong giỏ hàng
-const increaseQuantity = async (cart_id, product_id) => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("User not authenticated");
-    const updatedCart = cart.map((item) =>
-      item.product_id === product_id
-        ? { ...item, total_quantity: item.total_quantity + 1 }
-        : item
-    );
-    setCart(updatedCart); // Cập nhật giỏ hàng trên giao diện
-    saveCartToLocal(updatedCart); // Lưu vào localStorage
-
-
-    // Gửi yêu cầu cập nhật server
-    await axios.put(
-      `${BASE_URL}/api/cart/${cart_id}`,
-      {
-        cart_id,
-        cart_items: updatedCart.map((item) => ({
-          product_id: item.product_id,
-          total_quantity: item.total_quantity,
-          product_price: item.product_price,
-        })),
-      },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-  } catch (error) {
-    console.error("Error increasing quantity:", error);
-    toast.error("Không thể tăng số lượng. Vui lòng thử lại sau.");
-  }
-};
-
-
-  // Hàm giảm số lượng sản phẩm trong giỏ hàng
-  const decreaseQuantity = async (cart_id, product_id) => {
+  const updateCartInAPI = async (updatedCart) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("User not authenticated");
-      const updatedCart = cart.map((item) =>
-        item.product_id === product_id
-          ? { ...item, total_quantity: Math.max(item.total_quantity - 1, 1) }
-          : item
-      );
-      setCart(updatedCart);
-      saveCartToLocal(updatedCart);
-  
+
+      const userId = localStorage.getItem("userId");
+      if (!userId) throw new Error("User ID không tồn tại.");
+
       // Gửi yêu cầu cập nhật server
       await axios.put(
-        `${BASE_URL}/api/cart/${cart_id}`,
+        `${BASE_URL}/api/cart/${userId}`,
         {
-          cart_id: cart_id,
+          cart_id: 233,
           cart_items: updatedCart.map((item) => ({
             product_id: item.product_id,
-            quantity: item.total_quantity,
-            price: item.product_price,
+            total_quantity: item.total_quantity,
+            product_price: item.product_price,
           })),
         },
         {
@@ -225,13 +172,85 @@ const increaseQuantity = async (cart_id, product_id) => {
         }
       );
     } catch (error) {
-      console.error("Error decreasing quantity:", error);
-      toast.error("Không thể giảm số lượng. Vui lòng thử lại sau.");
+      console.error("Error updating cart:", error);
+      toast.error("Không thể cập nhật giỏ hàng. Vui lòng thử lại sau.");
     }
   };
-  
+  const [isUpdating, setIsUpdating] = useState(false);
+  // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Hàm tăng số lương sản phẩm  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  const increaseQuantity = async (product_id) => {
+    if (isUpdating) return;
 
+    setIsUpdating(true);
+    try {
+      // Kiểm tra sản phẩm tồn tại trong giỏ hàng
+      const productExists = cart.some((item) => item.product_id === product_id);
+      if (!productExists) {
+        console.error(`Không tìm thấy sản phẩm với ID: ${product_id}`);
+        return;
+      }
 
+      // Cập nhật giỏ hàng
+      const updatedCart = cart.map((item) =>
+        item.product_id === product_id
+          ? { ...item, total_quantity: item.total_quantity + 1 }
+          : item
+      );
+
+      console.log(`Đã tăng số lượng cho sản phẩm ID: ${product_id}`); // Kiểm tra xem đúng ID
+      setCart(updatedCart);
+      saveCartToLocal(updatedCart);
+      await updateCartInAPI(updatedCart);
+      triggerFade(product_id); // Trigger the fade effect when quantity changes
+      triggerFade(product_id);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Hàm giảm số lương sản phẩm  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  const decreaseQuantity = async (product_id) => {
+    if (isUpdating) return;
+
+    setIsUpdating(true);
+    try {
+      // Kiểm tra sản phẩm tồn tại trong giỏ hàng
+      const productExists = cart.some((item) => item.product_id === product_id);
+      if (!productExists) {
+        console.error(`Không tìm thấy sản phẩm với ID: ${product_id}`);
+        return;
+      }
+
+      // Kiểm tra số lượng sản phẩm, đảm bảo không giảm xuống dưới 1
+      const updatedCart = cart.map((item) =>
+        item.product_id === product_id
+          ? {
+              ...item,
+              total_quantity:
+                item.total_quantity > 1 ? item.total_quantity - 1 : 1, // Giới hạn số lượng không giảm dưới 1
+            }
+          : item
+      );
+
+      console.log(`Đã giảm số lượng cho sản phẩm ID: ${product_id}`); // Kiểm tra xem đúng ID
+      setCart(updatedCart);
+      saveCartToLocal(updatedCart);
+      await updateCartInAPI(updatedCart);
+      triggerFade(product_id); // Trigger the fade effect when quantity changes
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  // Khi nhấn thanh toán hoặc sau khi thay đổi nhiều lần
+  const handleCheckout = async () => {
+    if (!username) {
+      alert("Vui lòng đăng nhập trước khi thanh toán."); // Hiển thị thông báo yêu cầu đăng nhập
+      return;
+    }
+    await updateCartInAPI(cart); // Gửi giỏ hàng lên API trước khi thanh toán
+    setShowCheckoutForm(true); // Hiển thị form thanh toán
+  };
 
   // ==================================================================================================
   // Hàm tính tổng giá trị giỏ hàng
@@ -240,7 +259,7 @@ const increaseQuantity = async (cart_id, product_id) => {
       const price =
         typeof item.price === "string"
           ? parseFloat(item.pr_price.replace(/[^0-9.-]+/g, "")) // Chuyển chuỗi giá tiền thành số
-          : parseFloat(item.total_price); // Nếu giá đã là số, thì giữ nguyên
+          : parseFloat(item.product_price); // Nếu giá đã là số, thì giữ nguyên
       return total + item.total_quantity * (price || 0); // Cộng dồn giá trị từng sản phẩm vào tổng
     }, 0);
   };
@@ -249,7 +268,7 @@ const increaseQuantity = async (cart_id, product_id) => {
     const price =
       typeof item.price === "string"
         ? parseFloat(item.price.replace(/[^0-9.-]+/g, "")) // Chuyển chuỗi giá thành số
-        : parseFloat(item.total_price); // Nếu giá đã là số, giữ nguyên
+        : parseFloat(item.product_price); // Nếu giá đã là số, giữ nguyên
 
     const discountPrice = item.discountPrice
       ? typeof item.discountPrice === "string"
@@ -273,14 +292,14 @@ const increaseQuantity = async (cart_id, product_id) => {
   };
 
   // Hàm xử lý khi người dùng nhấn nút thanh toán
-  const handleCheckout = () => {
-    if (!username) {
-      // Kiểm tra nếu người dùng chưa đăng nhập
-      alert("Vui lòng đăng nhập trước khi thanh toán."); // Hiển thị thông báo yêu cầu đăng nhập
-      return;
-    }
-    setShowCheckoutForm(true); // Hiển thị form thanh toán
-  };
+  // const handleCheckout = () => {
+  //   if (!username) {
+  //     // Kiểm tra nếu người dùng chưa đăng nhập
+  //     alert("Vui lòng đăng nhập trước khi thanh toán."); // Hiển thị thông báo yêu cầu đăng nhập
+  //     return;
+  //   }
+  //   setShowCheckoutForm(true); // Hiển thị form thanh toán
+  // };
 
   // Hiển thị thông báo đang tải nếu dữ liệu giỏ hàng chưa được load xong
   if (loading) {
@@ -323,16 +342,16 @@ const increaseQuantity = async (cart_id, product_id) => {
                   justifyContent: "space-around",
                   alignItems: "Center",
                 }}
-              > <Box> {item.cart_id} </Box>
-                <Flex>
+              >
+                <Flex className="d-flex align-items-center">
                   <Img
                     style={{ mixBlendMode: "multiply" }}
                     className="me-4"
-                    src={`${BASE_URL}/uploads/products/${item.images}`}
+                    src={`http://localhost:3000/uploads/products/${item.images}`}
                     alt={item.product_name}
                     maxWidth="114px"
                   />
-                 
+
                   <Heading
                     style={{
                       width: "300px",
@@ -350,21 +369,20 @@ const increaseQuantity = async (cart_id, product_id) => {
                     {item.product_name}
                   </Heading>
                 </Flex>
-
-                <Flex fontWeight="bold">
-                  <span> Giá: </span>{" "}
-                  <Text fontWeight="bold" style={{ marginLeft: "5px" }}>
+                <Flex className="d-flex align-items-center" fontWeight="bold">
+                  <span>
+                    {" "}
+                    Giá:{" "}
                     {item.discountPrice
                       ? formatPrice(item.discountPrice)
-                      : formatPrice(item.product_price)}
-                  </Text>{" "}
+                      : formatPrice(item.product_price)}{" "}
+                  </span>{" "}
                 </Flex>
-
                 <Flex align="center" gap={1}>
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => decreaseQuantity(item.cart_id)}
+                    onClick={() => decreaseQuantity(item.product_id)}
                     width="33px"
                     height="35px"
                   >
@@ -373,33 +391,30 @@ const increaseQuantity = async (cart_id, product_id) => {
                   <Input
                     px={2}
                     value={item.total_quantity}
-                
                     textAlign="center"
                     width="60px"
                     background="#ffffff"
                     height="35px"
+                    onChange={triggerFade}
                   />
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => increaseQuantity(item.cart_id)}
+                    onClick={() => increaseQuantity(item.product_id)}
                   >
                     +
                   </Button>
                 </Flex>
-                <Flex fontWeight="bold">
-                  <span>
-                    {" "}
-                    Tổng giá: <br></br>
-                  </span>
-
-                  <Text
-                    fontWeight="bold"
-                    className={fadePrice === item.id ? "fade" : "show"}
+                <Flex fontWeight="bold" className="d-flex align-items-center">
+                  <span> Tổng giá:</span>
+                  <Box
+                    onChange={triggerFade}
+                    className={fadePrice === item.product_id ? "fade" : "show"}
                     style={{ marginLeft: "5px" }}
                   >
-                    {formatPrice(getProductTotal(item))}
-                  </Text>
+                    {" "}
+                    {formatPrice(getProductTotal(item))}{" "}
+                  </Box>
                 </Flex>
                 <button
                   className="remove-button"
@@ -426,6 +441,7 @@ const increaseQuantity = async (cart_id, product_id) => {
             as="h5"
             size="sm"
             className={fadePrice ? "fade" : "show"}
+            onChange={triggerFade}
           >
             {formatPrice(getTotal())}
           </Heading>

@@ -131,16 +131,23 @@ exports.getOrderDetailById = (req, res) => {
 
   // Thực hiện truy vấn SQL
   connection.query(
-    `SELECT o.*, od.* , u.name AS name , p.name AS pr_name FROM orders o JOIN order_items od ON o.id = od.order_id JOIN users u ON u.id = o.user_id JOIN products p ON p.id = od.product_id WHERE o.id = ?`, // Sử dụng dấu hỏi để bảo mật SQL Injection
+    `SELECT o.*, od.* , u.name AS name,u.phone AS phone , p.name AS pr_name , pi.image_url AS images
+FROM orders o JOIN order_items od ON o.id = od.order_id 
+JOIN users u ON u.id = o.user_id 
+JOIN products p ON p.id = od.product_id
+JOIN product_images pi ON p.id = pi.product_id
+WHERE o.id = ?`, // Sử dụng dấu hỏi để bảo mật SQL Injection
     [orderId], // Thay thế dấu hỏi bằng giá trị của orderId
     (err, results) => {
       if (err) {
-        return res.status(500).json({ error: err.message });  // Trả về lỗi với trạng thái 500 nếu có vấn đề
+        return res.status(500).json({ error: err.message }); // Trả về lỗi với trạng thái 500 nếu có vấn đề
       }
-      res.status(200).json(results);  // Trả về kết quả truy vấn dưới dạng JSON
+      res.status(200).json(results); // Trả về kết quả truy vấn dưới dạng JSON
     }
   );
 };
+
+
 
 const { validationResult } = require('express-validator'); // Optional: để xác thực yêu cầu
 
@@ -148,6 +155,8 @@ const { validationResult } = require('express-validator'); // Optional: để x�
 exports.updateOrder_itemsDetailStatus = (req, res) => {
     const { id } = req.params; // ID đơn hàng từ URL
     const { status } = req.body; // Trạng thái mới từ nội dung yêu cầu
+    console.log("Received status:", status);
+
 
     // Xác thực đầu vào (tùy chọn)
     const errors = validationResult(req);
@@ -156,7 +165,7 @@ exports.updateOrder_itemsDetailStatus = (req, res) => {
     }
 
     // Truy vấn SQL để cập nhật trạng thái của đơn hàng
-    const query = `UPDATE order_items SET status = ? WHERE order_id = ?`;
+    const query = `UPDATE orders SET status = ? WHERE id = ?`;
 
     // Execute the query
     connection.query(query, [status, id], (err, results) => {

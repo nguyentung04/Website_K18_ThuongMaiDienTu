@@ -4,7 +4,6 @@ import { FaShoppingCart } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { HeartIcon } from "../../../../../components/icon/icon";
 import { Autoplay } from "swiper/modules";
-import OrderModal from "../../../../../components/Client/orderModel/orderModel";
 import { toast, ToastContainer } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";

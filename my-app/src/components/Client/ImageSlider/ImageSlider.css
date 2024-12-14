@@ -1,8 +1,8 @@
 .image-slider {
     padding: 0px; /* Padding xung quanh slider */
     box-sizing: border-box; /* Đảm bảo padding không làm thay đổi kích thước tổng thể của slider */
-    max-width: 1519px;
-    width: 1460px; /* Tùy chỉnh theo kích thước mong muốn nếu cần */
+    max-width: 1620px;
+    width: 1620px; /* Tùy chỉnh theo kích thước mong muốn nếu cần */
     position: relative; /* Để sử dụng z-index nếu cần */
     top: -10px; /* Di chuyển slider gần hơn với navbar */
   }

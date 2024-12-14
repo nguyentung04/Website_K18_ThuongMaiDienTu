@@ -1,6 +1,5 @@
-
-  /* ============================================================================================ */
-  .order-detail-container {
+/* ============================================================================================ */
+.order-detail-container {
     max-width: 1200px;
     margin: auto;
     padding: 20px;
@@ -25,67 +24,94 @@
 
 .order-detail-container .product-info {
     margin: 20px 0;
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .order-detail-container .product-card {
-    /* display: flex; */
-    border: 1px solid #eaeaea;
-    border-radius: 8px;
-    padding: 10px;
-    background-color: #fff;
+  
+    border: 1px solid #eaeaea; /* Đường viền nhạt màu */
+    border-radius: 8px; /* Góc bo tròn */
+    background-color: #fff; /* Nền trắng */
+    transition: box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease; /* Hiệu ứng mượt mà khi di chuột hoặc thay đổi trạng thái */
 }
+
+/* Hiệu ứng khi di chuột qua */
+.order-detail-container .product-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+    transform: translateY(-5px); /* Nâng thẻ lên một chút */
+}
+
+/* Hiệu ứng khi bị ẩn */
+.order-detail-container .product-card.hidden {
+    opacity: 0; /* Giảm độ trong suốt */
+    transform: translateY(10px); /* Trượt nhẹ xuống */
+}
+
 
 .order-detail-container .product-card img {
     width: 100px;
     height: auto;
-    margin-right: 20px;
+    padding: 10px;
+    
+    border-radius: 8px; /* Góc bo tròn */
 }
 
 .order-detail-container .product-details {
     flex-grow: 1;
 }
+
 .order-detail-container .order-info {
     flex-grow: 1;
     display: flex;
     justify-content: space-between;
     gap: 20px;
-  }
+}
+
 .order-summary {
     text-align: right;
     margin-top: 20px;
-    
+
 }
 
 .error-message {
     color: red;
     text-align: center;
 }
+
 /* =========================================================================================== */
-.info-section div {display: flex;
+.info-section div {
+    display: flex;
     margin-bottom: 5px;
 }
-.info-section-name{
+
+.info-section-name {
     color: #666;
 
     font-weight: 500;
     margin-right: 50px;
 }
-.info-section-address{
+
+.info-section-address {
     color: #666;
     font-weight: 500;
     margin-right: 47px;
 }
-.info-section-address-content{
+
+.info-section-address-content {
     display: inline-block;
     width: 596px;
 }
-.info-section-time{
+
+.info-section-time {
     color: #666;
     font-weight: 500;
     margin-right: 30px;
 }
 
-.info-section-paymentMethod{
+.info-section-paymentMethod {
     width: 363.26px;
     margin-bottom: 20px;
     padding: 10px;
@@ -94,11 +120,29 @@
     background-color: #fff;
 }
 
-.order-detail-container .order-info span{
+.order-detail-container .order-info span {
     font-size: 21px;
     color: black;
     display: flex;
     gap: 5px;
     justify-items: center;
     align-items: center;
+}
+
+/* =============================== Button hủy đơn hàng ==================================== */
+.order-detail-container .action-button {
+    margin-right: 10px;
+}
+
+.order-detail-container.cancel-button {
+    background-color: #ff4d4f;
+    color: white;
+}
+
+.order-detail-container .action-button.p-2 {
+    padding: 5px 10px;
+}
+
+.order-detail-container .ml-2 {
+    margin-left: 10px;
 }

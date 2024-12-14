@@ -40,30 +40,32 @@ exports.getCartById = (req, res) => {
   // Truy vấn CSDL để lấy dữ liệu giỏ hàng theo ID
   connection.query(
     `
-  SELECT 
 
 
- 	     pr.id AS product_id,
-        u.name AS user_name, -- Tên người dùng
-        pr.name AS product_name, -- Tên sản phẩm
-        pr.price AS product_price, -- Giá sản phẩm
-        pr.id AS product_id,
-        SUM(c_i.quantity) AS total_quantity, -- Tổng số lượng sản phẩm
-        SUM(c_i.quantity * pr.price) AS total_price, -- Tổng giá trị (số lượng * giá sản phẩm)
-        MIN(ca.created_at) AS first_added, -- Ngày thêm đầu tiên
-        MAX(ca.updated_at) AS last_updated -- Ngày cập nhật cuối cùng
-    FROM 
-        cart ca
-    JOIN 
-        cart_items c_i ON c_i.cart_id = ca.id -- Kết nối với bảng cart_items
-    JOIN 
-        products pr ON c_i.product_id = pr.id -- Kết nối với bảng products
-    LEFT JOIN 
-        users u ON ca.user_id = u.id -- Kết nối với bảng users
-    WHERE 
-        ca.user_id = ? -- Lọc theo cart_id
-    GROUP BY 
-        pr.id, pr.name, pr.price, u.name; -- Nhóm theo sản phẩm, giá và người dùng
+    SELECT 
+
+
+    ca.id AS cart_id,
+     c_i.quantity AS total_quantity,
+     c_i.price AS product_price,
+     c_i.total AS total_amout ,
+     pr.name AS product_name,
+     pr.id AS product_id,
+   pi.image_url AS images
+ 
+     FROM 
+         cart ca
+     JOIN 
+         cart_items c_i ON c_i.cart_id = ca.id -- Kết nối với bảng cart_items
+     JOIN 
+         products pr ON c_i.product_id = pr.id -- Kết nối với bảng products
+     JOIN
+     	product_images pi ON pr.id = pi.product_id
+     LEFT JOIN 
+         users u ON ca.user_id = u.id -- Kết nối với bảng users
+     WHERE 
+         ca.user_id = ? -- Lọc theo cart_id
+  
     `,
     [user_id], // Sử dụng tham số hóa để bảo vệ khỏi SQL Injection
     (err, results) => {
@@ -183,36 +185,35 @@ exports.deleteCartUser_id = (req, res) => {
 // =========================================================================================================================
 // // Cập nhật giỏ hàng
 exports.updateCartItems = (req, res) => {
-  const { user_id, cart_items } = req.body;
+  const { cart_items } = req.body; // Chỉ cần danh sách sản phẩm
+  const userId = req.params.userId; // Lấy userId từ params
 
-  if (!user_id || !Array.isArray(cart_items) || cart_items.length === 0) {
+  if (!userId || !Array.isArray(cart_items) || cart_items.length === 0) {
     return res.status(400).json({
       error:
-        "Dữ liệu đầu vào không hợp lệ. Vui lòng cung cấp user_id và danh sách sản phẩm.",
+        "Dữ liệu đầu vào không hợp lệ. Vui lòng cung cấp userId và danh sách sản phẩm.",
     });
   }
 
   // Kiểm tra định dạng của từng sản phẩm
   for (const item of cart_items) {
-    if (!item.product_id || !item.quantity || !item.price) {
+    if (!item.product_id || !item.total_quantity || !item.product_price) {
       return res.status(400).json({
         error:
-          "Sản phẩm không hợp lệ. Mỗi sản phẩm cần có product_id, quantity và price.",
+          "Sản phẩm không hợp lệ. Mỗi sản phẩm cần có product_id, total_quantity và product_price.",
       });
     }
   }
 
-  // Bắt đầu giao dịch
   connection.beginTransaction((transactionErr) => {
     if (transactionErr) {
       console.error("Transaction error:", transactionErr);
       return res.status(500).json({ error: "Không thể khởi tạo giao dịch." });
     }
 
-    // Truy vấn để lấy cart_id dựa trên user_id
+    // Truy vấn để lấy cart_id dựa trên userId
     const getCartQuery = "SELECT id AS cart_id FROM cart WHERE user_id = ?";
-
-    connection.query(getCartQuery, [user_id], (getCartErr, results) => {
+    connection.query(getCartQuery, [userId], (getCartErr, results) => {
       if (getCartErr || results.length === 0) {
         console.error("Get cart error:", getCartErr);
         return connection.rollback(() => {
@@ -225,32 +226,39 @@ exports.updateCartItems = (req, res) => {
       const cart_id = results[0].cart_id;
 
       const updatePromises = cart_items.map((item) => {
-        const { product_id, quantity, price } = item;
-        const total = quantity * price;
+        const { product_id, total_quantity, product_price } = item;
+        const total = total_quantity * product_price;
 
         // Câu lệnh SQL để cập nhật sản phẩm
-        const updateQuery =
-
-          "INSERT INTO cart_items (cart_id, product_id, quantity, price, total) " +
-          "VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity), " +
-          "price = VALUES(price), total = (quantity + VALUES(quantity)) * VALUES(price)";
-
-        // Trả về một promise cho từng sản phẩm
-        return new Promise((resolve, reject) => {
-          connection.query(
-            updateQuery,
-            [cart_id, product_id, quantity, price, total],
-            (updateErr, result) => {
-              if (updateErr) {
-                return reject(updateErr);
-              }
-              resolve(result);
+        const updateQuery = `
+        UPDATE cart_items 
+        SET quantity = ?, price = ?
+        WHERE cart_id = ? AND product_id = ?`;
+       console.log("Running SQL:", updateQuery, [total_quantity, product_price, cart_id, product_id]);
+      return new Promise((resolve, reject) => {
+        connection.query(
+          updateQuery,
+          [total_quantity, product_price, cart_id, product_id],
+          (updateErr, result) => {
+            if (updateErr) {
+              return reject(updateErr);
             }
-          );
-        });
+            if (result.affectedRows === 0) {
+              // Không tìm thấy sản phẩm để cập nhật
+              return reject(
+                new Error(`Sản phẩm với product_id=${product_id} không tồn tại trong giỏ hàng.`)
+              );
+            }
+            resolve(result);
+          }
+        );
+      });
+      
+       
+
+      
       });
 
-      // Thực thi tất cả các câu lệnh cập nhật
       Promise.all(updatePromises)
         .then(() => {
           connection.commit((commitErr) => {
@@ -264,7 +272,6 @@ exports.updateCartItems = (req, res) => {
               });
             }
 
-            // Thành công
             res.status(200).json({
               message: "Giỏ hàng đã được cập nhật thành công.",
             });
@@ -282,7 +289,6 @@ exports.updateCartItems = (req, res) => {
     });
   });
 };
-
 
 // =======================================================================================================
 exports.postCart = (req, res) => {
@@ -312,57 +318,94 @@ exports.postCart = (req, res) => {
       return res.status(500).json({ error: "Không thể khởi tạo giao dịch." });
     }
 
-    const cartQuery = "INSERT INTO cart (user_id) VALUES (?)";
-    connection.query(cartQuery, [user_id], (cartErr, cartResult) => {
-      if (cartErr) {
-        console.error("Insert cart error:", cartErr);
+    // Kiểm tra xem user_id đã tồn tại trong bảng cart hay chưa
+    const checkCartQuery = "SELECT id AS cart_id FROM cart WHERE user_id = ?";
+    connection.query(checkCartQuery, [user_id], (checkCartErr, results) => {
+      if (checkCartErr) {
+        console.error("Check cart error:", checkCartErr);
         return connection.rollback(() => {
           res.status(500).json({
-            error: "Không thể thêm giỏ hàng.",
-            details: cartErr.message,
+            error: "Không thể kiểm tra giỏ hàng.",
+            details: checkCartErr.message,
           });
         });
       }
 
-      const cart_id = cartResult.insertId;
-      const cartItemsData = cart_items.map((item) => [
-        cart_id,
-        item.product_id,
-        item.quantity,
-        item.price,
-        item.quantity * item.price,
-      ]);
+      let cart_id;
 
-      const cartItemsQuery =
-        "INSERT INTO cart_items (cart_id, product_id, quantity, price, total) VALUES ?";
-      connection.query(cartItemsQuery, [cartItemsData], (itemsErr) => {
-        if (itemsErr) {
-          console.error("Insert cart_items error:", itemsErr);
-          return connection.rollback(() => {
-            res.status(500).json({
-              error: "Không thể thêm sản phẩm vào giỏ hàng.",
-              details: itemsErr.message,
-            });
-          });
-        }
-
-        connection.commit((commitErr) => {
-          if (commitErr) {
-            console.error("Commit error:", commitErr);
+      if (results.length > 0) {
+        // Giỏ hàng đã tồn tại, lấy cart_id
+        cart_id = results[0].cart_id;
+      } else {
+        // Giỏ hàng chưa tồn tại, tạo mới
+        const insertCartQuery = "INSERT INTO cart (user_id) VALUES (?)";
+        connection.query(insertCartQuery, [user_id], (insertCartErr, cartResult) => {
+          if (insertCartErr) {
+            console.error("Insert cart error:", insertCartErr);
             return connection.rollback(() => {
               res.status(500).json({
-                error: "Không thể hoàn tất giao dịch.",
-                details: commitErr.message,
+                error: "Không thể thêm giỏ hàng.",
+                details: insertCartErr.message,
+              });
+            });
+          }
+          cart_id = cartResult.insertId;
+          processCartItems();
+        });
+        return;
+      }
+
+      // Nếu đã có cart_id, tiếp tục xử lý cart_items
+      processCartItems();
+
+      function processCartItems() {
+        const cartItemsData = cart_items.map((item) => [
+          cart_id,
+          item.product_id,
+          item.quantity,
+          item.price,
+        ]);
+
+        const cartItemsQuery = `
+          INSERT INTO cart_items (cart_id, product_id, quantity, price)
+          VALUES ?
+          ON DUPLICATE KEY UPDATE
+            quantity = quantity + VALUES(quantity),
+            price = VALUES(price)
+           
+        `;
+
+        connection.query(cartItemsQuery, [cartItemsData], (itemsErr) => {
+          if (itemsErr) {
+            console.error("Insert/Update cart_items error:", itemsErr);
+            return connection.rollback(() => {
+              res.status(500).json({
+                error: "Không thể thêm sản phẩm vào giỏ hàng.",
+                details: itemsErr.message,
               });
             });
           }
 
-          // Thành công
-          res.status(200).json({
-            message: "Giỏ hàng đã được thêm thành công.",
+          connection.commit((commitErr) => {
+            if (commitErr) {
+              console.error("Commit error:", commitErr);
+              return connection.rollback(() => {
+                res.status(500).json({
+                  error: "Không thể hoàn tất giao dịch.",
+                  details: commitErr.message,
+                });
+              });
+            }
+
+            // Thành công
+            res.status(200).json({
+              message: "Giỏ hàng đã được cập nhật thành công.",
+            });
           });
         });
-      });
+      }
     });
   });
 };
+
+

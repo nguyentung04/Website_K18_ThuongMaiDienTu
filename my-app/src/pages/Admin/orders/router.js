@@ -11,9 +11,10 @@ const OrdersRoutes = () => {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<OrdersTable />} />
-        <Route path="/paid" element={<PaidTable />} />
-        <Route path="/unpaid" element={<UnpaidTable />} />
-        <Route path="order_items/:orderId" element={<OrdersDetail />} />
+        <Route path="paid" element={<PaidTable />} />
+        <Route path="unpaid" element={<UnpaidTable />} />
+        <Route path="paid/order_items/:id" element={<OrdersDetail />} />
+        <Route path="unpaid/order_items/:id" element={<OrdersDetail />} />
       </Route>
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

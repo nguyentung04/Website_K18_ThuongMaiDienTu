@@ -4,7 +4,6 @@ import { FaShoppingCart } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { HeartIcon } from "../../../../../components/icon/icon";
 import { Autoplay } from "swiper/modules";
-import OrderModal from "../../../../../components/Client/orderModel/orderModel";
 import "./Promotional_products.css";
 import { toast } from "react-toastify";
 
@@ -97,19 +96,6 @@ const PromotionalProducts = () => {
     setIsOpen(true);
   };
 
-  const handleSubmitModel = (e) => {
-    e.preventDefault();
-    // Form validation and submit logic
-  };
-
-  const handleCloseModal = () => setIsOpen(false);
-  const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
-  const increaseQuantity = () => setQuantity(quantity + 1);
-
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [id]: value }));
-  };
 
   // ======================================================================================================
 
@@ -324,19 +310,6 @@ const PromotionalProducts = () => {
         </Swiper>
       </div>
 
-      <OrderModal
-        isOpen={isOpen}
-        onClose={handleCloseModal}
-        formData={formData}
-        handleChange={handleChange}
-        handleSubmit={handleSubmitModel}
-        errors={errors}
-        quantity={quantity}
-        decreaseQuantity={decreaseQuantity}
-        increaseQuantity={increaseQuantity}
-        selectedProduct={selectedProduct}
-        formatPrice={formatPrice}
-      />
     </div>
   );
 };

@@ -20,7 +20,7 @@
   border-radius: 10px;
 }
 
-.product-info,
+.product-details .product-info,
 .product-pricing {
   flex: 2;
   display: flex;

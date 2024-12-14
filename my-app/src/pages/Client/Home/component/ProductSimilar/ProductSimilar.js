@@ -4,7 +4,6 @@ import { FaShoppingCart } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { HeartIcon } from "../../../../../components/icon/icon";
 import { Autoplay } from "swiper/modules";
-import OrderModal from "../../../../../components/Client/orderModel/orderModel";
 
  import "./product_similar.css";
 
@@ -224,19 +223,7 @@ const ProductSimilar = () => {
           )}
         </Swiper>
       </div>
-      <OrderModal
-        isOpen={isOpen}
-        onClose={handleCloseModal}
-        formData={formData}
-        handleChange={handleChange}
-        handleSubmit={handleSubmitModel}
-        errors={errors}
-        quantity={quantity}
-        decreaseQuantity={decreaseQuantity}
-        increaseQuantity={increaseQuantity}
-        selectedProduct={selectedProduct}
-        formatPrice={formatPrice}
-      />
+     
     </div>
 
   );

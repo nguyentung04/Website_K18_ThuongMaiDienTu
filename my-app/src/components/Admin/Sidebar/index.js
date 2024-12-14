@@ -153,7 +153,7 @@ const Sidebar = () => {
                 </Button>
               )}
             </NavLink>{" "}
-            <NavLink to="/admin/productdetail">
+            {/* <NavLink to="/admin/productdetail">
               {({ isActive }) => (
                 <Button
                   fontFamily="math"
@@ -181,7 +181,7 @@ const Sidebar = () => {
                   Sản phẩm chi tiết
                 </Button>
               )}
-            </NavLink>{" "}
+            </NavLink>{" "} */}
             <NavLink to="/admin/posts">
               {({ isActive }) => (
                 <Button

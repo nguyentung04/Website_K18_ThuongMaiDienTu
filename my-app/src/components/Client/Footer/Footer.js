@@ -115,10 +115,10 @@ const Footer = () => {
         &copy; {new Date().getFullYear()} DHB & FPoly. All Rights Reserved.
       </div>
 
-      {/* Dialogflow Messenger */}
-      <df-messenger
+       {/* Dialogflow Messenger */}
+       <df-messenger
         intent="WELCOME"
-        chat-title="Dong_ho"
+        chat-title="Hỗ trợ khách hàng"
         agent-id="36b21e45-2d0c-4629-9ac7-833202734f69"
         language-code="vi"
       ></df-messenger>

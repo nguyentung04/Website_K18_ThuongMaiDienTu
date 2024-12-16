@@ -91,32 +91,32 @@ const SignIn = () => {
   // Đăng nhập bằng tài khoản thông thường
   const handleSubmit = (e) => {
     e.preventDefault();
-
+  
     // Kiểm tra kết nối mạng
     if (!navigator.onLine) {
       setError('Không có kết nối mạng. Vui lòng kiểm tra lại.');
       setShowErrorModal(true);
       return;
     }
-
+  
     // Validate form
     if (!validateForm()) {
       setShowErrorModal(true);
       return;
     }
-
+  
     // Xử lý ghi nhớ đăng nhập
     if (rememberMe) {
       localStorage.setItem('rememberedUsername', username);
     } else {
       localStorage.removeItem('rememberedUsername');
     }
-
+  
     // Bắt đầu quá trình đăng nhập
     setIsLoading(true);
     setError('');
     setErrorDetails({});
-
+  
     fetch("http://localhost:3000/api/login", {
       method: "POST",
       headers: {
@@ -127,27 +127,32 @@ const SignIn = () => {
       .then(response => response.json())
       .then(data => {
         if (data.token) {
+          // Đăng nhập thành công
           localStorage.setItem('token', data.token);
           localStorage.setItem('username', username);
           localStorage.setItem('userData', JSON.stringify(data.user));
-          console.log(localStorage.getItem("userData"));
           setShowSuccessModal(true);
           setTimeout(() => {
             navigate('/'); // Điều hướng đến trang chủ
             window.location.reload(); // Tải lại trang
           }, 1000);
         } else {
+          // Đăng nhập thất bại
           setError(data.message || 'Đăng nhập thất bại');
           setShowErrorModal(true);
         }
       })
       .catch(error => {
-        setIsLoading(false);
         setError('Tên đăng nhập hoặc mật khẩu không đúng');
         setShowErrorModal(true);
         console.error('Lỗi đăng nhập:', error);
+      })
+      .finally(() => {
+        // Đảm bảo trạng thái `isLoading` được reset
+        setIsLoading(false);
       });
   };
+  
 
   // Xử lý load tên đăng nhập đã ghi nhớ
   useEffect(() => {

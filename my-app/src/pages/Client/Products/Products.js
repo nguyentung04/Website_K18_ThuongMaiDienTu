@@ -1,154 +1,10 @@
-// import React, { useState, useEffect } from "react";
-// import "bootstrap/dist/css/bootstrap.min.css";
-// import "bootstrap/dist/js/bootstrap.bundle.min.js";
-// import { FaShoppingCart } from "react-icons/fa";
-// import "./Products.css";
-
-// const BASE_URL = "http://localhost:3000";
-
-// const Products = () => {
-//   const [featuredProducts, setFeaturedProducts] = useState([]);
-//   const [quantity, setQuantity] = useState(1);
-//   const [gender, setGender] = useState("");  // Thêm state để lưu giới tính
-
-//   // Fetch sản phẩm theo giới tính khi giới tính thay đổi
-//   useEffect(() => {
-//     const fetchProductsByGender = async () => {
-//       try {
-//         const url = gender
-//           ? `${BASE_URL}/api/products/gender/${gender}`
-//           : `${BASE_URL}/api/products`;
-//         const response = await fetch(url);
-//         const data = await response.json();
-
-//         // Kiểm tra dữ liệu có phải là mảng không
-//         if (Array.isArray(data)) {
-//           setFeaturedProducts(data); // Cập nhật nếu là mảng
-//         } else {
-//           console.error("Data is not an array:", data);
-//           setFeaturedProducts([]); // Trả về mảng rỗng nếu không phải mảng
-//         }
-//       } catch (error) {
-//         console.error("Error fetching products:", error);
-//         setFeaturedProducts([]); // Trả về mảng rỗng nếu có lỗi
-//       }
-//     };
-
-//     fetchProductsByGender();
-//   }, [gender]);
-
-
-
-//   const formatPrice = (price) => {
-//     return new Intl.NumberFormat("vi-VN", {
-//       style: "currency",
-//       currency: "VND",
-//     }).format(price);
-//   };
-
-//   return (
-//     <div className="products">
-//       <section className="featured-products container">
-//         <h2>SẢN PHẨM CỦA CHÚNG TÔI</h2>
-
-//         {/* Dropdown cho chọn giới tính */}
-//         <select onChange={(e) => setGender(e.target.value)} className="gender-select">
-//           <option value="">Tất cả sản phẩm</option>
-//           <option value="nam">Nam</option>
-//           <option value="nữ">Nữ</option>
-//           <option value="unisex">Unisex</option>
-//         </select>
-
-//         <div className="product-list gridBlock row row-eq-height gx-1 row-cols-2 row-cols-md-3 row-cols-lg-3 row-cols-xl-3 row-cols-xxl-4">
-//   {Array.isArray(featuredProducts) && featuredProducts.length > 0 ? (
-//     featuredProducts.map((product) => {
-//       const discountPrice = product.discountPrice
-//         ? product.price - (product.price * product.discountPrice) / 100
-//         : "";
-//       return (
-//         <div
-//           className="swiper-wrapper"
-//           style={{
-//             width: "312px",
-//             marginBottom: "4px",
-//           }}
-//           key={product.id}
-//         >
-//           <button
-//             className="add-to-cart-icon"
-//             onClick={() => {}}
-//           >
-//             <span style={{ color: "white" }}>
-//               <FaShoppingCart
-//                 size={25}
-//                 style={{
-//                   color: "white",
-//                   stroke: "#b29c6e",
-//                   strokeWidth: 42,
-//                 }}
-//               />
-//             </span>
-//           </button>
-//           <div className="swiper-slide swiper-slide-active">
-//             <div className="product-box h-100 relative">
-//               <a
-//                 href={`/product/${product.id}`}
-//                 className="plain"
-//               >
-//                 <div className="product-item">
-//                   <img
-//                     src={
-//                       product.images && product.images.length > 0
-//                         ? `${BASE_URL}/uploads/products/${product.images}`
-//                         : "default-image.jpg"
-//                     }
-//                     alt={product.name}
-//                     className="product-image img-fluid"
-//                   />
-//                 </div>
-
-//                 <div className="product-info">
-//                   <p className="product-title">{product.name}</p>
-//                   <p
-//                     className={`product-price ${discountPrice ? "line-through" : ""}`}
-//                   >
-//                     {formatPrice(product.price)}
-//                   </p>
-
-//                   {discountPrice && (
-//                     <p
-//                       className="product-discount-price"
-//                       style={{ color: "#a60101" }}
-//                     >
-//                       Giá khuyến mãi: {formatPrice(discountPrice)}
-//                     </p>
-//                   )}
-//                 </div>
-//               </a>
-//             </div>
-//           </div>
-//         </div>
-//       );
-//     })
-//   ) : (
-//     <p>No featured products available.</p> // Hiển thị thông báo nếu không có sản phẩm
-//   )}
-// </div>
-
-//       </section>
-//     </div>
-//   );
-// };
-
-// export default Products;
 import React, { useState, useEffect } from "react";
-import { fetchProducts, fetchProductsByCategory } from "../../../service/api/products";
+import { fetchProducts, fetchProductsByCategory, fetchProductsByPriceRange } from "../../../service/api/products";
 import { fetchCategories } from "../../../service/api/Category";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { Link, useLocation } from "react-router-dom";
 import { FaShoppingCart } from "react-icons/fa";
-// import './Products.css';
 
 const BASE_URL = "http://localhost:3000";
 
@@ -159,6 +15,7 @@ const Products = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 16;
+  const [priceRange, setPriceRange] = useState(""); 
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -194,15 +51,6 @@ const Products = () => {
     setCurrentPage(pageNumber);
   };
 
-  const handleCategoryClick = async (categoryId) => {
-    try {
-      const categoryProducts = await fetchProductsByCategory(categoryId);
-      setProducts(categoryProducts);
-    } catch (error) {
-      setError("Không thể tải sản phẩm theo loại.");
-    }
-  };
-
   const handleGenderFilter = async (gender) => {
     try {
       const response = await fetch(`${BASE_URL}/api/products/gender/${gender}`);
@@ -213,11 +61,24 @@ const Products = () => {
     }
   };
 
+  // Handle price filter
+  const handlePriceFilter = async (range) => {
+    try {
+      const response = await fetch(`${BASE_URL}/api/products/price-range/${range}`);
+      const filteredProducts = await response.json();
+      setProducts(filteredProducts);
+      setPriceRange(range);
+    } catch (error) {
+      setError("Không thể tải sản phẩm theo giá.");
+    }
+  };
+
   // Hàm để hiển thị tất cả sản phẩm
   const handleShowAllProducts = async () => {
     try {
       const productData = await fetchProducts();
       setProducts(productData);
+      setPriceRange("");  // Đặt lại giá trị select về 'Chọn khoảng giá'
     } catch (error) {
       setError("Không thể tải toàn bộ sản phẩm.");
     }
@@ -238,31 +99,30 @@ const Products = () => {
     return <div className="error">{error}</div>;
   }
 
-
-
   return (
     <div className="product-list-container">
       <h2>TẤT CẢ SẢN PHẨM</h2>
-      <button className="btn btn-primary" onClick={handleShowAllProducts}>
-        Tất cả
-      </button>
-      <button onClick={() => handleGenderFilter('nam')} className="btn btn-category">Nam</button>
-      <button onClick={() => handleGenderFilter('nữ')} className="btn btn-category">Nữ</button>
-      {/* <div className="category-buttons">
-        {categories.length > 0 ? (
-          categories.map((category) => (
-            <button
-              key={category.id}
-              className="btn btn-category"
-              onClick={() => handleCategoryClick(category.id)}
-            >
-              {category.name}
-            </button>
-          ))
-        ) : (
-          <p>Không có loại sản phẩm nào.</p>
-        )}
-      </div> */}
+      <div className="d-flex justify-content-start align-items-center mb-2">
+        <button className="btn btn-primary me-2" onClick={handleShowAllProducts} style={{ whiteSpace: 'nowrap' }}>
+          Tất cả
+        </button>
+
+        <button onClick={() => handleGenderFilter('nam')} className="btn btn-category me-2">Nam</button>
+        <button onClick={() => handleGenderFilter('nữ')} className="btn btn-category me-2">Nữ</button>
+
+        {/* Price Range Filter */}
+        <select
+          onChange={(e) => handlePriceFilter(e.target.value)}
+          className="form-select me-2"
+          value={priceRange}  // Gắn giá trị từ state priceRange
+        >
+          <option value="">Chọn khoảng giá</option>
+          <option value="0-10000000">Dưới 10 triệu</option>
+          <option value="10000000-30000000">Từ 10 triệu đến 30 triệu</option>
+          <option value="30000000-50000000">Từ 30 triệu đến 50 triệu</option>
+          <option value="50000000">Trên 50 triệu</option>
+        </select>
+      </div>
 
       {products.length > 0 ? (
         <div>
@@ -331,4 +191,3 @@ const Products = () => {
 };
 
 export default Products;
-

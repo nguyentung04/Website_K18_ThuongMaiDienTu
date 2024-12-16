@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Flex, Text, Spinner, Box } from "@chakra-ui/react";
+import { Flex, Text, Spinner, Box, Table, Thead, Tbody, Tr, Th, Td } from "@chakra-ui/react";
 import { Bar } from "react-chartjs-2";
 import Sidebar from "../../components/Admin/Sidebar";
 import { fetchUsers } from "../../service/api/users";
 import { fetchProducts } from "../../service/api/products";
-import { fetchOrders } from "../../service/api/orders"; // Import the new fetchOrders function
+import { fetchOrders } from "../../service/api/orders";
 import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
@@ -13,35 +13,27 @@ const Dashboard = () => {
   const [users, setUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [userCounts, setUserCounts] = useState({});
-  const [products, setProducts] = useState([]);
-  const [loadingProducts, setLoadingProducts] = useState(true);
-  const [productCounts, setProductCounts] = useState({});
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
-  const [orderCounts, setOrderCounts] = useState({});
+  const [totalAmounts, setTotalAmounts] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [userData, productData, orderData] = await Promise.all([
+        const [userData, orderData] = await Promise.all([
           fetchUsers(),
-          fetchProducts(),
-          fetchOrders(), // Fetch orders data
+          fetchOrders(),
         ]);
 
         setUsers(userData);
         countUsersForLastFourMonths(userData);
 
-        setProducts(productData);
-        countProductsByCategory(productData);
-
         setOrders(orderData);
-        countOrdersByMonth(orderData); // Count orders by month
+        calculateTotalAmountByMonth(orderData); // Calculate total amount per month
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
         setLoadingUsers(false);
-        setLoadingProducts(false);
         setLoadingOrders(false);
       }
     };
@@ -77,28 +69,36 @@ const Dashboard = () => {
     setUserCounts(counts);
   };
 
-  const countProductsByCategory = (products) => {
-    const counts = {};
-    products.forEach((product) => {
-      const category = product.category || "Khác";
-      counts[category] = (counts[category] || 0) + 1;
-    });
-    setProductCounts(counts);
-  };
+  const calculateTotalAmountByMonth = (orders) => {
+    const amounts = {};
 
-  // New function to count orders by month
-  const countOrdersByMonth = (orders) => {
-    const counts = {};
+    // Tính tổng tiền cho mỗi tháng
     orders.forEach((order) => {
       const orderDate = new Date(order.created_at);
       const orderMonth = orderDate.getMonth();
       const orderYear = orderDate.getFullYear();
       const monthKey = `${orderMonth + 1}/${orderYear}`;
 
-      counts[monthKey] = (counts[monthKey] || 0) + 1;
+      if (!amounts[monthKey]) {
+        amounts[monthKey] = { total: 0, orders: 0 }; // Khởi tạo số lượng đơn hàng
+      }
+      amounts[monthKey].total += parseInt(order.total_amount, 10); // Chuyển đổi sang số nguyên
+      amounts[monthKey].orders += 1; // Đếm số lượng đơn hàng
     });
 
-    setOrderCounts(counts);
+    setTotalAmounts(amounts);
+  };
+
+  // Hàm định dạng số tiền theo các đơn vị: VND, nghìn VND, triệu VND, tỷ VND
+  const formatAmount = (amount) => {
+    if (amount >= 1_000_000_000) {
+      return `${(amount / 1_000_000_000).toFixed(1).replace(/\.0$/, '')} tỷ VND`;
+    } else if (amount >= 1_000_000) {
+      return `${(amount / 1_000_000).toFixed(1).replace(/\.0$/, '')} triệu VND`;
+    } else if (amount >= 1_000) {
+      return `${(amount / 1_000).toFixed(0)} nghìn VND`;
+    }
+    return `${amount.toFixed(0)} VND`;
   };
 
   const chartData = (counts, label, bgColor, borderColor) => ({
@@ -150,6 +150,29 @@ const Dashboard = () => {
         <Text fontSize="2xl" fontWeight="bold" mb={6}>
           Trang chủ
         </Text>
+        <Box p={4} bg="white" borderRadius="md" boxShadow="sm" mt={6}>
+          <Text fontSize="lg" fontWeight="semibold" mb={4}>
+            Thống kê doanh thu theo tháng
+          </Text>
+          <Table variant="simple">
+            <Thead>
+              <Tr>
+                <Th>Tháng</Th>
+                <Th>Số lượng đơn hàng</Th>
+                <Th>Tổng số tiền</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {Object.keys(totalAmounts).map((monthKey) => (
+                <Tr key={monthKey}>
+                  <Td>{monthKey}</Td>
+                  <Td>{totalAmounts[monthKey].orders}</Td>
+                  <Td>{formatAmount(totalAmounts[monthKey].total)}</Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
         <Flex direction={{ base: "column", lg: "row" }} gap={4}>
           <ChartBox
             title="Thống kê người dùng"
@@ -160,30 +183,6 @@ const Dashboard = () => {
               "rgba(75, 192, 192, 1)"
             )}
             loading={loadingUsers}
-          />
-          <ChartBox
-            title="Thống kê sản phẩm"
-            data={chartData(
-              productCounts,
-              "Số lượng sản phẩm theo loại",
-              "rgba(54, 162, 235, 0.2)",
-              "rgba(54, 162, 235, 1)"
-            )}
-            loading={loadingProducts}
-          />
-        </Flex>
-
-        {/* Remove Posts statistics section */}
-        <Flex direction={{ base: "column", lg: "row" }} gap={4} mt={6}>
-          <ChartBox
-            title="Thống kê đơn hàng"
-            data={chartData(
-              orderCounts,
-              "Số lượng đơn hàng trong tháng",
-              "rgba(255, 99, 132, 0.2)",
-              "rgba(255, 99, 132, 1)"
-            )}
-            loading={loadingOrders}
           />
         </Flex>
       </Flex>

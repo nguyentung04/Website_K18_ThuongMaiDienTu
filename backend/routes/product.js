@@ -18,5 +18,7 @@ router.get("/products_khuyenmai", productController.sellProducts);
 router.get("/products/category/:categoryId", productController.getProductsByCategory);
 
 router.get("/products/gender/:gender", productController.getProductsByGender);
+// Lọc sản phẩm theo giá
+router.get("/products/price-range/:range", productController.getProductsByPriceRange);
 
 module.exports = router;

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./news.css";
 import { fetchPosts } from "../../../../../service/api/posts"; // Ensure this imports correctly
 import { useToast } from "@chakra-ui/react";
+import { Link } from "react-router-dom"; // Import Link từ react-router-dom
 const BASE_URL = "http://localhost:3000";
 // Helper function to truncate text if too long
 const truncateText = (text, maxLength) => {
@@ -72,6 +73,7 @@ const NewsGrid = () => {
         <div className="news">
           {posts.slice(0, visiblePosts).map((news) => (
             <div className="news-card" key={news.id}>
+              <Link to={`/post/${news.id}`}>
               <div className="news-img">
                 <img src={`${BASE_URL}/uploads/posts/${news.avt}`} alt={news.title} className="news-image" />
               </div>
@@ -85,6 +87,7 @@ const NewsGrid = () => {
                 </small>
                 <p>{truncateText(news.content, 100)}</p>
               </div>
+              </Link>
             </div>
           ))}
         </div>

@@ -2,14 +2,14 @@
 .PromotionalProducts .product-box {
   position: relative;
   height: 100% !important;
-  background-color: #bcbab636;
+  background-color: #df5454;
   border-radius: 6px;
-  border: 1px solid #000; /* Giảm độ dày của viền và giữ màu đen */
+  border: 2px solid #df5454; /* Viền đỏ */
 }
 
 /* Cải thiện viền khi hover */
 .PromotionalProducts .product-box:hover {
-  border-color: #000; /* Màu viền đen khi hover */
+  border-color: #ae2c2c; /* Màu viền đen khi hover */
 }
 
 /* Container tiêu đề */
@@ -78,7 +78,7 @@
   height: 100% !important;
   background-color: #ffffff36;
   border-radius: 6px;
-  border: 1px solid #000; /* Viền màu đen mỏng hơn */
+  border: 1px solid #df5454; /* Viền màu đen mỏng hơn */
 }
 
 .PromotionalProducts .product-title {

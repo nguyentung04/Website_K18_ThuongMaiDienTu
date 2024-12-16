@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom"; // Import Link từ react-router-dom
 import { fetchPosts } from "../../../service/api/posts"; // Ensure this imports correctly
 import { useToast } from "@chakra-ui/react";
 import "./Post.css";
+
 const BASE_URL = "http://localhost:3000";
 
 // Helper function to truncate text if too long
@@ -72,14 +74,20 @@ const Post = () => {
       </div>
       <div className="swiper-slide-news">
         <div className="news">
+        
           {currentPosts.map((news) => (
             <div className="news-card" key={news.id}>
+              <Link to={`/post/${news.id}`}>
               <div className="news-img">
                 <img src={`${BASE_URL}/uploads/posts/${news.avt}`} alt={news.title} className="news-image" />
               </div>
               <div className="news-content">
                 <div className="news-content-title">
-                  <h4>{news.title}</h4>
+                  
+                  <h4>
+                  {news.title}
+                    
+                  </h4>
                 </div>
                 <small className="news-content-time">
                   <p>{new Date(news.created_at).toLocaleDateString()}</p> {/* Format date */}
@@ -87,8 +95,10 @@ const Post = () => {
                 </small>
                 <p>{truncateText(news.content, 100)}</p>
               </div>
+              </Link>
             </div>
           ))}
+          
         </div>
       </div>
       {/* Pagination controls */}

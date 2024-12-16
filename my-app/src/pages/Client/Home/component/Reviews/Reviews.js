@@ -159,6 +159,8 @@ const Reviews = ({ productId }) => {
       console.log("Error posting review:", error);
       setMessage("Gửi đánh giá thất bại!");
     }
+    // Tải lại trang
+  window.location.reload(5000);
   };
 
 

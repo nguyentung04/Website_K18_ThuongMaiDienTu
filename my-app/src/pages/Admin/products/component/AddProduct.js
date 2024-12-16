@@ -8,6 +8,7 @@ import {
   Button,
   Select,
   useToast,
+  Heading,
   FormErrorMessage,
 } from "@chakra-ui/react";
 import axios from "axios";
@@ -20,6 +21,8 @@ const AddProduct = () => {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [gender, setGender] = useState(""); 
+  const [diameter, setDiameter] = useState("");
+  const [wire_material, setWire_material] = useState("");
   const [description, setDescription] = useState("");
   const [shortDescription, setShortDescription] = useState("");
   const [imageFile, setImageFile] = useState(null);
@@ -59,6 +62,9 @@ const AddProduct = () => {
       newErrors.price = "Giá là bắt buộc và phải là số lớn hơn 0.";
     if (!stock || isNaN(stock) || parseInt(stock) <= 0)
       newErrors.stock = "Số lượng là bắt buộc và phải là số nguyên dương.";
+    if (!diameter || isNaN(diameter) || parseInt(diameter) <= 0)
+      newErrors.diameter = "Đường kính mặt đồng hồ là bắt buộc và phải là số nguyên dương.";
+    if (!wire_material) newErrors.wire_material = "Chất liệu dây là bắt buộc.";
     if (!description) newErrors.description = "Mô tả là bắt buộc.";
     if (!shortDescription) newErrors.shortDescription = "Mô tả ngắn là bắt buộc.";
     if (!imageFile) newErrors.image = "Ảnh sản phẩm là bắt buộc.";
@@ -115,6 +121,8 @@ const AddProduct = () => {
       images: [imageUrl],
       category_id: category,
       gender,
+      diameter,
+      wire_material,
     };
 
     try {
@@ -145,6 +153,7 @@ const AddProduct = () => {
 
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
+      <Heading mb={5}>Thêm sản phẩm</Heading>
       <form onSubmit={handleSubmit}>
         <FormControl id="name" mb={4} isInvalid={errors.name}>
           <FormLabel>Tên sản phẩm</FormLabel>
@@ -198,14 +207,29 @@ const AddProduct = () => {
             onChange={(e) => setGender(e.target.value)}
             placeholder="Chọn giới tính"
           >
-            <option value="male">Nam</option>
-            <option value="female">Nữ</option>
+            <option value="Nam">Nam</option>
+            <option value="Nữ">Nữ</option>
           </Select>
           {errors.gender && <FormErrorMessage>{errors.gender}</FormErrorMessage>}
         </FormControl>
-
-
-
+        <FormControl id="diameter" mb={4} isInvalid={errors.diameter}>
+          <FormLabel>Đường kính mặt đồng hồ</FormLabel>
+          <Input
+            value={diameter}
+            onChange={(e) => setDiameter(e.target.value)}
+            placeholder="Nhập đường kính mặt đồng hồ"
+          />
+          {errors.diameter && <FormErrorMessage>{errors.diameter}</FormErrorMessage>}
+        </FormControl>
+        <FormControl id="wire_material" mb={4} isInvalid={errors.wire_material}>
+          <FormLabel>Chất liệu dây</FormLabel>
+          <Input
+            value={wire_material}
+            onChange={(e) => setWire_material(e.target.value)}
+            placeholder="Nhập chất liệu dây"
+          />
+          {errors.wire_material && <FormErrorMessage>{errors.wire_material}</FormErrorMessage>}
+        </FormControl>
         <FormControl id="description" mb={4} isInvalid={errors.description}>
           <FormLabel>Mô tả</FormLabel>
           <Input

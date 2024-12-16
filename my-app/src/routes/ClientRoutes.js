@@ -2,9 +2,9 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import Home from "../pages/Client/Home/Home";
 import Products from "../pages/Client/Products/Products";
-import Women from "../pages/Client/ProductsWomen/Products";
-import Men from "../pages/Client/ProductsMen/Products";
-import OldProductsPremium from "../pages/Client/OldProductsPremium/Products";
+import Women from "../pages/Client/Products/component/ProductsWomen/Products";
+// import Men from "../pages/Client/ProductsMen/Products";
+// import OldProductsPremium from "../pages/Client/OldProductsPremium/Products";
 import About from "../pages/Client/About/About";
 import Post from "../pages/Client/Post/Post.js";
 import PostDetail from "../pages/Client/PostDetails/PostDetail.js";
@@ -32,9 +32,9 @@ const ClientRoutes = () => {
         <Route path="/" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/products" element={<Products />} />
-        <Route path="/women" element={<Women />} />
-        <Route path="/men" element={<Men />} />
-        <Route path="/premium" element={<OldProductsPremium />} />
+        {/* <Route path="/women" element={<Women />} /> */}
+        {/* <Route path="/men" element={<Men />} /> */}
+        {/* <Route path="/premium" element={<OldProductsPremium />} /> */}
         <Route path="/about" element={<About />} />
         <Route path="/post" element={<Post />} />
         <Route path="/post/:id" element={<PostDetail />} />

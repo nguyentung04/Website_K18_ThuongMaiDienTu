@@ -25,7 +25,9 @@ const EditProduct = () => {
   const [categories, setCategories] = useState([]);
   const [description, setDescription] = useState("");
   const [shortDescription, setShortDescription] = useState("");
-  const [gender, setGender] = useState(""); // Thêm giới tính
+  const [gender, setGender] = useState("");
+  const [diameter, setDiameter] = useState(""); 
+  const [wire_material, setWireMaterial] = useState("");
   const [errors, setErrors] = useState({});
   const toast = useToast();
   const navigate = useNavigate();
@@ -44,7 +46,9 @@ const EditProduct = () => {
           setShortDescription(data.short_description || "");
           setImage(data.image || "");
           setStock(data.stock || "");
-          setGender(data.gender || ""); // Gán giá trị giới tính
+          setGender(data.gender || ""); 
+          setDiameter(data.diameter || ""); 
+          setWireMaterial(data.wire_material || ""); 
         }
       } catch (error) {
         toast({
@@ -90,7 +94,10 @@ const EditProduct = () => {
     if (!shortDescription) newErrors.shortDescription = "Mô tả ngắn là bắt buộc.";
     if (!stock || isNaN(stock) || parseInt(stock) <= 0)
       newErrors.stock = "Số lượng là bắt buộc và phải là số nguyên dương.";
-    if (!gender) newErrors.gender = "Giới tính là bắt buộc."; // Kiểm tra giới tính
+    if (!gender) newErrors.gender = "Giới tính là bắt buộc.";
+    if (!diameter || isNaN(diameter) || parseInt(diameter) <= 0)
+      newErrors.diameter = "Đường kính mặt đồng hồ là bắt buộc và phải là số nguyên dương.";
+    if (!wire_material) newErrors.wire_material = "Chất liệu dây là bắt buộc.";
     return newErrors;
   };
 
@@ -139,7 +146,9 @@ const EditProduct = () => {
       short_description: shortDescription,
       images: imageUrl,
       category_id: category,
-      gender, // Thêm giới tính vào dữ liệu
+      gender, 
+      diameter,
+      wire_material,
     };
 
     try {
@@ -229,6 +238,24 @@ const EditProduct = () => {
             <option value="female">Nữ</option>
           </Select>
           {errors.gender && <FormErrorMessage>{errors.gender}</FormErrorMessage>}
+        </FormControl>
+        <FormControl id="diameter" mb={4} isInvalid={errors.diameter}>
+          <FormLabel>Đường kính mặt đồng hồ</FormLabel>
+          <Input
+            value={diameter}
+            onChange={(e) => setDiameter(e.target.value)}
+            placeholder="Nhập đường kính mặt đồng hồ"
+          />
+          {errors.diameter && <FormErrorMessage>{errors.diameter}</FormErrorMessage>}
+        </FormControl>
+        <FormControl id="wire_material" mb={4} isInvalid={errors.wire_material}>
+          <FormLabel>Chất liệu dây</FormLabel>
+          <Input
+            value={wire_material}
+            onChange={(e) => setWireMaterial(e.target.value)}
+            placeholder="Nhập chất liệu dây"
+          />
+          {errors.wire_material && <FormErrorMessage>{errors.wire_material}</FormErrorMessage>}
         </FormControl>
         <FormControl id="image" mb={4}>
           <FormLabel>Ảnh sản phẩm</FormLabel>

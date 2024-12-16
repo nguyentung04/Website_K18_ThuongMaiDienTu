@@ -179,6 +179,9 @@
 .m-product-specification__label {
   font-weight: bold;
 }
+.m-product-specification__name {
+  flex: 1;
+}
 
 /* Kéo đến phần khác */
 .liist {

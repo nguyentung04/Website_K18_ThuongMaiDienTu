@@ -13,7 +13,7 @@ export const fetchProductReviews = async (productId) => {
   };
   
 
-export const postReview = async (productId, userId, rating, content) => {
+  export const postReview = async (productId, userId, rating, content, orderId) => {
     try {
       if (!userId) {
         console.log("User not logged in");
@@ -22,14 +22,17 @@ export const postReview = async (productId, userId, rating, content) => {
       const response = await axios.post(`${BASE_URL}/product_reviews/${productId}`, {
         user_id: userId,
         content: content,
-        rating: rating
+        rating: rating,
+        order_id: orderId // Gửi order_id
       });
       return response.data;
     } catch (error) {
       console.error("Error posting review:", error);
       throw error;
     }
-};
+  };
+  
+
   
 
 export const postReply = async (reviewId, userId, content, parentId ) => {

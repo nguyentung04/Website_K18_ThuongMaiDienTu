@@ -96,18 +96,23 @@ const CheckoutForm = () => {
   }, []);
 
   const handleProvinceChange = async (e) => {
-    const selectedCode = e.target.value;
+    const selectedCode = e.target.value; // Giá trị của tỉnh/thành phố
     setSelectedProvince(selectedCode);
-
-    // Lấy danh sách quận/huyện theo tỉnh/thành phố được chọn
+  
+    // Gán vào formData
+    setFormData((prev) => ({
+      ...prev,
+      province: selectedCode, // Cập nhật tỉnh/thành phố
+    }));
+  
+    // Lấy danh sách quận/huyện
     setLoadingDistricts(true);
     try {
       const districtsData = await fetchDistricts();
       const provinceDistricts = districtsData.find(
         (province) => province.name === selectedCode
       );
-
-      // Lấy mảng quận/huyện từ đối tượng province và gán vào state
+  
       setDistricts(provinceDistricts ? provinceDistricts.districts : []);
     } catch (error) {
       console.error("Error fetching districts:", error);
@@ -116,7 +121,7 @@ const CheckoutForm = () => {
       setLoadingDistricts(false);
     }
   };
-
+  
 
 
   useEffect(() => {
@@ -262,8 +267,8 @@ const CheckoutForm = () => {
         const payload = {
           ...updatedFormData,
           orderCode: orderId,
-          Provinces: updatedFormData.city,
-          Districts: updatedFormData.province,
+          Provinces: updatedFormData.province, // Phải là tỉnh/thành phố
+          Districts: updatedFormData.city, // Phải là quận/huyện
           shipping_address: updatedFormData.address,
           order_detail: orderItems,
           user_id: user.id,

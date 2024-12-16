@@ -37,27 +37,30 @@ WHERE o.name = ?
 
 
 
+// API lấy thông tin chi tiết đơn hàng
 exports.getOrderDetailById = (req, res) => {
-  const orderId = parseInt(req.params.id); // Lấy order_id từ tham số URL
+  const { userId, productId } = req.params;  // Lấy userId và productId từ params
 
-  // Thực hiện truy vấn SQL
+  // Đảm bảo bạn thực hiện truy vấn đúng ở đây
   connection.query(
-    `SELECT o.*, od.* , u.name AS name,u.phone AS phone , p.name AS pr_name , pi.image_url AS images
-FROM orders o JOIN order_items od ON o.id = od.order_id 
-JOIN users u ON u.id = o.user_id 
-JOIN products p ON p.id = od.product_id
-JOIN product_images pi ON p.id = pi.product_id
-WHERE o.id = ?`, // Sử dụng dấu hỏi để bảo mật SQL Injection
-    [orderId], // Thay thế dấu hỏi bằng giá trị của orderId
+    `SELECT o.*, od.*, p.*, u.name AS username
+    FROM orders o
+    JOIN order_items od ON o.id = od.order_id
+    JOIN products p ON od.product_id = p.id
+    JOIN users u ON o.user_id = u.id
+    WHERE o.user_id = ? AND od.product_id = ?`,
+    [userId, productId],
     (err, results) => {
       if (err) {
-        return res.status(500).json({ error: err.message }); // Trả về lỗi với trạng thái 500 nếu có vấn đề
+        return res.status(500).json({ error: err.message });
       }
-      res.status(200).json(results); // Trả về kết quả truy vấn dưới dạng JSON
+      if (results.length === 0) {
+        return res.status(404).json({ message: "Không tìm thấy đơn hàng cho sản phẩm này" });
+      }
+      res.status(200).json(results);
     }
   );
 };
-
 
 
 const { validationResult } = require('express-validator'); // Optional: để xác thực yêu cầu
@@ -119,4 +122,26 @@ exports.deleteOrder_items = (req, res) => {
     // Phản hồi thành công khi bài đăng đã được xóa
     res.status(200).json({ message: "Bài đăng đã được xóa thành công" });
   });
+};
+
+exports.getOrderDetailByUserAndProduct = (req, res) => {
+  const { userId, productId } = req.params; // Lấy userId và productId từ params
+
+  // Thực hiện truy vấn để tìm order_id cho userId và productId
+  connection.query(
+    `SELECT o.id AS order_id, o.user_id, od.product_id
+    FROM orders o
+    JOIN order_items od ON o.id = od.order_id
+    WHERE o.user_id = ? AND od.product_id = ?`,
+    [userId, productId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      if (results.length === 0) {
+        return res.status(404).json({ message: "Không tìm thấy đơn hàng cho sản phẩm này của người dùng này." });
+      }
+      res.status(200).json(results[0]); // Trả về thông tin đơn hàng đầu tiên
+    }
+  );
 };

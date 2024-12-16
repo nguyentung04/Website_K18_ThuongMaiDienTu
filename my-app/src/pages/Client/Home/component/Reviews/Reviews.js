@@ -8,6 +8,7 @@ import {
   postReview,
   postReply,
 } from "../../../../../service/api/comments";
+import { fetchOrderDetailById } from "../../../../../service/api/order_items";
 import "./Reviews.css";
 
 // Hàm format ngày
@@ -142,26 +143,60 @@ const Reviews = ({ productId }) => {
   }, [productId]);
 
 
+  // Hàm lấy Order ID theo orderId
+  const fetchOrderId = async (userId, productId) => {
+    try {
+      // Lấy thông tin đơn hàng dựa trên userId và productId
+      const orderDetail = await fetchOrderDetailById(userId);  // Sử dụng hàm này để lấy tất cả đơn hàng của userId
+      console.log(orderDetail); // Kiểm tra dữ liệu trả về từ API
+  
+      if (!Array.isArray(orderDetail) || orderDetail.length === 0) {
+        throw new Error("Không có đơn hàng cho sản phẩm này");
+      }
+  
+      // Tìm sản phẩm trong đơn hàng
+      const orderItem = orderDetail.find(item => item.product_id === productId);
+      if (orderItem) {
+        return orderItem.order_id;  // Trả về order_id từ order_items nếu tìm thấy
+      }
+      
+      throw new Error("Không tìm thấy sản phẩm trong đơn hàng");
+    } catch (error) {
+      console.error("Lỗi khi lấy Order ID:", error);
+      setMessage("Không thể xác định Order ID!");
+      return null;
+    }
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!userId) {
-      setMessage("Vui lòng đăng nhập để đánh giá!");
+    if (!userId || !productId) {
+      setMessage("Vui lòng cung cấp user ID và product ID!");
       return;
     }
-
+  
     try {
-      const data = await postReview(productId, userId, userRating, comment);
+      // Lấy orderId từ API
+      const orderDetail = await fetchOrderDetailById(userId, productId);
+      const orderId = orderDetail?.order_id;
+  
+      if (!orderId) {
+        setMessage("Không thể xác định Order ID!");
+        return;
+      }
+  
+      // Tiến hành gửi đánh giá
+      const data = await postReview(productId, userId, userRating, comment, orderId);
       setReviews([data, ...reviews]);
       setComment("");
       setUserRating(0);
       setMessage("Đánh giá thành công!");
     } catch (error) {
-      console.log("Error posting review:", error);
-      setMessage("Gửi đánh giá thất bại!");
+      console.error("Error posting review:", error);
+      setMessage("Vui lòng đặt hàng và hãy quay lại đánh giá!!!");
     }
   };
-
-
+  
 
   const handleUserRatingClick = (index) => {
     setUserRating(index + 1);

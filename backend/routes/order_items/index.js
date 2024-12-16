@@ -8,5 +8,5 @@ router.get('/order_items/:id', order_itemsController.getOrderDetailById);
 router.put('/order_items/:id', order_itemsController.updateOrder_itemsDetailStatus);
 router.delete('/order_items/:id', order_itemsController.deleteOrder_items);
 
-
+router.get('/order_items/:userId/:productId', order_itemsController.getOrderDetailByUserAndProduct);
 module.exports = router;

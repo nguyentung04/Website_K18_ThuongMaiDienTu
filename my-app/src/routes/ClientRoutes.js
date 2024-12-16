@@ -25,6 +25,7 @@ import CategoryList from "../pages/Client/CategoryList/CategoryList.js"
 import ProductListByCategory from "../pages/Client/Products/component/CategoryProductsPage/ProductListByCategory.js"
 import FilteredProducts from "../pages/Client/Products/component/FilteredProducts/FilteredProducts.js"
 import ProductsByGender from "../pages/Client/Products/component/fetchProductsByGender/fetchProductsByGender.js"
+import LocationSelector from "../pages/Client/test/LocationSelector.js"
 const ClientRoutes = () => {
   return (
     <Routes>
@@ -44,6 +45,7 @@ const ClientRoutes = () => {
         <Route path="/PaymentSuccess" element={<PaymentSuccess />} />
         <Route path="/orderhistory" element={<OrderHistory />} />
         <Route path="/orders/:id" element={<OrderDetail />} />
+        <Route path="/city" element={<LocationSelector />} />
         <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />

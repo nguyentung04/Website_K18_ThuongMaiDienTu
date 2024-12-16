@@ -14,8 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { jwtDecode } from "jwt-decode"; // Import thư viện
 import axios from "axios";
-import { Navigation } from "swiper/modules";
-import { use } from "passport";
+import { fetchProvinces, fetchDistricts } from "../../../service/api/city";
 
 const CheckoutForm = () => {
   const [formData, setFormData] = useState({
@@ -33,6 +32,9 @@ const CheckoutForm = () => {
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
   const [districts, setDistricts] = useState([]);
+  const [provinces, setProvinces] = useState([]); // State lưu danh sách tỉnh
+  const [selectedProvince, setSelectedProvince] = useState(""); // Mã tỉnh đã chọn
+  const [loadingDistricts, setLoadingDistricts] = useState(false); // Trạng thái loading quận/huyện
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
   const [user, setUser] = useState(null);
@@ -93,6 +95,45 @@ const CheckoutForm = () => {
     fetchUserAndCart(); // Gọi hàm lấy dữ liệu khi component được render
   }, []);
 
+  const handleProvinceChange = async (e) => {
+    const selectedCode = e.target.value;
+    setSelectedProvince(selectedCode);
+
+    // Lấy danh sách quận/huyện theo tỉnh/thành phố được chọn
+    setLoadingDistricts(true);
+    try {
+      const districtsData = await fetchDistricts();
+      const provinceDistricts = districtsData.find(
+        (province) => province.name === selectedCode
+      );
+
+      // Lấy mảng quận/huyện từ đối tượng province và gán vào state
+      setDistricts(provinceDistricts ? provinceDistricts.districts : []);
+    } catch (error) {
+      console.error("Error fetching districts:", error);
+      setDistricts([]); // Clear districts on error
+    } finally {
+      setLoadingDistricts(false);
+    }
+  };
+
+
+
+  useEffect(() => {
+    const fetchProvincesData = async () => {
+      try {
+        const response = await fetchProvinces(); // Gọi API để lấy danh sách tỉnh
+        setProvinces(response || []); // Lưu danh sách tỉnh vào state
+      } catch (error) {
+        console.error("Error fetching provinces:", error);
+        setProvinces([]); // Xử lý lỗi nếu không lấy được danh sách tỉnh
+      }
+    };
+
+    fetchProvincesData(); // Gọi hàm khi component mount
+  }, []);  // Chỉ gọi một lần khi component render lần đầu
+
+
   // Xử lý thanh toán MoMo từ URL callback
   useEffect(() => {
     const processMoMoCallback = async () => {
@@ -149,6 +190,7 @@ const CheckoutForm = () => {
 
     processMoMoCallback();
   }, [location, user]);
+
 
   const clearCart = async (user_id) => {
     try {
@@ -381,34 +423,50 @@ const CheckoutForm = () => {
             <FormErrorMessage>{errors.email}</FormErrorMessage>
           </FormControl>
 
-          <Box display="flex" flexDirection="row" mb={3} gap={2}>
-            <FormControl mb={3} isInvalid={errors.province}>
-              <FormLabel htmlFor="province">Tỉnh/Thành phố</FormLabel>
-              <Input
-                type=""
-                className="custom-input"
-                id="province"
-                name="province"
-                placeholder="Nhập Tỉnh/Thành phố"
-                value={formData.province}
-                onChange={handleChange}
-              />
-              <FormErrorMessage>{errors.province}</FormErrorMessage>
-            </FormControl>
+          {/* Select để chọn tỉnh/thành phố */}
+          <FormControl mb={3} isInvalid={errors.province}>
+            <FormLabel htmlFor="province">Tỉnh/Thành phố</FormLabel>
+            <Select
+              id="province"
+              name="province"
+              value={selectedProvince}
+              onChange={handleProvinceChange}
+              placeholder="Chọn tỉnh/thành phố"
+            >
+              {provinces.map((province) => (
+                <option key={province.code} value={province.name}>
+                  {province.name}
+                </option>
+              ))}
+            </Select>
 
-            <FormControl mb={3} isInvalid={errors.city}>
-              <FormLabel htmlFor="city">Quận/Huyện</FormLabel>
-              <Input
-                className="custom-input"
+            <FormErrorMessage>{errors.province}</FormErrorMessage>
+          </FormControl>
+
+          {/* Select để chọn quận/huyện */}
+          <FormControl mb={3} isInvalid={errors.city}>
+            <FormLabel htmlFor="city">Quận/Huyện</FormLabel>
+            {loadingDistricts ? (
+              <p>Đang tải danh sách quận/huyện...</p>
+            ) : (
+              <Select
                 id="city"
                 name="city"
-                placeholder="Nhập Quận/Huyện"
                 value={formData.city}
                 onChange={handleChange}
-              />
-              <FormErrorMessage>{errors.city}</FormErrorMessage>
-            </FormControl>
-          </Box>
+                placeholder="Chọn quận/huyện"
+                disabled={districts.length === 0}
+              >
+                {districts.map((district, index) => (
+                  <option key={index} value={district}>
+                    {district}  {/* Render tên quận huyện */}
+                  </option>
+                ))}
+              </Select>
+            )}
+            <FormErrorMessage>{errors.city}</FormErrorMessage>
+          </FormControl>
+
 
           <FormControl mb={3} isInvalid={errors.address}>
             <FormLabel htmlFor="address">Địa chỉ cụ thể</FormLabel>

@@ -109,7 +109,7 @@ const OrderDetail = () => {
       // Gửi yêu cầu cập nhật trạng thái của sản phẩm thành "completed"
       const response = await axios.put(
         `${BASE_URL}/api/order_items/${order_id}`, // URL API kèm theo ID của sản phẩm
-        { status: "completed" }, // Dữ liệu cần cập nhật, trong trường hợp này là trạng thái "completed"
+        { status: "đã hoàn thành" }, // Dữ liệu cần cập nhật, trong trường hợp này là trạng thái "completed"
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`, // Header chứa token để xác thực
@@ -123,7 +123,7 @@ const OrderDetail = () => {
         setOrder((prevOrder) =>
           prevOrder.map(
             (item) =>
-              item.id === order_id ? { ...item, status: "completed" } : item // Nếu ID trùng, thay đổi trạng thái thành "completed"
+              item.id === order_id ? { ...item, status: "đã hoàn thành" } : item // Nếu ID trùng, thay đổi trạng thái thành "completed"
           )
         );
       }
@@ -197,7 +197,7 @@ const OrderDetail = () => {
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
-                }).format(item.total_price)}
+                }).format(item.product_price)}
               </p>
               <p>
                 <strong>Số lượng:</strong> {item.total_quantity}
@@ -207,12 +207,12 @@ const OrderDetail = () => {
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
-                }).format(item.total_price * item.total_quantity || 0)}
+                }).format(item.product_price * item.total_quantity || 0)}
               </p>
               <div className="d-flex justify-content-end">
-                {item.status !== "completed" && (
+                {item.status !== "đã hủy" && (
                   <>
-                    {item.status === "pending" && (
+                    {item.status === "đang chờ" && (
                       <button
                         type="button"
                         className="btn btn-danger action-button cancel-button p-2"
@@ -221,7 +221,7 @@ const OrderDetail = () => {
                         Hủy sản phẩm
                       </button>
                     )}
-                    {item.status === "delivering" && (
+                    {item.status === "đã hoàn thành" && (
                       <button
                         type="button"
                         className="btn btn-success action-button received-button p-2"
@@ -232,7 +232,7 @@ const OrderDetail = () => {
                     )}
                   </>
                 )}
-                {item.status === "completed" && (
+                {item.status === "đã hoàn thành" && (
                   <p className="text-success">Đơn hàng đã hoàn thành</p>
                 )}
               </div>
@@ -248,7 +248,7 @@ const OrderDetail = () => {
             currency: "VND",
           }).format(
             order_items.reduce(
-              (total, item) => total + item.total_price * item.total_quantity,
+              (total, item) => total + item.product_price * item.total_quantity,
               0
             )
           )}

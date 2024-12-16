@@ -31,7 +31,7 @@ const Navbar = () => {
       color="white"
       justify="space-between"
       align="center"
-      w={'80%'}
+      w={'84%'}
       position={"fixed"} zIndex={1} top={0} 
       background= '#f7fafc'
      

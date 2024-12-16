@@ -344,7 +344,7 @@ section h2 {
   gap: 20px;
 }
 
-.btn:not(:disabled):not(.disabled) {
+.products .products .btn:not(:disabled):not(.disabled) {
   cursor: pointer;
 }
 
@@ -352,14 +352,14 @@ section h2 {
   height: unset;
 }
 
-.reset-bar>.secondary-bar>button.dot,
+.products .reset-bar>.secondary-bar>button.dot,.products
 .btn.btn-secondary {
   cursor: pointer;
   position: relative;
   border-radius: 5rem;
 }
 
-.btn.btn-secondary {
+.products .btn.btn-secondary {
   background: transparent;
   border: 2px solid #000000;
   color: #000000;
@@ -375,7 +375,7 @@ button.dot img {
   transition: all .3s ease;
 }
 
-.btn:not(:disabled):not(.disabled) {
+.products .btn:not(:disabled):not(.disabled) {
   cursor: pointer;
 }
 

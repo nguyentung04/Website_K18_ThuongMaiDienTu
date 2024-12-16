@@ -15,6 +15,7 @@ import Profile from "../pages/Client/Profile/ClientProfile";
 import ProductDetails from "../pages/Client/ProductDetails/ProductDetails";
 import Cart from "../pages/Client/Cart/Cart";
 import CheckoutForm from "../pages/Client/CheckoutForm/CheckoutForm";
+import PaymentSuccess from "../pages/Client/PaymentSuccess/PaymentSuccess.js";
 import OrderHistory from "../pages/Client/OrderHistory/OrderHistory";
 import OrderDetail from "../pages/Client/OrderDetail/OrderDetail";
 import ClientLayout from "../layout/Clientlayout";
@@ -40,6 +41,7 @@ const ClientRoutes = () => {
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/formcheckout" element={<CheckoutForm />} />
+        <Route path="/PaymentSuccess" element={<PaymentSuccess />} />
         <Route path="/orderhistory" element={<OrderHistory />} />
         <Route path="/orders/:id" element={<OrderDetail />} />
         <Route path="/signin" element={<SignIn />} />

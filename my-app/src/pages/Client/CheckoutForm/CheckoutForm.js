@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import "./CheckoutForm.css";
 import {
   Box,
@@ -14,6 +14,8 @@ import {
 } from "@chakra-ui/react";
 import { jwtDecode } from "jwt-decode"; // Import thư viện
 import axios from "axios";
+import { Navigation } from "swiper/modules";
+import { use } from "passport";
 
 const CheckoutForm = () => {
   const [formData, setFormData] = useState({
@@ -25,7 +27,6 @@ const CheckoutForm = () => {
     note: "",
     paymentMethod: "COD",
   });
-
   const location = useLocation();
   const [cart, setCart] = useState([]);
   const [locations, setLocations] = useState([]);
@@ -226,13 +227,12 @@ const CheckoutForm = () => {
           user_id: user.id,
           total_amount: parseFloat(amount),
         };
-
         console.log("Payload gửi lên server:", payload);
 
         const response = await axios.post(`${BASE_URL}/api/orders`, payload, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-
+        navigate("/PaymentSuccess")
         console.log("Đơn hàng MoMo đã được thêm:", response.data);
       } else {
         console.warn("Giao dịch không thành công, resultCode:", resultCode);
@@ -254,7 +254,6 @@ const CheckoutForm = () => {
         0
       );
 
-      
       // Tạo mã đơn hàng ngẫu nhiên
       const orderCode = `ORD-${Date.now()}-${Math.random()
         .toString(36)
@@ -358,7 +357,7 @@ const CheckoutForm = () => {
           <FormControl mb={3} isInvalid={errors.name}>
             <FormLabel htmlFor="name">Tên khách hàng</FormLabel>
             <Input
-            typeof="text"
+              typeof="text"
               className="custom-input"
               id="name"
               name="name"
@@ -386,7 +385,7 @@ const CheckoutForm = () => {
             <FormControl mb={3} isInvalid={errors.province}>
               <FormLabel htmlFor="province">Tỉnh/Thành phố</FormLabel>
               <Input
-              type=""
+                type=""
                 className="custom-input"
                 id="province"
                 name="province"

@@ -340,7 +340,7 @@ const ProductDetails = () => {
                 <button
                   onClick={scrollToSpecifications}
                   className="scroll-button parameter"
-                  style={{ display: "none" }}
+                  
                 >
                   THÔNG SỐ
                 </button>
@@ -379,37 +379,31 @@ const ProductDetails = () => {
             </button>
           </div>
         </div>
-        <div
-          ref={specificationsRef}
-          className="bg-gray"
-          style={{ display: "none" }}
-        >
+        <div ref={specificationsRef} className="bg-gray" >
           <div className="m-product-specification">
             <div className="m-product-specification__list">
               <x className="m-product-specification__name_full">
                 <h2>THÔNG SỐ</h2>
               </x>
               <div className="m-product-specification__item">
-                <span className="m-product-specification__label">
-                  Thương hiệu
-                </span>
+                <span className="m-product-specification__label">Thương hiệu : </span>
                 <span className="m-product-specification__name">
-                  : {product.category_name || "N/A"}
+                   {product.category || "N/A"}
                 </span>
               </div>
               <div className="m-product-specification__item">
-                <span className="m-product-specification__label">SKU</span>
+                <span className="m-product-specification__label">Chất liệu dây : </span>
                 <span className="m-product-specification__name">
-                  : {product.identification || "N/A"}
+                   {product.wire_material || "N/A"}
                 </span>
               </div>
               <div className="m-product-specification__item">
-                <span className="m-product-specification__label">
-                  Tên sản phẩm
-                </span>
-                <span className="m-product-specification__name">
-                  : {product.name}
-                </span>
+                <span className="m-product-specification__label">Tên sản phẩm : </span>
+                <span className="m-product-specification__name"> {product.name}</span>
+              </div>
+              <div className="m-product-specification__item">
+                <span className="m-product-specification__label">Đường kính mặt đồng hồ : </span>
+                <span className="m-product-specification__name"> {product.diameter || "N/A"} mm</span>
               </div>
             </div>
           </div>

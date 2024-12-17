@@ -147,6 +147,9 @@ exports.getAllProductsAdmin = (req, res) => {
       p.description,
       p.price,
       p.stock,
+      p.gender,
+      p.diameter,
+      p.wire_material,
       c.name AS category,
       GROUP_CONCAT(DISTINCT pi.image_url) AS images,
       COUNT(DISTINCT pl.id) AS likes
@@ -176,6 +179,9 @@ exports.getProductById = (req, res) => {
       p.description,
       p.price,
       p.stock,
+      p.gender,
+      p.diameter,
+      p.wire_material,
       c.name AS category,
       GROUP_CONCAT(DISTINCT pi.image_url) AS images,
       COUNT(DISTINCT pl.id) AS likes
@@ -200,14 +206,14 @@ exports.getProductById = (req, res) => {
 
 // Thêm sản phẩm mới
 exports.addProduct = (req, res) => {
-  const { name, short_description, description, price, stock, category_id, gender, images } = req.body; // Lấy images từ body
+  const { name, short_description, description, price, stock, category_id, gender, diameter, wire_material, images } = req.body; // Lấy images từ body
 
   // Thêm sản phẩm vào bảng products
   const query = `
-  INSERT INTO products (name, short_description, description, price, stock, category_id, gender, created_at, updated_at)
-  VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW());
+  INSERT INTO products (name, short_description, description, price, stock, category_id, gender,diameter,wire_material, created_at, updated_at)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW());
   `;
-  const productData = [name, short_description, description, price, stock, category_id, gender];
+  const productData = [name, short_description, description, price, stock, category_id, gender, diameter, wire_material];
 
   connection.query(query, productData, (err, result) => {
     if (err) {
@@ -238,10 +244,9 @@ exports.addProduct = (req, res) => {
 };
 
 // Cập nhật sản phẩm
-
 exports.updateProduct = (req, res) => {
   const productId = req.params.id;
-  const { name, short_description, description, price, stock, category_id, gender, images } = req.body;
+  const { name, short_description, description, price, stock, category_id, gender, diameter, wire_material, images } = req.body;
 
   // Transaction để đảm bảo tính toàn vẹn
   connection.beginTransaction((err) => {
@@ -263,9 +268,9 @@ exports.updateProduct = (req, res) => {
         // Update products
         connection.query(
           `UPDATE products 
-          SET name = ?, short_description = ?, description = ?, price = ?, stock = ?, category_id = ?, gender = ?, updated_at = NOW() 
+          SET name = ?, short_description = ?, description = ?, price = ?, stock = ?, category_id = ?, gender = ?, diameter = ?, wire_material = ?, updated_at = NOW() 
           WHERE id = ?;`,
-          [name,short_description, description, price, stock, category_id, gender, productId], // Assuming these variables are passed in the request body
+          [name,short_description, description, price, stock, category_id, gender, diameter, wire_material, productId], // Assuming these variables are passed in the request body
           (err) => {
             if (err) {
               return connection.rollback(() => {

@@ -1,4 +1,7 @@
-
+.reviews-list{
+  padding-top: 50px;
+  
+}
 
 .product-details {
   display: flex;
@@ -355,7 +358,7 @@
   line-height: 20px;
   font-weight: 700;
   color: #191919;
-  width: 128px;
+  
   padding-right: 8px;
   padding-bottom: 8px;
   flex-shrink: 0;

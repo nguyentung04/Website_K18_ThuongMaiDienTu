@@ -26,7 +26,7 @@ import {
 } from "@chakra-ui/react";
 import { FaShoppingCart } from "react-icons/fa";
 import "./Products.css";
-import { HeartIcon } from "../../../components/icon/icon";
+import { HeartIcon } from "../../../../../components/icon/icon";
 import { color } from "framer-motion";
 import CustomCheckbox from "./component/CustomCheckbox";
 import Slideshow from "./component/Slideshow/Slideshow";

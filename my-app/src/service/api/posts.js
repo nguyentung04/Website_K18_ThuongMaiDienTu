@@ -64,3 +64,12 @@ export const addPosts = async (categoryData) => {
   }
   return response.json();
 };
+export const fetchPostDetail = async (id) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/posts/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching post details:", error);
+    throw error;
+  }
+};

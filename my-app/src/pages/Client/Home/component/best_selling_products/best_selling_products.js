@@ -392,7 +392,7 @@ const BestSellingProducts = () => {
 
   return (
     <div className="best_selling_products">
-      <h2>Sản phẩm khuyến mãi</h2>
+      <h2>Sản phẩm</h2>
       <div className="products_blocks_wrapper">
         <Swiper
           spaceBetween={10}

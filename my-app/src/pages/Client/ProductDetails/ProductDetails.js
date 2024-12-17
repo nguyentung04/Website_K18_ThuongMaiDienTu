@@ -182,34 +182,24 @@ const ProductDetails = () => {
           Authorization: `Bearer ${token}`, // Thêm token vào header nếu cần
         },
       });
-
-      if (response && response.data) {
-        const { success, message } = response.data;
-        console.log("Full Response:", response);
-
-        if (success) {
-          toast.success("Thêm vào giỏ hàng thành công!", {
-            position: "top-right",
-            autoClose: 5000,
-          });
-        } else {
-          toast.error(message || "Đã xảy ra lỗi, vui lòng thử lại.", {
-            position: "top-right",
-            autoClose: 5000,
-          });
-        }
+  
+      if (response.data.message) {
+        toast.success("Thêm vào giỏ hàng thành công!", {
+        position: "bottom-center",
+          autoClose: 5000,
+        });
       } else {
-        toast.error("Phản hồi không hợp lệ từ máy chủ.", {
-          position: "top-right",
+        toast.error(response.data.error || "Đã xảy ra lỗi, vui lòng thử lại.", {
+        position: "bottom-center",
           autoClose: 5000,
         });
       }
     } catch (error) {
       console.error("Error adding to cart:", error);
       toast.error(
-        error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại.",
+        error.response?.data?.error || "Có lỗi xảy ra, vui lòng thử lại.",
         {
-          position: "top-right",
+        position: "bottom-center",
           autoClose: 5000,
         }
       );

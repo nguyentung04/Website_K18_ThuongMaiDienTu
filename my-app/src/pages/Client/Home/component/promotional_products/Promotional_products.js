@@ -186,16 +186,16 @@ const PromotionalProducts = () => {
         },
       });
 
-      if (response.data.success) {
+      if (response.data.message) {
         toast.success("Thêm vào giỏ hàng thành công!", {
-          position: "top-right",
+        position: "bottom-center",
           autoClose: 5000, // thời gian tự động đóng
         });
       } else {
         toast.error(
-          response.data.message || "Đã xảy ra lỗi, vui lòng thử lại.",
+          response.data.error || "Đã xảy ra lỗi, vui lòng thử lại.",
           {
-            position: "top-right",
+          position: "bottom-center",
             autoClose: 5000,
             hideProgressBar: false,
             closeOnClick: true,
@@ -208,8 +208,8 @@ const PromotionalProducts = () => {
       }
     } catch (error) {
       if (error.response) {
-        toast.error(error.response.data.message || "Có lỗi xảy ra", {
-          position: "top-right",
+        toast.error(error.response.data.error || "Có lỗi xảy ra", {
+        position: "bottom-center",
           autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: true,
@@ -220,7 +220,7 @@ const PromotionalProducts = () => {
         });
       } else if (error.request) {
         toast.error("Không thể kết nối tới server", {
-          position: "top-right",
+        position: "bottom-center",
           autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: true,
@@ -231,7 +231,7 @@ const PromotionalProducts = () => {
         });
       } else {
         toast.error("Đã xảy ra lỗi. Vui lòng thử lại.", {
-          position: "top-right",
+        position: "bottom-center",
           autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: true,

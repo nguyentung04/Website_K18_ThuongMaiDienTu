@@ -14,15 +14,16 @@ export const fetchOrdersDetail = async () => {
   }
 };
 
-export const fetchOrderDetailById = async (id) => {
+export const fetchOrderDetailById = async (userId, productId) => {
   try {
-    const response = await axios.get(`${BASE_URL}/order_items/${id}`);
+    const response = await axios.get(`${BASE_URL}/order_items/${userId}/${productId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching order:", error);
     throw error;
   }
 };
+
 
 // Function to update the status of an order
 export const updateOrderDetailStatus = async (orderId, status) => {

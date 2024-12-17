@@ -179,8 +179,6 @@ const Reviews = ({ productId }) => {
       console.error("Error posting review:", error);
       setMessage("Vui lòng đặt hàng và hãy quay lại đánh giá!!!");
     }
-    // Tải lại trang
-  window.location.reload(5000);
   };
 
   const handleUserRatingClick = (index) => {

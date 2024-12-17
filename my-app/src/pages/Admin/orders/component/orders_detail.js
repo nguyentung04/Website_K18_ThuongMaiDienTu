@@ -61,12 +61,12 @@ const OrderDetailTable = () => {
   const handleApprove = async (itemId) => {
     try {
       console.log(`Updating status for order ID: ${itemId}`);
-      await updateOrderDetailStatus(itemId, "đã hoàn thành");
+      await updateOrderDetailStatus(itemId, "đã nhận");
 
       // Cập nhật trạng thái trong state
       setOrderDetails((prevDetails) =>
         prevDetails.map((item) =>
-          item.id === itemId ? { ...item, status: "đã hoàn thành" } : item
+          item.id === itemId ? { ...item, status: "đã nhận" } : item
         )
       );
 
@@ -214,7 +214,7 @@ const OrderDetailTable = () => {
               </Text>
             </GridItem>
             <GridItem colSpan={3} textAlign="right">
-              {item.status === "đang chờ" && (
+              {item.status === "chờ xử lý" && (
                 <Button
                   colorScheme="green"
                   size="sm"

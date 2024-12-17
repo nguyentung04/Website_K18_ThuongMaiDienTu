@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Img, useDisclosure } from "@chakra-ui/react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTruckFast, faShieldAlt, faCertificate } from "@fortawesome/free-solid-svg-icons";
+import {
+  faTruckFast,
+  faShieldAlt,
+  faCertificate,
+} from "@fortawesome/free-solid-svg-icons";
 import { CameraIcon } from "../../../components/icon/icon";
 import "./ProductDetails.css";
 import ProductSimilar from "./../Home/component/ProductSimilar/ProductSimilar";
 import Reviews from "./../Home/component/Reviews/Reviews";
+import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -22,6 +27,10 @@ const ProductDetails = () => {
   const specificationsRef = useRef(null);
   const evaluateRef = useRef(null);
   const similarProductsRef = useRef(null);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const scrollToProductInfo = () => {
     productInfoRef.current.scrollIntoView({ behavior: "smooth" });
@@ -43,7 +52,9 @@ const ProductDetails = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/api/product_detail/${id}`);
+        const response = await axios.get(
+          `${BASE_URL}/api/product_detail/${id}`
+        );
         setProduct(response.data);
       } catch (error) {
         setError("Lỗi khi lấy dữ liệu sản phẩm");
@@ -53,6 +64,40 @@ const ProductDetails = () => {
     };
     fetchProduct();
   }, [id]);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decoded = jwtDecode(token);
+      setUserData(decoded);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchUserIdFromToken = async () => {
+      try {
+        const token = localStorage.getItem("token"); // Lấy token từ localStorage
+        if (!token) {
+          throw new Error("Token không tồn tại, vui lòng đăng nhập lại.");
+        }
+
+        const decodedToken = jwtDecode(token); // Giải mã token
+        const userId = decodedToken.id; // Sử dụng đúng key từ payload của token
+        if (!userId) {
+          throw new Error("Không tìm thấy userId trong token.");
+        }
+
+        localStorage.setItem("userId", userId); // Lưu userId vào localStorage nếu cần
+        return userId;
+      } catch (error) {
+        console.error("Lỗi khi lấy userId từ token:", error);
+        setErrors("Vui lòng đăng nhập lại."); // Gán lỗi nếu cần thiết
+        setLoading(false);
+        return null;
+      }
+    };
+
+    fetchUserIdFromToken();
+  }, []);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -61,44 +106,118 @@ const ProductDetails = () => {
     }).format(price);
   };
 
-  const { onOpen } = useDisclosure();
+  // ========================================= hàm thêm sản phẩm vào giỏ hàng -=---=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  const addToCart = () => {
-    if (product) {
-      const details = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        description: product.description,
-        image: product.image,
-        short_description: product.short_description,
-        quantity: quantity,
-      };
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const existingProductIndex = cart.findIndex((item) => item.id === product.id);
-      if (existingProductIndex !== -1) {
-        cart[existingProductIndex].quantity += quantity;
+  const handleAddToCart = async (e, product, shouldNavigate = false) => {
+    e.stopPropagation();
+
+    if (isAddingToCart) return; // Không thực hiện nếu đang xử lý thêm vào giỏ hàng
+
+    await addToCart(product, shouldNavigate);
+    // handleOpenModal(product);
+  };
+
+  const addToCart = async (product, shouldNavigate = false) => {
+    if (!userData || !userData.id) {
+      toast.error("Vui lòng đăng nhập.");
+      return;
+    }
+    if (!product) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Người dùng chưa được xác thực");
+
+    const decoded = jwtDecode(token);
+    const userId = decoded.id; // Sử dụng đúng key theo cấu trúc của token
+
+    if (!userId) {
+      throw new Error("Không tìm thấy userId trong token.");
+    }
+
+    if (!token) {
+      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      return;
+    }
+
+    if (!userId) {
+      toast.error("Thông tin người dùng không hợp lệ.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      return;
+    }
+
+    if (product.stock < quantity) {
+      toast.error("Số lượng sản phẩm không đủ. Vui lòng giảm số lượng.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      return;
+    }
+
+    const cartData = {
+      user_id: userId,
+      cart_items: [
+        {
+          product_id: id,
+          quantity,
+          price: product.price,
+          total: quantity * product.price,
+        },
+      ],
+    };
+
+    setIsAddingToCart(true);
+    // Chỉ chuyển trang nếu `shouldNavigate` là true
+    if (shouldNavigate == true) {
+      navigate("/cart");
+    }
+    try {
+      const response = await axios.post(`${BASE_URL}/api/cart`, cartData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Thêm token vào header nếu cần
+        },
+      });
+
+      if (response && response.data) {
+        const { success, message } = response.data;
+        console.log("Full Response:", response);
+
+        if (success) {
+          toast.success("Thêm vào giỏ hàng thành công!", {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        } else {
+          toast.error(message || "Đã xảy ra lỗi, vui lòng thử lại.", {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        }
       } else {
-        cart.push(details);
+        toast.error("Phản hồi không hợp lệ từ máy chủ.", {
+          position: "top-right",
+          autoClose: 5000,
+        });
       }
-      localStorage.setItem("cart", JSON.stringify(cart));
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error(
+        error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại.",
+        {
+          position: "top-right",
+          autoClose: 5000,
+        }
+      );
+    } finally {
+      setIsAddingToCart(false);
     }
   };
-
-  const openModal = () => {
-    if (product) {
-      const details = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        description: product.description,
-        image: product.image,
-        short_description: product.short_description,
-        quantity: quantity,
-      };
-      onOpen(details);
-    }
-  };
+  // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   if (loading) {
     return <div className="loading">Đang tải dữ liệu...</div>;
@@ -116,7 +235,9 @@ const ProductDetails = () => {
         <hr />
         <div className="product-detail-container">
           <div className="product-image-section">
-            {product.images && Array.isArray(product.images) && product.images.length > 0 ? (
+            {product.images &&
+            Array.isArray(product.images) &&
+            product.images.length > 0 ? (
               <div className="image-slider-container"></div>
             ) : (
               <img
@@ -135,13 +256,25 @@ const ProductDetails = () => {
             </div>
 
             <div className="action-buttons">
-              <button className="order-button" onClick={openModal}>
+              {/* ĐẶT HÀNG chuyển trang */}
+              <button
+                className="order-button"
+                onClick={(e) => handleAddToCart(e, product, true)}
+                disabled={isAddingToCart}
+              >
                 ĐẶT HÀNG
               </button>
-              <button className="order-button" onClick={addToCart}>
+
+              {/* THÊM VÀO GIỎ HÀNG chỉ thông báo */}
+              <button
+                className="order-button"
+                onClick={(e) => handleAddToCart(e, product, false)}
+                disabled={isAddingToCart}
+              >
                 THÊM VÀO GIỎ HÀNG
               </button>
             </div>
+
             <div className="commitments">
               <label className="title_support">CAM KẾT CỦA CHÚNG TÔI</label>
               <div className="commitments1">
@@ -233,7 +366,11 @@ const ProductDetails = () => {
         </div>
         <div ref={productInfoRef} className="introduction-section">
           <h2>MÔ TẢ SẢN PHẨM</h2>
-          <div className={`introduction-content ${isExpanded ? "expanded" : "collapsed"}`}>
+          <div
+            className={`introduction-content ${
+              isExpanded ? "expanded" : "collapsed"
+            }`}
+          >
             <p>{product.description}</p>
           </div>
           <div className="toggleExpand-button">
@@ -242,14 +379,20 @@ const ProductDetails = () => {
             </button>
           </div>
         </div>
-        <div ref={specificationsRef} className="bg-gray" style={{ display: "none" }}>
+        <div
+          ref={specificationsRef}
+          className="bg-gray"
+          style={{ display: "none" }}
+        >
           <div className="m-product-specification">
             <div className="m-product-specification__list">
               <x className="m-product-specification__name_full">
                 <h2>THÔNG SỐ</h2>
               </x>
               <div className="m-product-specification__item">
-                <span className="m-product-specification__label">Thương hiệu</span>
+                <span className="m-product-specification__label">
+                  Thương hiệu
+                </span>
                 <span className="m-product-specification__name">
                   : {product.category_name || "N/A"}
                 </span>
@@ -261,8 +404,12 @@ const ProductDetails = () => {
                 </span>
               </div>
               <div className="m-product-specification__item">
-                <span className="m-product-specification__label">Tên sản phẩm</span>
-                <span className="m-product-specification__name">: {product.name}</span>
+                <span className="m-product-specification__label">
+                  Tên sản phẩm
+                </span>
+                <span className="m-product-specification__name">
+                  : {product.name}
+                </span>
               </div>
             </div>
           </div>
@@ -270,7 +417,7 @@ const ProductDetails = () => {
 
         {/* đánh giá */}
         <div ref={evaluateRef} className="home-banchay">
-          <Reviews productId={id}/>
+          <Reviews productId={id} />
         </div>
 
         {/* Sản phẩm tương tự */}

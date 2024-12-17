@@ -89,7 +89,7 @@ exports.orderByStatusPaid = (req, res) => {
 FROM orders o
 JOIN order_items o_i ON o_i.order_id = o.id
 JOIN users u ON o.user_id = u.id
-WHERE o.payment_method = 'momo' AND o.status = 'đang chờ'
+WHERE o.payment_method = 'momo' AND o.status = 'chờ xử lý'
 GROUP BY o.id, u.id, o.payment_method,  o.shipping_address,
   o.Provinces,
   o.Districts, o.total_amount, u.name, u.email
@@ -126,7 +126,7 @@ exports.orderByStatusOrderDelivered = (req, res) => {
 FROM orders o
 JOIN order_items o_i ON o_i.order_id = o.id
 JOIN users u ON o.user_id = u.id
-WHERE  o.status = 'đã hoàn thành '
+WHERE  o.status = 'đã nhận '
 GROUP BY o.id, u.id, o.payment_method,  o.shipping_address,
   o.Provinces,
   o.Districts, o.total_amount, u.name, u.email
@@ -167,7 +167,7 @@ exports.orderByStatusUnpaid = (req, res) => {
 FROM orders o
 JOIN order_items o_i ON o_i.order_id = o.id
 JOIN users u ON o.user_id = u.id
-WHERE o.payment_method = 'COD' AND o.status = 'đang chờ'
+WHERE o.payment_method = 'COD' AND o.status = 'chờ xử lý'
 GROUP BY o.id, u.id, o.payment_method,  o.shipping_address,
   o.Provinces,
   o.Districts, o.total_amount, u.name, u.email

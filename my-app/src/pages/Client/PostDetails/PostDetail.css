@@ -52,7 +52,7 @@
 }
 
 /* Định dạng cho trạng thái loading hoặc lỗi */
-p {
+.post-detail p {
   font-size: 1rem;
   color: #333;
   text-align: center;

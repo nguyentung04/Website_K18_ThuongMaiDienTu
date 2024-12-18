@@ -55,77 +55,11 @@ const ProductSimilar = () => {
     fetchProducts();
   }, []);
 
-  const toggleLike = async (productId) => {
-    const userId = JSON.parse(localStorage.getItem('userData')).id;
-    try {
-      const response = await axios.post(`${BASE_URL}/api/product/${productId}/like`, { userId });
 
-      setLikedProducts((prevLiked) => {
-        const updatedLiked = prevLiked.includes(productId)
-          ? prevLiked.filter((id) => id !== productId)
-          : [...prevLiked, productId];
-
-        localStorage.setItem("likedProducts", JSON.stringify(updatedLiked));
-        return updatedLiked;
-      });
-
-      setLikeCounts((prevCounts) => ({
-        ...prevCounts,
-        [productId]: response.data.likeCount,
-      }));
-    } catch (error) {
-      console.error("Error updating likes:", error);
-    }
-  };
-
-  const handleOpenModal = (product) => {
-    setSelectedProduct(product);
-    setIsOpen(true);
-  };
-
-  const handleSubmitModel = (e) => {
-    e.preventDefault();
-    const newErrors = {};
-
-    if (!formData.name) newErrors.name = "Name is required";
-    if (!formData.email) newErrors.email = "Email is required";
-
-    if (Object.keys(newErrors).length) {
-      setErrors(newErrors);
-      return;
-    }
-
-    console.log("Submitting data:", formData);
-    handleCloseModal();
-  };
-
-  const handleCloseModal = () => {
-    setIsOpen(false);
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      province: "",
-      city: "",
-      address: "",
-      note: "",
-      paymentMethod: "COD",
-    });
-    setErrors({});
-  };
-
-  const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
-  const increaseQuantity = () => setQuantity(quantity + 1);
-
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [id]: value }));
-  };
 
   const handleAddToCartAndOpenModal = (e, product) => {
     e.stopPropagation();
     addToCart(product);
-    handleOpenModal(product);
   };
 
   const addToCart = (product) => {

@@ -8,9 +8,9 @@ import {
   postReview,
   postReply,
 } from "../../../../../service/api/comments";
+import { fetchOrderDetailById } from "../../../../../service/api/order_items";
 import "./Reviews.css";
 
-// Hàm format ngày
 const formatDate = (date) => {
   const parsedDate = new Date(date);
   if (isNaN(parsedDate)) {
@@ -35,18 +35,17 @@ const Review = ({
 
   const handleReplyToReplySubmit = (e, replyId) => {
     e.preventDefault();
-    handleReplySubmit(e, review.review_id, replyId);  // Trả lời cho một bình luận đã có phản hồi
+    handleReplySubmit(e, review.review_id, replyId);
   };
-  
+
 
   return (
     <div className="review">
       <div className="review-header">
-        <strong>{review.username}</strong>
-        <span className="review-date">{formatDate(review.created_at)}</span>
-      </div>
-      <div className="review-body">
-        <p>{review.content}</p>
+        <div className="review-header-info">
+          <strong>{review.username}</strong>
+          <span className="review-date">{formatDate(review.created_at)}</span>
+        </div>
         <div className="review-rating">
           {[...Array(5)].map((_, index) => (
             <FontAwesomeIcon
@@ -56,6 +55,9 @@ const Review = ({
             />
           ))}
         </div>
+      </div>
+      <div className="review-body">
+        <p>{review.content}</p>
         <button onClick={() => toggleReplies(review.review_id)}>
           {showReplies[review.review_id] ? "Ẩn trả lời" : `Hiện trả lời || `}
         </button>
@@ -83,9 +85,8 @@ const Review = ({
               <strong>{reply.username}</strong>
               <span>{formatDate(reply.created_at)}</span>
               <p>{reply.content}</p>
-              <button onClick={(e) => handleReplyToReplySubmit(e, reply.id)}>Trả lời</button> {/* Cập nhật này */}
+              <button onClick={(e) => handleReplyToReplySubmit(e, reply.id)}>Trả lời</button>
 
-              {/* Xử lý "Trả lời trên trả lời" */}
               {reply.replies && reply.replies.length > 0 && (
                 <div className="nested-replies">
                   {reply.replies.map((nestedReply) => (
@@ -101,7 +102,6 @@ const Review = ({
           ))}
         </div>
       )}
-
     </div>
   );
 };
@@ -144,26 +144,42 @@ const Reviews = ({ productId }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!userId) {
-      setMessage("Vui lòng đăng nhập để đánh giá!");
+
+    if (userRating === 0) {
+      setMessage("Vui lòng chọn số sao trước khi gửi đánh giá!");
+      return;
+    }
+
+    if (!userId || !productId) {
+      setMessage("Vui lòng cung cấp user ID và product ID!");
       return;
     }
 
     try {
-      const data = await postReview(productId, userId, userRating, comment);
-      setReviews([data, ...reviews]);
-      setComment("");
-      setUserRating(0);
+      const orderDetail = await fetchOrderDetailById(userId, productId);
+      const orderId = orderDetail?.order_id;
+
+      if (!orderId) {
+        setMessage("Không thể xác định Order ID!");
+        return;
+      }
+
+      const newReview = await postReview(productId, userId, userRating, comment, orderId);
+
+      const scrollPosition = window.scrollY;
+
+      window.location.reload();
+
+      setTimeout(() => {
+        window.scrollTo(0, scrollPosition);
+      }, 0);
+
       setMessage("Đánh giá thành công!");
     } catch (error) {
-      console.log("Error posting review:", error);
-      setMessage("Gửi đánh giá thất bại!");
+      console.error("Error posting review:", error);
+      setMessage("Vui lòng đặt hàng và hãy quay lại đánh giá!!!");
     }
-    // Tải lại trang
-  window.location.reload(5000);
   };
-
-
 
   const handleUserRatingClick = (index) => {
     setUserRating(index + 1);
@@ -183,7 +199,7 @@ const Reviews = ({ productId }) => {
         setReplies((prev) => ({ ...prev, [reviewId]: data.replies }));
       } catch (error) {
         console.error("Error fetching review by ID:", error);
-        setMessage("Không thể tải phản hồi!");
+        setMessage(" ");
       }
     }
     setShowReplies((prevState) => ({
@@ -191,8 +207,6 @@ const Reviews = ({ productId }) => {
       [reviewId]: !prevState[reviewId],
     }));
   };
-  
-
 
 
   const handleReplySubmit = async (e, reviewId) => {
@@ -203,18 +217,28 @@ const Reviews = ({ productId }) => {
     }
     try {
       const content = replyContents[reviewId];
-      const data = await postReply(reviewId, userId, content);  // Gửi phản hồi đến API
-      // Cập nhật lại danh sách phản hồi cho review
+      const data = await postReply(reviewId, userId, content);
+
+      const scrollPosition = window.scrollY;
+
       setReplies((prev) => ({
         ...prev,
         [reviewId]: [...(prev[reviewId] || []), data],
       }));
+
       setReplyContents((prev) => ({ ...prev, [reviewId]: "" }));
       setMessage("Phản hồi thành công!");
+
+      window.location.reload();
+      setTimeout(() => {
+        window.scrollTo(0, scrollPosition);
+      }, 0);
+
     } catch (error) {
       setMessage("Gửi phản hồi thất bại!");
     }
   };
+
 
 
   return (
@@ -247,7 +271,7 @@ const Reviews = ({ productId }) => {
 
       <div className="reviews-list">
         {loading ? (
-          <p>Đang tải...</p> // Hiển thị khi đang tải dữ liệu
+          <p>Đang tải...</p>
         ) : (
           reviews.map((review) => (
             <Review
@@ -265,7 +289,6 @@ const Reviews = ({ productId }) => {
           ))
         )}
       </div>
-
     </div>
   );
 };

@@ -75,7 +75,26 @@ exports.orderByName1 = (req, res) => {
 // Lấy toàn bộ đơn hàng theo trạng thái đã thanh toán
 exports.orderByStatusPaid = (req, res) => {
   connection.query(
-    `SELECT o.*,o.id AS orderid,u.* FROM orders o JOIN users u ON o.user_id = u.id WHERE o.payment_method = 'momo';`,
+    `SELECT 
+  o.id AS orderid,
+  o.shipping_address,
+  o.Provinces,
+  o.Districts,
+  o.status AS orderStatus,
+  o.payment_method,
+  o.total_amount,
+  u.name AS userName,
+  u.email,
+  SUM(o_i.total_quantity) AS total_quantity
+FROM orders o
+JOIN order_items o_i ON o_i.order_id = o.id
+JOIN users u ON o.user_id = u.id
+WHERE o.payment_method = 'momo' AND o.status = 'chờ xử lý'
+GROUP BY o.id, u.id, o.payment_method,  o.shipping_address,
+  o.Provinces,
+  o.Districts, o.total_amount, u.name, u.email
+  ORDER BY o.created_at DESC; -- Sắp xếp từ mới đến cũ
+`,
 
     (err, results) => {
       if (err) {
@@ -91,13 +110,68 @@ exports.orderByStatusPaid = (req, res) => {
   );
 };
 
+exports.orderByStatusOrderDelivered = (req, res) => {
+  connection.query(
+    `SELECT 
+  o.id AS orderid,
+  o.shipping_address,
+  o.Provinces,
+  o.Districts,
+  o.status AS orderStatus,
+  o.payment_method,
+  o.total_amount,
+  u.name AS userName,
+  u.email,
+  SUM(o_i.total_quantity) AS total_quantity
+FROM orders o
+JOIN order_items o_i ON o_i.order_id = o.id
+JOIN users u ON o.user_id = u.id
+WHERE  o.status = 'đã nhận '
+GROUP BY o.id, u.id, o.payment_method,  o.shipping_address,
+  o.Provinces,
+  o.Districts, o.total_amount, u.name, u.email
+  ORDER BY o.created_at DESC; -- Sắp xếp từ mới đến cũ`,
+
+    (err, results) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ error: "Database query error: " + err.message });
+      }
+      if (results.length === 0) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      res.status(200).json(results);
+    }
+  );
+};
+
+
 // Lấy toàn bộ đơn hàng theo  trạng thái chưa thanh toán
 exports.orderByStatusUnpaid = (req, res) => {
 
 
 
   connection.query(
-    `SELECT o.*,o.id AS orderid,u.* FROM orders o JOIN users u ON o.user_id = u.id WHERE o.payment_method = 'COD';`,
+    `SELECT 
+  o.id AS orderid,
+  o.shipping_address,
+  o.Provinces,
+  o.Districts,
+  o.status AS orderStatus,
+  o.payment_method,
+  o.total_amount,
+  u.name AS userName,
+  u.email,
+  SUM(o_i.total_quantity) AS total_quantity
+FROM orders o
+JOIN order_items o_i ON o_i.order_id = o.id
+JOIN users u ON o.user_id = u.id
+WHERE o.payment_method = 'COD' AND o.status = 'chờ xử lý'
+GROUP BY o.id, u.id, o.payment_method,  o.shipping_address,
+  o.Provinces,
+  o.Districts, o.total_amount, u.name, u.email
+  ORDER BY o.created_at DESC; -- Sắp xếp từ mới đến cũ`,
   
     (err, results) => {
       if (err) {
@@ -280,12 +354,12 @@ exports.PostOrders = (req, res) => {
 
       // Chèn vào bảng order_detail và thêm user_id
       const orderDetailSql =
-        "INSERT INTO order_items (	order_id	, product_id, total_quantity, total_price) VALUES ?";
+        "INSERT INTO order_items (	order_id	, product_id, total_quantity, product_price) VALUES ?";
       const orderDetailValues = orderItems.map((item) => [
         orderId,
         item.product_id,
         item.total_quantity,
-        item.total_price,
+        item.product_price,
       ]);
 
       // Kiểm tra log để đảm bảo dữ liệu order_detail chính xác

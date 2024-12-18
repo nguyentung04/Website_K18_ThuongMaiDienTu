@@ -6,6 +6,7 @@ import { HeartIcon } from "../../../../../components/icon/icon";
 import { Autoplay } from "swiper/modules";
 import "./Promotional_products.css";
 import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -15,6 +16,7 @@ const PromotionalProducts = () => {
   const [likedProducts, setLikedProducts] = useState([]);
   const [likeCounts, setLikeCounts] = useState({});
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [userData, setUserData] = useState(null);
 
   // Existing state variables remain unchanged
   const [isOpen, setIsOpen] = useState(false);
@@ -32,6 +34,7 @@ const PromotionalProducts = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
+  // lấy dữ liệu sản phẩmphẩm
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -58,52 +61,41 @@ const PromotionalProducts = () => {
     fetchProducts();
   }, []);
 
-  // New function to handle liking/unliking products
-  const toggleLike = async (productId) => {
-    const userId = JSON.parse(localStorage.getItem("userData")).id;
-    if (!userId) {
-      console.error("User not logged in");
-      return;
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decoded = jwtDecode(token);
+      setUserData(decoded);
     }
+  }, []);
+  useEffect(() => {
+    const fetchUserIdFromToken = async () => {
+      try {
+        const token = localStorage.getItem("token"); // Lấy token từ localStorage
+        if (!token) {
+          throw new Error("Token không tồn tại, vui lòng đăng nhập lại.");
+        }
 
-    try {
-      const response = await axios.post(
-        `${BASE_URL}/api/product/${productId}/like`,
-        { userId }
-      );
+        const decodedToken = jwtDecode(token); // Giải mã token
+        const userId = decodedToken.id; // Sử dụng đúng key từ payload của token
+        if (!userId) {
+          throw new Error("Không tìm thấy userId trong token.");
+        }
 
-      setLikedProducts((prevLiked) => {
-        const updatedLiked = prevLiked.includes(productId)
-          ? prevLiked.filter((id) => id !== productId)
-          : [...prevLiked, productId];
+        localStorage.setItem("userId", userId); // Lưu userId vào localStorage nếu cần
+        return userId;
+      } catch (error) {
+        console.error("Lỗi khi lấy userId từ token:", error);
+        setErrors("Vui lòng đăng nhập lại."); // Gán lỗi nếu cần thiết
+        setLoading(false);
+        return null;
+      }
+    };
 
-        localStorage.setItem("likedProducts", JSON.stringify(updatedLiked));
-        return updatedLiked;
-      });
-
-      setLikeCounts((prevCounts) => ({
-        ...prevCounts,
-        [productId]: response.data.likeCount,
-      }));
-    } catch (error) {
-      console.error("Error updating likes:", error);
-    }
-  };
-
-  // Existing functions remain unchanged
-  const handleOpenModal = (product) => {
-    setSelectedProduct(product);
-    setIsOpen(true);
-  };
-
-
+    fetchUserIdFromToken();
+  }, []);
   // ======================================================================================================
 
-  // const handleAddToCartAndOpenModal = (e, product) => {
-  //   e.stopPropagation();
-  //   addToCart(product);
-  //   handleOpenModal(product);
-  // };
 
   const handleAddToCartAndOpenModal = async (e, product) => {
     e.stopPropagation();
@@ -114,10 +106,37 @@ const PromotionalProducts = () => {
   };
   // ======================================================================================================
   const addToCart = async (product) => {
+    if (!userData || !userData.id) {
+      toast.error("Vui lòng đăng nhập.");
+      return;
+    }
     if (!product) return;
 
-    const userId = JSON.parse(localStorage.getItem("userData"))?.id;
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Người dùng chưa được xác thực");
 
+    const decoded = jwtDecode(token);
+    const userId = decoded.id; // Sử dụng đúng key theo cấu trúc của token
+
+    if (!userId) {
+      throw new Error("Không tìm thấy userId trong token.");
+    }
+
+    if (!token) {
+      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      return;
+    }
+
+    if (!userId) {
+      toast.error("Thông tin người dùng không hợp lệ.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      return;
+    }
     if (!userId) {
       toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.", {
         position: "top-right",
@@ -157,27 +176,26 @@ const PromotionalProducts = () => {
         },
       ],
     };
-
     setIsAddingToCart(true);
 
     try {
       const response = await axios.post(`${BASE_URL}/api/cart`, cartData, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer <token>", // if required
+          Authorization: `Bearer ${token}`, // Thêm token vào header nếu cần
         },
       });
 
-      if (response.data.success) {
+      if (response.data.message) {
         toast.success("Thêm vào giỏ hàng thành công!", {
-          position: "top-right",
+        position: "bottom-center",
           autoClose: 5000, // thời gian tự động đóng
         });
       } else {
         toast.error(
-          response.data.message || "Đã xảy ra lỗi, vui lòng thử lại.",
+          response.data.error || "Đã xảy ra lỗi, vui lòng thử lại.",
           {
-            position: "top-right",
+          position: "bottom-center",
             autoClose: 5000,
             hideProgressBar: false,
             closeOnClick: true,
@@ -190,8 +208,8 @@ const PromotionalProducts = () => {
       }
     } catch (error) {
       if (error.response) {
-        toast.error(error.response.data.message || "Có lỗi xảy ra", {
-          position: "top-right",
+        toast.error(error.response.data.error || "Có lỗi xảy ra", {
+        position: "bottom-center",
           autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: true,
@@ -202,7 +220,7 @@ const PromotionalProducts = () => {
         });
       } else if (error.request) {
         toast.error("Không thể kết nối tới server", {
-          position: "top-right",
+        position: "bottom-center",
           autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: true,
@@ -213,7 +231,7 @@ const PromotionalProducts = () => {
         });
       } else {
         toast.error("Đã xảy ra lỗi. Vui lòng thử lại.", {
-          position: "top-right",
+        position: "bottom-center",
           autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: true,
@@ -278,11 +296,18 @@ const PromotionalProducts = () => {
                           }
                         />
                         {/* <span>{likeCounts[product.id] || 0}</span> */}
-                      {/* </button> */} 
-                      <button className="add-to-cart-icon" onClick={(e) => handleAddToCartAndOpenModal(e, product)}>
+                      {/* </button> */}
+                      <button
+                        className="add-to-cart-icon"
+                        onClick={(e) => handleAddToCartAndOpenModal(e, product)}
+                      >
                         <FaShoppingCart
                           size="25"
-                          style={{ color: "white", stroke: "#b29c6e", strokeWidth: 42 }}
+                          style={{
+                            color: "white",
+                            stroke: "#b29c6e",
+                            strokeWidth: 42,
+                          }}
                         />
                       </button>
                       <div className="product-box">
@@ -309,7 +334,6 @@ const PromotionalProducts = () => {
           )}
         </Swiper>
       </div>
-
     </div>
   );
 };

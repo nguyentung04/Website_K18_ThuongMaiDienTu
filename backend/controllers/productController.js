@@ -382,4 +382,28 @@ exports.getProductsByCategory = (req, res) => {
   });
 };
 
+exports.getProductsByPriceRange = (req, res) => {
+  const range = req.params.range;  // Lấy giá trị range từ frontend
+  const [minPrice, maxPrice] = range.split('-').map(Number);  // Tách giá trị min và max từ range
+
+  const query = `
+    SELECT 
+      p.*, 
+      c.name AS category_name, 
+      GROUP_CONCAT(pi.image_url) AS images
+    FROM products p
+    LEFT JOIN categories c ON p.category_id = c.id
+    LEFT JOIN product_images pi ON p.id = pi.product_id
+    WHERE p.price BETWEEN ? AND ?
+    GROUP BY p.id;
+  `;
+
+  connection.query(query, [minPrice, maxPrice], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.status(200).json(results);  // Trả về danh sách sản phẩm lọc theo giá
+  });
+};
+
 

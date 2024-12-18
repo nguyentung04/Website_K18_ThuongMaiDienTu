@@ -15,8 +15,9 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   useDisclosure,
+  Flex,
 } from "@chakra-ui/react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   fetchOrderDetailById,
   updateOrderDetailStatus,
@@ -51,7 +52,6 @@ const OrderDetailTable = () => {
     fetchOrderDetails();
   }, [id]);
 
-
   const formatCurrency = (value) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -61,22 +61,22 @@ const OrderDetailTable = () => {
   const handleApprove = async (itemId) => {
     try {
       console.log(`Updating status for order ID: ${itemId}`);
-      await updateOrderDetailStatus(itemId, "delivering");
-  
+      await updateOrderDetailStatus(itemId, "đã nhận");
+
       // Cập nhật trạng thái trong state
       setOrderDetails((prevDetails) =>
         prevDetails.map((item) =>
-          item.id === itemId ? { ...item, status: "delivering" } : item
+          item.id === itemId ? { ...item, status: "đã nhận" } : item
         )
       );
-  
+
       toast({
         title: "Đơn hàng đã được duyệt.",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
-  
+
       // Tải lại trang sau khi duyệt thành công
       window.location.reload(); // Tải lại trang
     } catch (error) {
@@ -90,8 +90,6 @@ const OrderDetailTable = () => {
       });
     }
   };
-  
-  
 
   const handleDeleteConfirmation = (itemId) => {
     setItemToDelete(itemId);
@@ -149,9 +147,17 @@ const OrderDetailTable = () => {
 
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md">
-      <Text fontSize="2xl" fontWeight="bold" mb={4}>
-        Chi tiết đơn hàng #{id}
-      </Text>
+      <Box
+        className="d-flex justify-content-between d-flex align-items-center"
+        mb={4}
+        fontWeight="bold"
+      >
+        <Text fontSize="2xl">Chi tiết đơn hàng #{id}</Text>
+
+        <Button as={Link} to="/admin/orders/paid" colorScheme="blue">
+          Quay lại
+        </Button>
+      </Box>
       {orderDetails.map((item) => (
         <Box
           key={item.id}
@@ -189,7 +195,7 @@ const OrderDetailTable = () => {
             </GridItem>
             <GridItem colSpan={1}>
               <Text>
-                <strong>Giá:</strong> {formatCurrency(item.total_price)}
+                <strong>Giá:</strong> {formatCurrency(item.product_price)}
               </Text>
             </GridItem>
             <GridItem colSpan={1}>
@@ -208,7 +214,7 @@ const OrderDetailTable = () => {
               </Text>
             </GridItem>
             <GridItem colSpan={3} textAlign="right">
-              {item.status === "pending" && (
+              {item.status === "chờ xử lý" && (
                 <Button
                   colorScheme="green"
                   size="sm"
@@ -220,6 +226,7 @@ const OrderDetailTable = () => {
               )}
               {item.status !== "Đã hủy" && (
                 <Button
+                  display={"none"}
                   colorScheme="red"
                   size="sm"
                   onClick={() => handleDeleteConfirmation(item.id)}

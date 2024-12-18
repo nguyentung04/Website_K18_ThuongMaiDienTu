@@ -116,7 +116,7 @@
 /* Phần giới thiệu */
 .introduction-section {
   margin-top: 30px;
-  
+
 }
 
 .introduction-section h2 {
@@ -222,4 +222,48 @@
   color: red;
   font-size: 18px;
   padding: 20px;
+}
+
+/* ================================================================================ */
+/* Ghi đè toast container */
+.Toastify__toast-container {
+  width: 300px;
+  /* Tùy chỉnh độ rộng */
+  font-family: 'Arial', sans-serif;
+  /* Font chữ */
+}
+
+/* Ghi đè cho success toast */
+.Toastify__toast--success {
+  background-color: #4caf50;
+  /* Màu nền xanh */
+  color: white;
+  /* Màu chữ trắng */
+  border: 2px solid #388e3c;
+  /* Viền tùy chỉnh */
+}
+
+/* Ghi đè tiêu đề thông báo */
+.Toastify__toast-body {
+  font-size: 16px;
+}
+
+/* Tùy chỉnh nút đóng toast */
+.Toastify__close-button {
+  color: white;
+  /* Màu nút đóng */
+}
+
+/* Ẩn icon mặc định */
+.Toastify__toast-icon {
+  display: none;
+}
+
+/* Thêm icon mới vào phần thân thông báo */
+.custom-toast::before {
+  content: "⚠️";
+  /* Icon Unicode hoặc sử dụng hình ảnh */
+  font-size: 20px;
+  margin-right: 10px;
+  display: inline-block;
 }

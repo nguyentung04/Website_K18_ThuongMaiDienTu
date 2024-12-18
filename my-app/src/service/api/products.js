@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// Cấu hình axios với URL gốc
 const api = axios.create({
   baseURL: "http://localhost:3000/api",
   headers: { "Content-Type": "application/json" }, // Đặt header chung cho JSON
@@ -74,7 +73,6 @@ export const fetchProductsByCategory = async (categoryId, gender = "") => {
     throw error;
   }
 };
-
 
 //Lấy sản phẩm theo giới tính (meta_key = 'nam' hoặc 'nữ')
 export const fetchProductsByGender = async (metaKey) => {

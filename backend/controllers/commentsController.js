@@ -98,22 +98,19 @@ exports.getReviewsByProductID = async (req, res) => {
   }
 };
 
-
-
-
-// Đăng đánh giá cho sản phẩm
 exports.postReviewByProductID = async (req, res) => {
+  let transactionStarted = false;
   try {
-    const { product_id } = req.params; 
-    const { user_id, content, rating } = req.body; 
+    const { product_id } = req.params;
+    const { user_id, content, rating, order_id } = req.body;
+
+    console.log("Request body:", req.body);
+
     if (!user_id) {
       return res.status(400).send("User ID không hợp lệ.");
     }
-    if (rating < 1 || rating > 5) {
-      return res.status(400).send("Rating phải nằm trong khoảng từ 1 đến 5.");
-    }
 
-    // Kiểm tra sản phẩm có tồn tại không
+    // Kiểm tra sản phẩm có tồn tại
     const [productRows] = await connection.promise().query(
       "SELECT id FROM products WHERE id = ?",
       [product_id]
@@ -123,26 +120,56 @@ exports.postReviewByProductID = async (req, res) => {
       return res.status(404).send("Sản phẩm không tồn tại.");
     }
 
+    // Nếu `order_id` bị null, tự động lấy `order_id` từ cơ sở dữ liệu
+    let validOrderId = order_id;
+    if (!validOrderId) {
+      const [orderRows] = await connection.promise().query(
+        `SELECT o.id 
+         FROM orders o 
+         JOIN order_items oi ON o.id = oi.order_id 
+         WHERE o.user_id = ? AND oi.product_id = ? LIMIT 1`,
+        [user_id, product_id]
+      );
+
+      if (orderRows.length === 0) {
+        return res.status(400).send("Không tìm thấy đơn hàng cho sản phẩm này.");
+      }
+
+      validOrderId = orderRows[0].id;
+    }
+
+    if (!validOrderId) {
+      return res.status(400).send("Order ID không hợp lệ.");
+    }
+
     // Thêm đánh giá
     await connection.promise().beginTransaction();
+    transactionStarted = true;
 
     const insertReviewQuery = `
-  INSERT INTO product_reviews (product_id, user_id, rating, content, created_at, updated_at, order_id)
-  VALUES (?, ?, ?, ?, NOW(), NOW(), ?);
-`;
+      INSERT INTO product_reviews (product_id, user_id, rating, content, created_at, updated_at, order_id)
+      VALUES (?, ?, ?, ?, NOW(), NOW(), ?);
+    `;
 
-    await connection.promise().query(insertReviewQuery, [product_id, user_id, rating, content, null]);
-
+    await connection.promise().query(insertReviewQuery, [product_id, user_id, rating, content, validOrderId]);
 
     await connection.promise().commit();
+
+    console.log("Đánh giá đã được thêm thành công cho sản phẩm:", product_id);
 
     res.status(201).send("Đánh giá đã được thêm thành công.");
   } catch (error) {
     console.error("Lỗi khi thêm đánh giá:", error.message);
-    await connection.promise().rollback();
+
+    if (transactionStarted) {
+      await connection.promise().rollback();
+    }
+
     res.status(500).send("Có lỗi xảy ra khi thêm đánh giá.");
   }
 };
+
+
 
 exports.postReplyByReviewDetailID = async (req, res) => {
   try {
@@ -265,4 +292,3 @@ exports.getRepliesByReviewId = async (req, res) => {
     });
   }
 };
-

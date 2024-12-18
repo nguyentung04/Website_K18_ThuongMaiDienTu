@@ -42,7 +42,6 @@ const SignIn = () => {
         localStorage.setItem('token', data.token);
         localStorage.setItem('username', username); // Lưu tên đăng nhập vào localStorage
         localStorage.setItem('role', data.role); // Lưu vai trò vào localStorage
-       
         toast({
           title: 'Đăng nhập thành công!',
           status: 'success',

@@ -182,23 +182,23 @@ const addToCart = async (product) => {
       },
     });
 
-    if (response.data.success) {
+    if (response.data.message) {
       toast.success("Thêm vào giỏ hàng thành công!", {
-        position: "top-right",
+       position: "bottom-center",
         autoClose: 5000,
       });
     } else {
-      toast.error(response.data.message || "Đã xảy ra lỗi, vui lòng thử lại.", {
-        position: "top-right",
+      toast.error(response.data.error || "Đã xảy ra lỗi, vui lòng thử lại.", {
+       position: "bottom-center",
         autoClose: 5000,
       });
     }
   } catch (error) {
     console.error("Error adding to cart:", error);
     toast.error(
-      error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại.",
+      error.response?.data?.error || "Có lỗi xảy ra, vui lòng thử lại.",
       {
-        position: "top-right",
+       position: "bottom-center",
         autoClose: 5000,
       }
     );

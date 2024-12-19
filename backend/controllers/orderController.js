@@ -145,13 +145,43 @@ GROUP BY o.id, u.id, o.payment_method,  o.shipping_address,
     }
   );
 };
+exports.orderByStatusOrderCancelled  = (req, res) => {
+  connection.query(
+    `SELECT 
+  o.id AS orderid,
+  o.shipping_address,
+  o.Provinces,
+  o.Districts,
+  o.status AS orderStatus,
+  o.payment_method,
+  o.total_amount,
+  u.name AS userName,
+  u.email,
+  SUM(o_i.total_quantity) AS total_quantity
+FROM orders o
+JOIN order_items o_i ON o_i.order_id = o.id
+JOIN users u ON o.user_id = u.id
+WHERE  o.status = 'đã hủy'
+GROUP BY o.id, u.id, o.payment_method,  o.shipping_address,
+  o.Provinces,
+  o.Districts, o.total_amount, u.name, u.email
+  ORDER BY o.created_at DESC; -- Sắp xếp từ mới đến cũ`,
 
-
+    (err, results) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ error: "Database query error: " + err.message });
+      }
+      if (results.length === 0) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      res.status(200).json(results);
+    }
+  );
+};
 // Lấy toàn bộ đơn hàng theo  trạng thái chưa thanh toán
 exports.orderByStatusUnpaid = (req, res) => {
-
-
-
   connection.query(
     `SELECT 
   o.id AS orderid,
@@ -172,7 +202,7 @@ GROUP BY o.id, u.id, o.payment_method,  o.shipping_address,
   o.Provinces,
   o.Districts, o.total_amount, u.name, u.email
   ORDER BY o.created_at DESC; -- Sắp xếp từ mới đến cũ`,
-  
+
     (err, results) => {
       if (err) {
         return res

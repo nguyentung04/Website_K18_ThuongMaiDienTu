@@ -13,7 +13,15 @@ export const fetchOrdersDetail = async () => {
     throw error;
   }
 };
-
+export const fetchAdminOrderDetailById = async (id) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/order_items/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    throw error;
+  }
+};
 export const fetchOrderDetailById = async (userId, productId) => {
   try {
     const response = await axios.get(`${BASE_URL}/order_items/${userId}/${productId}`);

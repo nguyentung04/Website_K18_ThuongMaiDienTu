@@ -11,45 +11,42 @@ exports.getAllorder_items = (req, res) => {
 };
 
 
-exports.orderByName = (req, res) => {
-  const { name } = req.params; // Lấy giá trị từ tham số URL
+exports.getAdminOrderDetailById = (req, res) => {
+  const orderId = parseInt(req.params.id); // Lấy order_id từ tham số URL
 
+  // Thực hiện truy vấn SQL
   connection.query(
-    `SELECT 
-    o.*,        
-    od.*,       
-    p.*         
-FROM orders o
-JOIN order_detail od ON o.id = od.order_id
-JOIN products p ON od.product_id = p.id
-WHERE o.name = ?
-;
-`, // Sử dụng dấu hỏi để bảo mật SQL Injection
-    [name], // Thay thế dấu hỏi bằng giá trị của name
+    `SELECT o.*, od.* , u.name AS name ,u.phone AS userPhone, p.name AS pr_name 
+    FROM orders o 
+    JOIN order_items od ON o.id = od.order_id 
+    JOIN users u ON u.id = o.user_id 
+    JOIN products p ON p.id = od.product_id 
+    WHERE o.id = ?`, // Sử dụng dấu hỏi để bảo mật SQL Injection
+    [orderId], // Thay thế dấu hỏi bằng giá trị của orderId
     (err, results) => {
       if (err) {
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: err.message });  // Trả về lỗi với trạng thái 500 nếu có vấn đề
       }
-      res.status(200).json(results);
+      res.status(200).json(results);  // Trả về kết quả truy vấn dưới dạng JSON
     }
   );
 };
 
 
-
 // API lấy thông tin chi tiết đơn hàng
-exports.getOrderDetailById = (req, res) => {
-  const { userId, productId } = req.params;  // Lấy userId và productId từ params
+exports.getOrderClientDetailById = (req, res) => {
+  const { userId, order_id } = req.params;  // Lấy userId và productId từ params
 
   // Đảm bảo bạn thực hiện truy vấn đúng ở đây
   connection.query(
-    `SELECT o.*, od.*, p.*, u.name AS username
+    `SELECT o.*, od.*, p.*, u.name AS username,pi.image_url AS images
     FROM orders o
     JOIN order_items od ON o.id = od.order_id
     JOIN products p ON od.product_id = p.id
+	JOIN product_images pi ON pi.product_id = p.id
     JOIN users u ON o.user_id = u.id
-    WHERE o.user_id = ? AND od.product_id = ?`,
-    [userId, productId],
+    WHERE o.user_id = ? AND od.order_id = ?`,
+    [userId, order_id],
     (err, results) => {
       if (err) {
         return res.status(500).json({ error: err.message });

@@ -261,7 +261,7 @@
 
 /* Thêm icon mới vào phần thân thông báo */
 .custom-toast::before {
-  content: "⚠️";
+  
   /* Icon Unicode hoặc sử dụng hình ảnh */
   font-size: 20px;
   margin-right: 10px;

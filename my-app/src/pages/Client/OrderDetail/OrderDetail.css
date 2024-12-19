@@ -29,7 +29,11 @@
     flex-direction: column;
     gap: 1rem;
 }
-
+.product-info{
+    background: #ffffff;
+    border-radius: 13px;
+    padding: 10px;
+}
 .order-detail-container .product-card {
   
     border: 1px solid #eaeaea; /* Đường viền nhạt màu */

@@ -19,6 +19,7 @@ import {
 } from "@chakra-ui/react";
 import "./OrderDetail.css";
 import { AddressIcon, CardIcon } from "../../../components/icon/icon";
+import { jwtDecode } from "jwt-decode";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -38,9 +39,21 @@ const OrderDetail = () => {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/api/order_items/${id}`, {
-          timeout: 10000,
-        });
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setError("Người dùng chưa đăng nhập hoặc token không tồn tại.");
+          setLoading(false);
+          return;
+        }
+        const decodedToken = jwtDecode(token);
+        const userid = decodedToken.id;
+
+        const response = await axios.get(
+          `${BASE_URL}/api/order_items/${userid}/${id}`,
+          {
+            timeout: 10000,
+          }
+        );
         console.log("API Response:", response);
         setOrder(response.data);
       } catch (err) {
@@ -67,34 +80,40 @@ const OrderDetail = () => {
   };
 
   // Xử lý khi người dùng xác nhận hủy sản phẩm
-  const handleConfirmDelete = async () => {
+  // Xử lý khi người dùng xác nhận hủy sản phẩm
+  const handleCancelledOrder = async () => {
     const username = localStorage.getItem("username");
 
     if (username && productToDelete) {
       try {
-        const response = await axios.delete(
-          `${BASE_URL}/api/order_items/${productToDelete}`,
+        const response = await axios.put(
+          `${BASE_URL}/api/order_items/${productToDelete}`, // URL API kèm theo ID của sản phẩm
+          { status: "đã hủy" }, // Dữ liệu cần cập nhật: trạng thái "đã hủy"
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${localStorage.getItem("token")}`, // Header chứa token để xác thực
             },
-            data: { username },
           }
         );
 
         if (response.status === 200) {
           setOrder((prevOrder) =>
-            prevOrder.filter((item) => item.id !== productToDelete)
+            prevOrder.map(
+              (item) =>
+                item.id === productToDelete
+                  ? { ...item, status: "đã hủy" }
+                  : item // Cập nhật trạng thái thành "đã hủy"
+            )
           );
-          setIsSuccessModalOpen(true); // Open success modal
+          setIsSuccessModalOpen(true); // Mở modal thông báo thành công
         } else {
-          setError("Có lỗi xảy ra khi hủy sản phẩm.");
+          setError("Có lỗi xảy ra khi cập nhật trạng thái sản phẩm.");
         }
       } catch (err) {
-        console.error("Lỗi khi hủy sản phẩm:", err);
-        setError("Có lỗi xảy ra khi hủy sản phẩm.");
+        console.error("Lỗi khi cập nhật trạng thái sản phẩm:", err);
+        setError("Có lỗi xảy ra khi cập nhật trạng thái sản phẩm.");
       } finally {
-        onClose();
+        onClose(); // Đóng hộp thoại xác nhận
       }
     } else {
       setError("Thiếu thông tin tên người dùng.");
@@ -185,59 +204,57 @@ const OrderDetail = () => {
       <div className="product-info">
         <h3>THÔNG TIN SẢN PHẨM</h3>
         {order_items.map((item) => (
-          <div key={item.id} className="product-card">
-            <div className=" d-flex justify-content-around align-items-center">
-              <img
-                src={`${BASE_URL}/uploads/products/${item.images}`}
-                alt={item.pr_name}
-              />
-              <h4>{item.pr_name}</h4>
-              <p>
-                <strong>Giá:</strong>{" "}
-                {new Intl.NumberFormat("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                }).format(item.product_price)}
-              </p>
-              <p>
-                <strong>Số lượng:</strong> {item.total_quantity}
-              </p>
-              <p>
-                <strong>Tổng tiền:</strong>{" "}
-                {new Intl.NumberFormat("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                }).format(item.product_price * item.total_quantity || 0)}
-              </p>
-              <div className="d-flex justify-content-end">
-                {item.status !== "đã hủy" && (
-                  <>
-                    {item.status === "đang chờ" && (
-                      <button
-                        type="button"
-                        className="btn btn-danger action-button cancel-button p-2"
-                        onClick={() => handleCancelProduct(item.id)}
-                      >
-                        Hủy sản phẩm
-                      </button>
-                    )}
-                    {item.status === "đã hoàn thành" && (
-                      <button
-                        type="button"
-                        className="btn btn-success action-button received-button p-2"
-                        onClick={() => handleMarkAsReceived(item.order_id)}
-                      >
-                        Đã nhận hàng
-                      </button>
-                    )}
-                  </>
-                )}
-                {item.status === "đã hoàn thành" && (
-                  <p className="text-success">Đơn hàng đã hoàn thành</p>
-                )}
+          <>
+            <div key={item.id} className="product-card">
+              <div className=" d-flex justify-content-around align-items-center">
+                <img
+                  src={`${BASE_URL}/uploads/products/${item.images}`}
+                  alt={item.name}
+                />
+                <h4>{item.name}</h4>
+                <p>
+                  <strong>Giá:</strong>{" "}
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(item.product_price)}
+                </p>
+                <p>
+                  <strong>Số lượng:</strong> {item.total_quantity}
+                </p>
+                <p>
+                  <strong>Tổng tiền:</strong>{" "}
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(item.product_price * item.total_quantity || 0)}
+                </p>
               </div>
+            </div>{" "}
+            <div className="d-flex justify-content-end">
+              {item.status === "chờ xử lý" && (
+                <button
+                  type="button"
+                  className="btn btn-danger action-button cancel-button p-2"
+                  onClick={() => handleCancelProduct(item.order_id)}
+                >
+                  Hủy sản phẩm
+                </button>
+              )}
+              {item.status === "đã nhận" && (
+                <button
+                  type="button"
+                  className="btn btn-success action-button received-button p-2"
+                  onClick={() => handleMarkAsReceived(item.order_id)}
+                >
+                  Đã nhận hàng
+                </button>
+              )}
+              {item.status === "đã hủy" && (
+                <p className="text-danger">Sản phẩm đã bị hủy</p>
+              )}
             </div>
-          </div>
+          </>
         ))}
       </div>
       <div className="order-summary">
@@ -277,7 +294,7 @@ const OrderDetail = () => {
               <Button ref={cancelRef} onClick={onClose} colorScheme="blue">
                 Không
               </Button>
-              <Button colorScheme="red" onClick={handleConfirmDelete} ml={3}>
+              <Button colorScheme="red" onClick={handleCancelledOrder} ml={3}>
                 Hủy sản phẩm
               </Button>
             </AlertDialogFooter>

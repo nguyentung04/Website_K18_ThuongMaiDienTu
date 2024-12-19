@@ -83,7 +83,7 @@ const OrderHistory = () => {
 
                 <div className="order-info mb-3">
                   <span>{order.name}</span>
-                  <span>Giá: {order.total_price}</span>
+                  <span>Giá:  {formatCurrency(order.product_price)}</span>
                   <span>số lượng: {order.total_quantity}</span>
                   <span>
                     Tổng tiền:{" "}

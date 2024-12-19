@@ -58,11 +58,14 @@ const Review = ({
       </div>
       <div className="review-body">
         <p>{review.content}</p>
-        <button onClick={() => toggleReplies(review.review_id)}>
-          {showReplies[review.review_id] ? "Ẩn trả lời" : `Hiện trả lời || `}
-        </button>
-        <button onClick={() => toggleReplyForm(review.review_id)}>Trả lời</button>
+        <div className="review-buttons">
+          <button onClick={() => toggleReplies(review.review_id)}>
+            {showReplies[review.review_id] ? "Ẩn trả lời" : "Hiện trả lời"}
+          </button>
+          <button onClick={() => toggleReplyForm(review.review_id)}>Trả lời</button>
+        </div>
       </div>
+
       {showReplyForm[review.review_id] && (
         <form onSubmit={(e) => handleReplySubmit(e, review.review_id)} className="reply-form">
           <textarea
@@ -151,7 +154,7 @@ const Reviews = ({ productId }) => {
     }
 
     if (!userId || !productId) {
-      setMessage("Vui lòng cung cấp user ID và product ID!");
+      setMessage("Vui lòng thanh toán và đánh giá sau!!!");
       return;
     }
 
@@ -160,7 +163,7 @@ const Reviews = ({ productId }) => {
       const orderId = orderDetail?.order_id;
 
       if (!orderId) {
-        setMessage("Không thể xác định Order ID!");
+        setMessage("Vui lòng thanh toán để đánh giá sản phẩm!!");
         return;
       }
 
@@ -264,7 +267,7 @@ const Reviews = ({ productId }) => {
           onChange={(e) => setComment(e.target.value)}
           required
         />
-        <button type="submit" className="submit_button">
+        <button type="submit" className="submit_button mt-3">
           Gửi đánh giá
         </button>
       </form>

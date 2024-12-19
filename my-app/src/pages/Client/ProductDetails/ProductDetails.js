@@ -53,7 +53,7 @@ const ProductDetails = () => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(
-          `${BASE_URL}/api/product_detail/${id}`
+          `${BASE_URL}/api/products/${id}`
         );
         setProduct(response.data);
       } catch (error) {
@@ -234,14 +234,14 @@ const ProductDetails = () => {
               <div className="image-slider-container"></div>
             ) : (
               <img
-                src={`${BASE_URL}/uploads/products/${product.image_url}`}
+                src={`${BASE_URL}/uploads/products/${product.images}`}
                 alt={product.name}
                 className="product-image"
               />
             )}
           </div>
           <div className="product-info-section">
-            <h1 className="product-name">{product.name}</h1>
+            <h1 className="productDetail-name">{product.name}</h1>
             <p className="product-rating">{product.short_description}</p>
 
             <div className="flex_item">

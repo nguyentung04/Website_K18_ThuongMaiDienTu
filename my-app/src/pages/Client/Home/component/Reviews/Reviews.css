@@ -13,7 +13,7 @@
   display: flex;
   max-width: 1200px;
   margin: auto;
-  margin-bottom: 60px !important;
+  margin-bottom: 10px !important;
   margin-top: 30px !important;
 }
 
@@ -291,7 +291,7 @@
   background-color: #b29c6e1f;
   padding: 20px;
   margin-bottom: 20px;
-  margin-top: 80px;
+  margin-top: 10px;
 }
 
 .introduction-content.collapsed {
@@ -306,12 +306,12 @@
 
 /* ===================BẢNG THÔNG SỐ====================== */
 .product-details .container .bg-gray {
-  margin-top: 80px;
+  margin-top: 10px;
   background: #b29c6e1f;
 }
 
 .m-product-specification {
-  padding: 80px 106px;
+  padding: 10px 106px;
 }
 
 .m-product-specification__list {
@@ -401,7 +401,7 @@
 
 .reviews-section {
 
-  margin-top: 80px;
+  margin-top: 10px;
   margin-bottom: 80px;
 }
 
@@ -436,7 +436,7 @@
 
 .comment-box,
 .introduction-section {
-  padding: 80px 106px;
+  padding: 10px 106px;
   box-sizing: border-box;
 }
 

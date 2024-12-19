@@ -1,65 +1,121 @@
-/* Đặt background màu sáng và padding cho toàn bộ container */
+/* PostDetail.css */
 .post-detail {
-  background-color: #f9f9f9;
-  max-width: 1500px;
-  margin: 50px auto;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  
 }
 
-/* Định dạng cho phần tiêu đề bài viết */
 .post-header {
+  text-align: center;
   margin-bottom: 20px;
 }
 
 .post-header h1 {
   font-size: 2rem;
-  color: #333;
+  font-weight: bold;
   margin-bottom: 10px;
-  font-weight: 600;
+  color: #2c3e50;
+}
+
+.post-header small {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.post-image {
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
+  flex-shrink: 0; 
+  margin-bottom: 10px;
+  margin-top: 20px;
+}
+
+.breadcrumb-menu {
+  background-color: rgba(254, 254, 254, 0.6);
+  color: rgb(221, 19, 19);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
   text-align: center;
 }
 
-/* Định dạng cho thông tin ngày đăng và tên tác giả */
-.post-header small {
-  font-size: 1rem;
-  color: #888;
-  text-align: center; /* Căn giữa ngày tháng */
-  display: block; /* Chắc chắn rằng ngày tháng là một phần tử block để căn giữa */
-  margin-top: 10px; /* Tạo khoảng cách giữa tiêu đề và ngày tháng */
+.breadcrumb-menu a {
+  color: rgb;
+  text-decoration: none;
+  margin-right: 5px;
 }
 
-
-/* Định dạng cho phần ảnh bài viết */
-.post-image {
-  text-align: center; /* Căn giữa hình ảnh */
-  margin-bottom: 20px;
+.breadcrumb-menu a:hover {
+  text-decoration: underline;
 }
+
+.breadcrumb-menu span {
+  color: #000000;
+}
+
 
 .post-image img {
-  width: 400px;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  display: inline-block; /* Giúp căn giữa nếu có nhiều ảnh */
+  max-width: 400px; /* Tăng kích thước tối đa của hình */
+  width: 100%; /* Tự động điều chỉnh kích thước trong giới hạn */
+  height: auto; /* Giữ tỷ lệ khung hình */
+  border-radius: 8px; /* Bo góc */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Hiệu ứng đổ bóng */
 }
 
-/* Định dạng cho phần nội dung bài viết */
+
+
 .post-content {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #333;
+  line-height: 1.8;
+  font-size: 1.1rem;
+  color: #4d4d4d;
 }
 
-/* Định dạng cho trạng thái loading hoặc lỗi */
-.post-detail p {
-  font-size: 1rem;
-  color: #333;
-  text-align: center;
+.post-content p {
+  margin: 10px 0;
 }
 
-/* Thêm hiệu ứng hover cho tiêu đề bài viết */
-.post-header h1:hover {
-  color: #15a34b;
+@media screen and (max-width: 768px) {
+  .post-detail {
+    padding: 15px;
+  }
+
+  .post-header h1 {
+    font-size: 1.8rem;
+  }
+ 
+  .post-content {
+    font-size: 1rem;
+  }
+}
+.post-body {
+  display: flex;
+  align-items: flex-start; /* Căn hàng trên cùng */
+  gap: 20px; /* Khoảng cách giữa hình ảnh và nội dung */
+  margin: 20px 0;
+}
+.toggle-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
   cursor: pointer;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+.toggle-button:hover {
+  background-color: #2980b9;
+}
+
+.toggle-button:focus {
+  outline: none;
+  box-shadow: 0 0 4px rgba(52, 152, 219, 0.8);
 }

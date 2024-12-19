@@ -14,6 +14,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import PostsRoutes from "../pages/Admin/posts/router";
 import Post_categoriesRoutes from "../pages/Admin/post_categories/router";
 import AdminLayout from "../layout/Adminlayout";
+import RevenueDetail from "../pages/Admin/RevenueDetail/RevenueDetail.js"
 
 const AdminRoutes = () => {
   // Lấy thông tin từ localStorage
@@ -38,6 +39,7 @@ const AdminRoutes = () => {
         <Route path="post_categories/*" element={<Post_categoriesRoutes />} />
         <Route path="orders/*" element={<OrdersRoutes />} />
         <Route path="comments/*" element={<CommentsRoutes />} />
+        <Route path="/revenue-detail" element={<RevenueDetail />} />
         <Route path="/" element={<Navigate to="dashboard" />} />{" "}
         {/* Điều hướng về dashboard */}
       </Route>

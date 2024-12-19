@@ -898,3 +898,26 @@ form .button_order {
 .nested-replies {
   margin-left: 20px;
 }
+
+.review-buttons {
+  display: flex;
+  gap: 10px; /* Khoảng cách giữa các nút */
+}
+
+.review-buttons button {
+  padding: 8px 12px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.review-buttons button:hover {
+  background-color: #e0e0e0;
+}
+
+.review-buttons button:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}

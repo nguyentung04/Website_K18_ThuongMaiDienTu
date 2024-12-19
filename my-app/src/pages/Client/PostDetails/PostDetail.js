@@ -6,11 +6,14 @@ import "./PostDetail.css";
 
 const BASE_URL = "http://localhost:3000";
 
+const MAX_CONTENT_LENGTH = 800; // Giới hạn độ dài nội dung
+
 const PostDetail = () => {
   const { id } = useParams(); // Lấy ID từ URL
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showFullContent, setShowFullContent] = useState(false);
 
   const toast = useToast();
 
@@ -39,6 +42,10 @@ const PostDetail = () => {
     getPostDetail();
   }, [id, toast]);
 
+  const toggleContent = () => {
+    setShowFullContent(!showFullContent);
+  };
+
   if (loading) {
     return <p>Đang tải dữ liệu...</p>;
   }
@@ -50,6 +57,10 @@ const PostDetail = () => {
   if (!post) {
     return <p>Không tìm thấy bài viết</p>;
   }
+
+  const contentToDisplay = showFullContent
+    ? post.content
+    : post.content.slice(0, MAX_CONTENT_LENGTH);
 
   return (
     <div className="post-detail">

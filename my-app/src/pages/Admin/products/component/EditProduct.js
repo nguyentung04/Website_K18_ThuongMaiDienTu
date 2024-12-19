@@ -8,6 +8,7 @@ import {
   Button,
   Select,
   useToast,
+  Heading,
   FormErrorMessage,
 } from "@chakra-ui/react";
 import { fetchProductById, updateProduct } from "../../../../service/api/products";
@@ -181,6 +182,7 @@ const EditProduct = () => {
 
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
+      <Heading mb={5}>Sửa sản phẩm</Heading>
       <form onSubmit={handleSubmit}>
         <FormControl id="name" mb={4} isInvalid={errors.name}>
           <FormLabel>Tên sản phẩm</FormLabel>

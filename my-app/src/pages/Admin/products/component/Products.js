@@ -158,19 +158,21 @@ const ProductsTable = () => {
       <Table variant="simple">
         <Thead>
           <Tr>
-            <Th>STT</Th>
-            <Th>Ảnh</Th>
-            <Th>Tên sản phẩm</Th>
-            <Th>Loại sản phẩm</Th>
-            <Th>Giá (VNĐ)</Th>
-            <Th>Hoạt động</Th>
+            <Th textAlign="center">STT</Th>
+            <Th textAlign="center">Ảnh</Th>
+            <Th textAlign="center">Tên sản phẩm</Th>
+            <Th textAlign="center">Loại sản phẩm</Th>
+            <Th textAlign="center">Giá (VNĐ)</Th>
+            <Th textAlign="center">Hoạt động</Th>
           </Tr>
         </Thead>
         <Tbody>
           {paginatedProducts.map((product, index) => (
             <Tr key={product.id} _hover={{ bg: hoverBgColor }}>
-              <Td fontWeight="bold">{(currentPage - 1) * itemsPerPage + index + 1}</Td>
-              <Td>
+              <Td fontWeight="bold" textAlign="center">
+                {(currentPage - 1) * itemsPerPage + index + 1}
+              </Td>
+              <Td textAlign="center">
                 <Img
                   src={`http://localhost:3000/uploads/products/${product.images}`}
                   width="100px"
@@ -178,29 +180,51 @@ const ProductsTable = () => {
                   objectFit="cover"
                   borderRadius="22px"
                   alt={product.name}
+                  display="block"
+                  margin="auto"
                 />
               </Td>
-              <Td>{product.name}</Td>
-              <Td>{product.category}</Td>
-              <Td>{formatCurrency(product.price)}</Td>
-              <Td>
-                <Link to={`admin/products/edit/${product.id}`}>
-                  <Button colorScheme="blue" size="sm" mr={2}>
-                    Sửa
+              <Td textAlign="center">{product.name}</Td>
+              <Td textAlign="center">{product.category}</Td>
+              <Td textAlign="center">{formatCurrency(product.price)}</Td>
+              <Td textAlign="center">
+                <Flex justifyContent="center" gap={2}>
+                  <Link to={`admin/products/edit/${product.id}`}>
+                    <Button
+                      bg="blue.500"
+                      color="white"
+                      size="sm"
+                      _hover={{ bg: "blue.400" }}
+                    >
+                      Sửa
+                    </Button>
+                  </Link>
+                  <Button
+                    bg="red.500"
+                    color="white"
+                    size="sm"
+                    _hover={{ bg: "red.400" }}
+                    onClick={() => handleDeleteClick(product)}
+                  >
+                    Xóa
                   </Button>
-                </Link>
-                <Button
-                  colorScheme="red"
-                  size="sm"
-                  onClick={() => handleDeleteClick(product)}
-                >
-                  Xóa
-                </Button>
+                  <Link to={`admin/products/detail/${product.id}`}>
+                    <Button
+                      bg="teal.500"
+                      color="white"
+                      size="sm"
+                      _hover={{ bg: "teal.400" }}
+                    >
+                      Chi tiết
+                    </Button>
+                  </Link>
+                </Flex>
               </Td>
             </Tr>
           ))}
         </Tbody>
       </Table>
+
 
       <Flex justifyContent="center" mt={4}>
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (

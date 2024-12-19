@@ -64,24 +64,21 @@ const PostDetail = () => {
 
   return (
     <div className="post-detail">
+      <div className="breadcrumb-menu">
+          <a href="/">Trang chủ</a> / <a href="/post">Bài viết</a> / <span>{post.title}</span>
+        </div>
+      <div className="post-image">
+        <img src={`${BASE_URL}/uploads/posts/${post.avt}`} alt={post.title} />
+      </div>
       <div className="post-header">
         <h1>{post.title}</h1>
         <small>
           {new Date(post.created_at).toLocaleDateString()} {post.auth_name}
         </small>
       </div>
-      <div className="post-body">
-        <div className="post-image">
-          <img src={`${BASE_URL}/uploads/posts/${post.avt}`} alt={post.title} />
-        </div>
-        <div className="post-content">
-          <p>{contentToDisplay}</p>
-          {post.content.length > MAX_CONTENT_LENGTH && (
-            <button className="toggle-button" onClick={toggleContent}>
-              {showFullContent ? "Ẩn bớt" : "Xem thêm"}
-            </button>
-          )}
-        </div>
+      <div className="post-content">
+        <h2>Nội dung bài viết</h2>
+        <p>{post.content}</p>
       </div>
     </div>
   );

@@ -5,49 +5,32 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { HeartIcon } from "../../../../../components/icon/icon";
 import { Autoplay } from "swiper/modules";
 
- import "./product_similar.css";
+import "./product_similar.css";
+import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 const BASE_URL = "http://localhost:3000";
 
 const ProductSimilar = () => {
   const [featuredProducts, setBestSellingProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [likedProducts, setLikedProducts] = useState([]);
-  const [likeCounts, setLikeCounts] = useState({});
-  const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    province: "",
-    city: "",
-    address: "",
-    note: "",
-    paymentMethod: "COD",
-  });
   const [errors, setErrors] = useState({});
   const [quantity, setQuantity] = useState(1);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [userData, setUserData] = useState(null);
+    const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const featuredResponse = await axios.get(`${BASE_URL}/api/products`);
         setBestSellingProducts(featuredResponse.data);
-
-        // Restore liked products from local storage
-        const savedLikedProducts = JSON.parse(localStorage.getItem("likedProducts")) || [];
-        setLikedProducts(savedLikedProducts);
-
-        // Initialize like counts for products
-        const initialLikeCounts = {};
-        featuredResponse.data.forEach((product) => {
-          initialLikeCounts[product.id] = product.like_count || 0;
-        });
-        setLikeCounts(initialLikeCounts);
       } catch (error) {
         console.error("Error fetching data from API", error);
-        setErrors({ fetch: "Unable to load products. Please try again later." });
+        setErrors({
+          fetch: "Unable to load products. Please try again later.",
+        });
       } finally {
         setLoading(false);
       }
@@ -56,37 +39,142 @@ const ProductSimilar = () => {
   }, []);
 
 
+    useEffect(() => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        const decoded = jwtDecode(token);
+        setUserData(decoded);
+      }
+    }, []);
+  
+    useEffect(() => {
+      const fetchUserIdFromToken = async () => {
+        try {
+          const token = localStorage.getItem("token"); // Lấy token từ localStorage
+          if (!token) {
+            throw new Error("Token không tồn tại, vui lòng đăng nhập lại.");
+          }
+  
+          const decodedToken = jwtDecode(token); // Giải mã token
+          const userId = decodedToken.id; // Sử dụng đúng key từ payload của token
+          if (!userId) {
+            throw new Error("Không tìm thấy userId trong token.");
+          }
+  
+          localStorage.setItem("userId", userId); // Lưu userId vào localStorage nếu cần
+          return userId;
+        } catch (error) {
+          console.error("Lỗi khi lấy userId từ token:", error);
+          setErrors("Vui lòng đăng nhập lại."); // Gán lỗi nếu cần thiết
+          setLoading(false);
+          return null;
+        }
+      };
+  
+      fetchUserIdFromToken();
+    }, []);
+  // ========================================= hàm thêm sản phẩm vào giỏ hàng -=---=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  const handleAddToCartAndOpenModal = (e, product) => {
+  const handleAddToCart = async (e, product, shouldNavigate = false) => {
     e.stopPropagation();
-    addToCart(product);
+
+    if (isAddingToCart) return; // Không thực hiện nếu đang xử lý thêm vào giỏ hàng
+
+    await addToCart(product, shouldNavigate);
+    // handleOpenModal(product);
   };
 
-  const addToCart = (product) => {
-    if (product) {
-      const details = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        description: product.description,
-        image: product.image,
-        quantity: quantity,
-      };
+  const addToCart = async (product, shouldNavigate = false) => {
+    if (!userData || !userData.id) {
+      toast.error("Vui lòng đăng nhập.");
+      return;
+    }
+    if (!product) return;
 
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const existingProductIndex = cart.findIndex(
-        (item) => item.id === product.id
-      );
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Người dùng chưa được xác thực");
 
-      if (existingProductIndex !== -1) {
-        cart[existingProductIndex].quantity += quantity;
+    const decoded = jwtDecode(token);
+    const userId = decoded.id; // Sử dụng đúng key theo cấu trúc của token
+
+    if (!userId) {
+      throw new Error("Không tìm thấy userId trong token.");
+    }
+
+    if (!token) {
+      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      return;
+    }
+
+    if (!userId) {
+      toast.error("Thông tin người dùng không hợp lệ.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      return;
+    }
+
+    if (product.stock < quantity) {
+      toast.error("Số lượng sản phẩm không đủ. Vui lòng giảm số lượng.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      return;
+    }
+
+    const cartData = {
+      user_id: userId,
+      cart_items: [
+        {
+          product_id: product.id,
+          quantity,
+          price: product.price,
+          total: quantity * product.price,
+        },
+      ],
+    };
+
+    setIsAddingToCart(true);
+    // Chỉ chuyển trang nếu `shouldNavigate` là true
+
+    try {
+      const response = await axios.post(`${BASE_URL}/api/cart`, cartData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Thêm token vào header nếu cần
+        },
+      });
+
+      if (response.data.message) {
+        toast.success("Thêm vào giỏ hàng thành công!", {
+          position: "bottom-center",
+          autoClose: 5000,
+        });  if (shouldNavigate) {
+          navigate("/cart");
+        }
       } else {
-        cart.push(details);
+        toast.error(response.data.error || "Đã xảy ra lỗi, vui lòng thử lại.", {
+          position: "bottom-center",
+          autoClose: 5000,
+        });
       }
-
-      localStorage.setItem("cart", JSON.stringify(cart));
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error(
+        error.response?.data?.error || "Có lỗi xảy ra, vui lòng thử lại.",
+        {
+          position: "bottom-center",
+          autoClose: 5000,
+        }
+      );
+    } finally {
+      setIsAddingToCart(false);
     }
   };
+  // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -94,7 +182,6 @@ const ProductSimilar = () => {
       currency: "VND",
     }).format(price);
   };
-
 
   return (
     <div className="best_selling_products">
@@ -118,7 +205,8 @@ const ProductSimilar = () => {
                   <div className="product-box">
                     <button
                       className="add-to-cart-icon"
-                      onClick={(e) => handleAddToCartAndOpenModal(e, product)}
+                      onClick={(e) => handleAddToCart(e, product, false)}
+                      disabled={isAddingToCart}
                     >
                       <FaShoppingCart
                         size="25"
@@ -138,7 +226,9 @@ const ProductSimilar = () => {
                         <p className="product-title">{product.name}</p>
                         <div className="product-price">
                           {product.discountPrice ? (
-                            <p className="line-through">{formatPrice(product.price)}</p>
+                            <p className="line-through">
+                              {formatPrice(product.price)}
+                            </p>
                           ) : (
                             <p>{formatPrice(product.price)}</p>
                           )}
@@ -157,9 +247,7 @@ const ProductSimilar = () => {
           )}
         </Swiper>
       </div>
-     
     </div>
-
   );
 };
 

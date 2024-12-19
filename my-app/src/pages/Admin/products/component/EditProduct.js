@@ -8,56 +8,60 @@ import {
   Button,
   Select,
   useToast,
+  Heading,
   FormErrorMessage,
 } from "@chakra-ui/react";
-import { fetchProductById, updateProduct } from "../../../../service/api/products";
+import {
+  fetchProductById,
+  updateProduct,
+} from "../../../../service/api/products";
 import { fetchCategories } from "../../../../service/api/Category";
 import axios from "axios";
 
 const EditProduct = () => {
-  const [product, setProduct] = useState(null);
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [price, setPrice] = useState("");
-  const [stock, setStock] = useState("");
-  const [image, setImage] = useState("");
-  const [imageFile, setImageFile] = useState(null);
-  const [categories, setCategories] = useState([]);
-  const [description, setDescription] = useState("");
-  const [shortDescription, setShortDescription] = useState("");
-  const [gender, setGender] = useState("");
-  const [diameter, setDiameter] = useState(""); 
-  const [wire_material, setWireMaterial] = useState("");
-  const [errors, setErrors] = useState({});
   const toast = useToast();
   const navigate = useNavigate();
   const { id } = useParams();
+
+  const [product, setProduct] = useState({});
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("");
+  const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
+  const [images, setImage] = useState("");
+  const [stock, setStock] = useState("");
+  const [gender, setGender] = useState("male");
+  const [diameter, setDiameter] = useState("");
+  const [wire_material, setWireMaterial] = useState("");
+  const [categories, setCategories] = useState([]);
+
+  const [imageFile, setImageFile] = useState(null);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const getProduct = async () => {
       try {
         const data = await fetchProductById(id);
+        console.log("Fetched product data:", data.category_id); // Log the fetched data
         if (data) {
           setProduct(data);
           setName(data.name || "");
-          setCategory(data.category_id || "");
+          setCategory(data.category_id || ""); // Ensure category_id is used
           setPrice(data.price || "");
           setDescription(data.description || "");
           setShortDescription(data.short_description || "");
-          setImage(data.image || "");
+          setImage(data.images || "");
           setStock(data.stock || "");
-          setGender(data.gender || ""); 
-          setDiameter(data.diameter || ""); 
-          setWireMaterial(data.wire_material || ""); 
+          setGender(
+            data.gender === "male" || data.gender === "female"
+              ? data.gender
+              : "male"
+          ); // Nếu không có giá trị hợp lệ, mặc định là male
+          setDiameter(data.diameter || "");
+          setWireMaterial(data.wire_material || "");
         }
       } catch (error) {
-        toast({
-          title: "Lỗi khi tải sản phẩm.",
-          description: "Không thể lấy thông tin chi tiết sản phẩm.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
         console.error("Failed to fetch product:", error);
       }
     };
@@ -67,22 +71,20 @@ const EditProduct = () => {
         const categoriesData = await fetchCategories();
         if (categoriesData) {
           setCategories(categoriesData);
+
+          console.log(categoriesData);
         }
       } catch (error) {
-        toast({
-          title: "Lỗi khi tải danh mục.",
-          description: "Không thể lấy danh mục sản phẩm.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
         console.error("Failed to fetch categories:", error);
       }
     };
 
     getProduct();
     getCategories();
-  }, [id, toast]);
+  }, [id]);
+
+  console.log(category);
+  // console.log(data);
 
   const validateForm = () => {
     const newErrors = {};
@@ -91,12 +93,14 @@ const EditProduct = () => {
     if (!price || isNaN(price) || parseFloat(price) <= 0)
       newErrors.price = "Giá là bắt buộc và phải là số lớn hơn 0.";
     if (!description) newErrors.description = "Mô tả là bắt buộc.";
-    if (!shortDescription) newErrors.shortDescription = "Mô tả ngắn là bắt buộc.";
+    if (!shortDescription)
+      newErrors.shortDescription = "Mô tả ngắn là bắt buộc.";
     if (!stock || isNaN(stock) || parseInt(stock) <= 0)
       newErrors.stock = "Số lượng là bắt buộc và phải là số nguyên dương.";
     if (!gender) newErrors.gender = "Giới tính là bắt buộc.";
     if (!diameter || isNaN(diameter) || parseInt(diameter) <= 0)
-      newErrors.diameter = "Đường kính mặt đồng hồ là bắt buộc và phải là số nguyên dương.";
+      newErrors.diameter =
+        "Đường kính mặt đồng hồ là bắt buộc và phải là số nguyên dương.";
     if (!wire_material) newErrors.wire_material = "Chất liệu dây là bắt buộc.";
     return newErrors;
   };
@@ -114,7 +118,7 @@ const EditProduct = () => {
       formData.append("file", imageFile);
     }
 
-    let imageUrl = image;
+    let imageUrl = images;
     if (imageFile) {
       try {
         const response = await axios.post(
@@ -146,7 +150,7 @@ const EditProduct = () => {
       short_description: shortDescription,
       images: imageUrl,
       category_id: category,
-      gender, 
+      gender,
       diameter,
       wire_material,
     };
@@ -181,12 +185,14 @@ const EditProduct = () => {
 
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md" fontFamily="math">
+      <Heading mb={5}>Sửa sản phẩm</Heading>
       <form onSubmit={handleSubmit}>
         <FormControl id="name" mb={4} isInvalid={errors.name}>
           <FormLabel>Tên sản phẩm</FormLabel>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
           {errors.name && <FormErrorMessage>{errors.name}</FormErrorMessage>}
         </FormControl>
+
         <FormControl id="category" mb={4} isInvalid={errors.category}>
           <FormLabel>Loại sản phẩm</FormLabel>
           <Select
@@ -200,8 +206,11 @@ const EditProduct = () => {
               </option>
             ))}
           </Select>
-          {errors.category && <FormErrorMessage>{errors.category}</FormErrorMessage>}
+          {errors.category && (
+            <FormErrorMessage>{errors.category}</FormErrorMessage>
+          )}
         </FormControl>
+
         <FormControl id="price" mb={4} isInvalid={errors.price}>
           <FormLabel>Giá</FormLabel>
           <Input value={price} onChange={(e) => setPrice(e.target.value)} />
@@ -214,10 +223,19 @@ const EditProduct = () => {
         </FormControl>
         <FormControl id="description" mb={4} isInvalid={errors.description}>
           <FormLabel>Mô tả</FormLabel>
-          <Input value={description} onChange={(e) => setDescription(e.target.value)} />
-          {errors.description && <FormErrorMessage>{errors.description}</FormErrorMessage>}
+          <Input
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          {errors.description && (
+            <FormErrorMessage>{errors.description}</FormErrorMessage>
+          )}
         </FormControl>
-        <FormControl id="shortDescription" mb={4} isInvalid={errors.shortDescription}>
+        <FormControl
+          id="shortDescription"
+          mb={4}
+          isInvalid={errors.shortDescription}
+        >
           <FormLabel>Mô tả ngắn</FormLabel>
           <Input
             value={shortDescription}
@@ -237,8 +255,11 @@ const EditProduct = () => {
             <option value="male">Nam</option>
             <option value="female">Nữ</option>
           </Select>
-          {errors.gender && <FormErrorMessage>{errors.gender}</FormErrorMessage>}
+          {errors.gender && (
+            <FormErrorMessage>{errors.gender}</FormErrorMessage>
+          )}
         </FormControl>
+
         <FormControl id="diameter" mb={4} isInvalid={errors.diameter}>
           <FormLabel>Đường kính mặt đồng hồ</FormLabel>
           <Input
@@ -246,7 +267,9 @@ const EditProduct = () => {
             onChange={(e) => setDiameter(e.target.value)}
             placeholder="Nhập đường kính mặt đồng hồ"
           />
-          {errors.diameter && <FormErrorMessage>{errors.diameter}</FormErrorMessage>}
+          {errors.diameter && (
+            <FormErrorMessage>{errors.diameter}</FormErrorMessage>
+          )}
         </FormControl>
         <FormControl id="wire_material" mb={4} isInvalid={errors.wire_material}>
           <FormLabel>Chất liệu dây</FormLabel>
@@ -255,13 +278,22 @@ const EditProduct = () => {
             onChange={(e) => setWireMaterial(e.target.value)}
             placeholder="Nhập chất liệu dây"
           />
-          {errors.wire_material && <FormErrorMessage>{errors.wire_material}</FormErrorMessage>}
+          {errors.wire_material && (
+            <FormErrorMessage>{errors.wire_material}</FormErrorMessage>
+          )}
         </FormControl>
         <FormControl id="image" mb={4}>
           <FormLabel>Ảnh sản phẩm</FormLabel>
           <Input type="file" onChange={handleImageChange} />
-          {image && <img src={image} alt="Current product" width="100" />}
+          {images && (
+            <img
+              src={`http://localhost:3000/uploads/products/${images}`}
+              alt="Current product"
+              width="100"
+            />
+          )}
         </FormControl>
+
         <Button type="submit" colorScheme="blue">
           Cập nhật sản phẩm
         </Button>

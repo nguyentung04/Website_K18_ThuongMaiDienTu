@@ -29,16 +29,46 @@
 }
 
 .post-image {
-  flex-shrink: 0; /* Không để hình ảnh bị co lại */
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
+  flex-shrink: 0; 
+  margin-bottom: 10px;
+  margin-top: 20px;
 }
 
-.post-image img {
-  max-width: 300px; /* Giới hạn chiều rộng hình ảnh */
-  width: 100%; /* Tự động điều chỉnh kích thước trong giới hạn */
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+.breadcrumb-menu {
+  background-color: rgba(254, 254, 254, 0.6);
+  color: rgb(221, 19, 19);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  text-align: center;
 }
+
+.breadcrumb-menu a {
+  color: rgb;
+  text-decoration: none;
+  margin-right: 5px;
+}
+
+.breadcrumb-menu a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-menu span {
+  color: #000000;
+}
+
+
+.post-image img {
+  max-width: 400px; /* Tăng kích thước tối đa của hình */
+  width: 100%; /* Tự động điều chỉnh kích thước trong giới hạn */
+  height: auto; /* Giữ tỷ lệ khung hình */
+  border-radius: 8px; /* Bo góc */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Hiệu ứng đổ bóng */
+}
+
 
 
 .post-content {
@@ -59,7 +89,7 @@
   .post-header h1 {
     font-size: 1.8rem;
   }
-
+ 
   .post-content {
     font-size: 1rem;
   }

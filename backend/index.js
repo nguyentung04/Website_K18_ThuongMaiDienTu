@@ -128,11 +128,10 @@ app.listen(port, () => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
 //payment
 app.post("/payment", async (req, res) => {
   console.log("Body received:", req.body);
-  
+
   const accessKey = "F8BBA842ECF85";
   const secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
   const partnerCode = "MOMO";
@@ -143,38 +142,39 @@ app.post("/payment", async (req, res) => {
   const amount = Number(req.body.amount); // Đảm bảo là số
   const orderId = partnerCode + new Date().getTime();
   const requestId = orderId;
-  const extraData = ""; 
+  const extraData = "";
   const orderGroupId = "";
   const autoCapture = true;
   const lang = "vi";
 
   const rawSignature = `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
-  
+
   console.log("RAW SIGNATURE:", rawSignature);
-  
+
   const crypto = require("crypto");
-  const signature = crypto.createHmac("sha256", secretKey)
-      .update(rawSignature)
-      .digest("hex");
+  const signature = crypto
+    .createHmac("sha256", secretKey)
+    .update(rawSignature)
+    .digest("hex");
 
   console.log("SIGNATURE:", signature);
 
   const requestBody = JSON.stringify({
-      partnerCode,
-      partnerName: "Test",
-      storeId: "MomoTestStore",
-      requestId,
-      amount,
-      orderId,
-      orderInfo,
-      redirectUrl,
-      ipnUrl,
-      lang,
-      requestType,
-      autoCapture,
-      extraData,
-      orderGroupId,
-      signature,
+    partnerCode,
+    partnerName: "Test",
+    storeId: "MomoTestStore",
+    requestId,
+    amount,
+    orderId,
+    orderInfo,
+    redirectUrl,
+    ipnUrl,
+    lang,
+    requestType,
+    autoCapture,
+    extraData,
+    orderGroupId,
+    signature,
   });
 
   console.log("Request body:", requestBody);
@@ -202,7 +202,6 @@ app.post("/payment", async (req, res) => {
   }
 });
 
-
 app.post("/callback", async (req, res) => {
   console.log("callback: ");
   console.log(res.body);
@@ -213,7 +212,7 @@ app.post("/callback", async (req, res) => {
 app.post("/transaction-status", async (req, res) => {
   const { orderId } = req.body;
 
-  const rawSignature = `accessKey=${accessKey}&amount=50000&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&redirectUrl=${redirectUrl}&requestId=${orderId}&requestType=${requestType}`;
+  const rawSignature = `accessKey=${accessKey}&amount=${amount}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&redirectUrl=${redirectUrl}&requestId=${orderId}&requestType=${requestType}`;
 
   const signature = crypto
     .createHmac("sha256", secretKey)

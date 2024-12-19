@@ -46,9 +46,12 @@ const CheckoutForm = () => {
       setFormData((prev) => ({
         ...prev,
         user_id: user.id,
+        name: user.name || "",
+        email: user.email || "",
       }));
     }
   }, [user]);
+  
 
   // Lấy thông tin người dùng và giỏ hàng từ server
   useEffect(() => {
@@ -94,7 +97,7 @@ const CheckoutForm = () => {
 
     fetchUserAndCart(); // Gọi hàm lấy dữ liệu khi component được render
   }, []);
-
+  
   const handleProvinceChange = async (e) => {
     const selectedCode = e.target.value; // Giá trị của tỉnh/thành phố
     setSelectedProvince(selectedCode);
@@ -282,6 +285,7 @@ const CheckoutForm = () => {
         navigate("/PaymentSuccess")
         console.log("Đơn hàng MoMo đã được thêm:", response.data);
       } else {
+        navigate("/PaymentError")
         console.warn("Giao dịch không thành công, resultCode:", resultCode);
       }
     } catch (error) {

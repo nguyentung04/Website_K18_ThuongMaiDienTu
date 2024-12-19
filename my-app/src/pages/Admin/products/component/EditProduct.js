@@ -43,11 +43,11 @@ const EditProduct = () => {
     const getProduct = async () => {
       try {
         const data = await fetchProductById(id);
-        console.log("Fetched product data:", data.category_id); // Log the fetched data
+        console.log("Fetched product data:", data.category); // Log the fetched data
         if (data) {
           setProduct(data);
           setName(data.name || "");
-          setCategory(data.category_id || ""); // Ensure category_id is used
+          setCategory(data.category || ""); // Ensure category_id is used
           setPrice(data.price || "");
           setDescription(data.description || "");
           setShortDescription(data.short_description || "");

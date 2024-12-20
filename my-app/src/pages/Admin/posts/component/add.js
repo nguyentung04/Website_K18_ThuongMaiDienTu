@@ -16,6 +16,9 @@ import { useNavigate } from "react-router-dom";
 import { addPosts } from "../../../../service/api/posts"; // Đảm bảo API này hoạt động đúng
 import axios from "axios";
 
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+
 const AddPostPage = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -159,9 +162,9 @@ const AddPostPage = () => {
 
         <FormControl id="content" mb={4} isInvalid={errors.content}>
           <FormLabel>Nội dung bài viết</FormLabel>
-          <Textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
+          <ReactQuill
+          value={content}
+            onChange={(value) => setContent(value)}
             placeholder="Nhập nội dung bài viết"
           />
           {errors.content && (

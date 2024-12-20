@@ -23,7 +23,10 @@ import {
   List,
   ListItem,
 } from "@chakra-ui/react";
-import { fetchCategories, deleteCategory } from "../../../../service/api/Category";
+import {
+  fetchCategories,
+  deleteCategory,
+} from "../../../../service/api/Category";
 import { Link } from "react-router-dom";
 
 const CategoryPage = () => {
@@ -48,6 +51,7 @@ const CategoryPage = () => {
     getCategories();
   }, []);
 
+  // thanh tìm  kiếm
   const handleInputChange = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
@@ -66,7 +70,7 @@ const CategoryPage = () => {
     setSearchQuery(suggestion.name);
     setSuggestions([]);
   };
-
+  // =====================================================================
   const handleConfirmDelete = async () => {
     try {
       if (selectedCategory) {
@@ -92,7 +96,6 @@ const CategoryPage = () => {
     }
     setIsOpen(false);
   };
-  
 
   const onClose = () => setIsOpen(false);
 

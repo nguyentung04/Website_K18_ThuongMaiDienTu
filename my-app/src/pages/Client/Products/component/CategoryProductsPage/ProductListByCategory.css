@@ -57,6 +57,13 @@
   font-size: 0.875rem;
   color: #666;
   margin-bottom: 15px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Limit to 3 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 4.5em; /* Adjust based on line height */
+  line-height: 1.5em; /* Adjust line height */
 }
 
 .product-footer {

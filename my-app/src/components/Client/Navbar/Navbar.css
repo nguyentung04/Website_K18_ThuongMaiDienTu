@@ -1,4 +1,3 @@
-
 /* Navbar container */
 .stopnav{
   height: 110px;
@@ -162,7 +161,7 @@
 }
 
 .dropbtn {
-  color: #fff;
+  color: #000;
   text-decoration: none;
   padding: 10px;
   display: flex;
@@ -186,21 +185,18 @@
   white-space: nowrap;
   /* Ngăn chặn xuống dòng các phần tử */
   margin-top: 3px;
+  border-radius: 5px; /* Add border-radius for rounded corners */
 }
 
 .dropdown:hover .dropdown-content {
-  display: flex;
-  /* Hiển thị dropdown khi hover */
-  flex-direction: row;
-  /* Sắp xếp các phần tử theo chiều ngang */
+  display: block; /* Change to block to display vertically */
+  flex-direction: column; /* Change to column for vertical alignment */
   list-style: none;
   text-decoration: none;
-
-
 }
 
 .dropdown-section {
-  margin-right: 20px;
+  margin-bottom: 10px; /* Add margin-bottom for spacing between sections */
 }
 
 .dropdown-section h4 {
@@ -221,6 +217,12 @@
   /* Loại bỏ gạch chân */
   padding: 5px 0;
   display: block;
+  transition: background-color 0.3s; /* Add transition for hover effect */
+}
+
+.dropdown-section a:hover {
+  background-color: #f0f0f0; /* Add background color on hover */
+  border-radius: 3px; /* Add border-radius for rounded corners on hover */
 }
 
 /*  */

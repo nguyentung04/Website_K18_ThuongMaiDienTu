@@ -8,6 +8,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./Navbar.css";
 import { jwtDecode } from "jwt-decode";
 import { fetchCategories } from "../../../service/api/Category";
+import { fetchProducts } from "../../../service/api/products";
 import { List, ListItem } from "@chakra-ui/react";
 
 const Navbar = () => {
@@ -17,6 +18,7 @@ const Navbar = () => {
   const isLoggedIn = !!username;
   const { getTotalUniqueItems } = useContext(CartContext);
   const [categories, setCategories] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const [suggestions, setSuggestions] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,18 +36,41 @@ const Navbar = () => {
     loadCategories();
   }, []);
 
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await fetchProducts();
+        setSelectedProduct(data); // Lưu danh mục vào state
+      } catch (error) {
+        console.error("Lỗi khi tải danh mục:", error);
+      }
+    };
+
+    loadProducts();
+  }, []);
   //thanh Tìm kiếm
   const handleInputChange = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
 
     if (query !== "") {
-      const filteredSuggestions = categories.filter((category) =>
-        category.name.toLowerCase().includes(query)
+      const filteredSuggestions = selectedProduct.filter((product) =>
+        product.name.toLowerCase().includes(query)
       );
       setSuggestions(filteredSuggestions);
     } else {
       setSuggestions([]);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      const exactMatch = selectedProduct.find(
+        (product) => product.name.toLowerCase() === searchQuery.toLowerCase()
+      );
+      if (exactMatch) {
+        navigate(`/product/${exactMatch.id}`);
+      }
     }
   };
 
@@ -99,31 +124,31 @@ const Navbar = () => {
     const token = urlParams.get("token");
 
     if (token) {
-      localStorage.setItem("token", token);
-      const decodedUser = jwtDecode(token);
+      localStorage.setItem("token", token); // Lưu token vào localStorage
+      const decodedUser = jwtDecode(token); // Giải mã token để lấy thông tin người dùng
       if (decodedUser && decodedUser.name) {
-        localStorage.setItem("username", decodedUser.name);
-        setUsername(decodedUser.name);
+        localStorage.setItem("username", decodedUser.name); // Lưu tên người dùng vào localStorage
+        setUsername(decodedUser.name); // Cập nhật state username
       }
       if (decodedUser && decodedUser.avatar) {
-        setAvatar(decodedUser.avatar);
+        setAvatar(decodedUser.avatar); // Cập nhật state avatar
       }
 
-      window.history.replaceState(null, "", window.location.pathname);
+      window.history.replaceState(null, "", window.location.pathname); // Thay đổi URL mà không tải lại trang
     }
   }, []);
 
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const data = await fetchCategories();
+        const data = await fetchCategories(); // Gọi API để lấy danh mục
         setCategories(data); // Lưu danh mục vào state
       } catch (error) {
-        console.error("Lỗi khi tải danh mục:", error);
+        console.error("Lỗi khi tải danh mục:", error); // Log lỗi nếu có
       }
     };
 
-    loadCategories();
+    loadCategories(); // Gọi hàm loadCategories khi component được render
   }, []);
 
   return (
@@ -205,7 +230,7 @@ const Navbar = () => {
             >
               Bài viết
             </Link>
-            <form class="d-flex " role="search">
+            <form className="d-flex" role="search">
               <div className="search">
                 <button>
                   <svg
@@ -221,7 +246,8 @@ const Navbar = () => {
                 <input
                   value={searchQuery}
                   onChange={handleInputChange}
-                  className="formcontrol me-2 "
+                  onKeyPress={handleKeyPress} // Add this line to listen for the Enter key
+                  className="formcontrol me-2"
                   type="search"
                   placeholder="Tìm kiếm"
                   variant="outline"
@@ -229,37 +255,47 @@ const Navbar = () => {
                   color="black"
                   mr={2}
                   width="200px"
-                  
-                  
-                />{" "}
-           {suggestions.length > 0 && (
-                  <List
-                    border="1px solid #ccc"
-                    borderRadius="md"
-                    bg="white"
-                    position="absolute"
-                  marginBottom={-106}
-                    width="200px"
-                    paddingLeft={0}
+                />
+                {suggestions.length > 0 && (
+                  <ul
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: "0",
+                      width: "200px",
+                      border: "1px solid #ccc",
+                      borderRadius: "md",
+                      backgroundColor: "white",
+                      zIndex: "1000",
+                      maxHeight: "200px",
+                      overflowY: "auto",
+                      width: "auto",
+                      textDecoration: "none",
+                    }}
                   >
                     {suggestions.map((suggestion) => (
-                      <ListItem
+                      <li
+                        style={{
+                          padding: "10px",
+                          cursor: "pointer",
+                          transition: "background-color 0.3s",
+                          textDecoration: "none",
+                        }}
                         key={suggestion.id}
-                        p={2}
-                        _hover={{ bg: "gray.200", cursor: "pointer" }}
                         onClick={() => handleSuggestionClick(suggestion)}
                       >
-                         <Link to={`/products?category=${suggestion.id}`}>
-                            {suggestion.name}
-                          </Link>
-                      </ListItem>
+                        <Link
+                          style={{ textDecoration: "none" }}
+                          to={`/product/${suggestion.id}`}
+                        >
+                          {suggestion.name}
+                        </Link>
+                      </li>
                     ))}
-                  </List>
-                )}  
+                  </ul>
+                )}
               </div>
-                 
             </form>
-            
           </div>
 
           <div className="navbar-auth">
@@ -360,7 +396,7 @@ const Navbar = () => {
                                   height="16"
                                   fill="#b29c6e"
                                 >
-                                  <path d="M40 48C26.7 48 16 58.7 16 72l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24L40 48zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L192 64zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-288 0zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-288 0zM16 232l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24l-48 0c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24l-48 0z" />
+                                  <path d="M40 48C26.7 48 16 58.7 16 72l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24L40 48zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L192 64zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-288 0zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-288 0zM16 232l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24l-48 0c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24l-48 0c-13.3 0-24 10.7-24 24z" />
                                 </svg>
                                 Lịch sử đơn hàng
                               </a>

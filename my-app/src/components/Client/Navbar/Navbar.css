@@ -109,7 +109,6 @@
 }
 
 .navbar-links a:hover {
-
   /* Thay đổi màu nền khi di chuột qua liên kết */
   border-radius: 5px;
   /* Làm tròn góc của liên kết khi hover */
@@ -287,6 +286,7 @@
   /* Loại bỏ viền mặc định khi phần tử được focus */
   background-color: #fff;
   /* Đặt nền của phần tử thành màu trắng */
+  position: relative; /* Add position relative to position suggestions */
 }
 
 .search input::placeholder {

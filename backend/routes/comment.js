@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const commentController = require("../controllers/commentsController"); // Giữ nguyên như yêu cầu
-const commentDetailController = require("../controllers/comment_detailController"); // Đổi tên cho rõ ràng hơn
+const commentController = require("../controllers/commentsController"); 
+const commentDetailController = require("../controllers/comment_detailController");
 
 // Lấy tất cả đánh giá theo product_id
 router.get('/product/reviews/:product_id', commentController.getReviewsByProductID); 

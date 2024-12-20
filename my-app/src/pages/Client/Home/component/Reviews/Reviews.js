@@ -85,22 +85,10 @@ const Review = ({
         <div className="replies">
           {replies[review.review_id].map((reply) => (
             <div key={reply.id} className="reply">
-              <strong>{reply.username}</strong>
+              <strong>{reply.message}</strong>
               <span>{formatDate(reply.created_at)}</span>
               <p>{reply.content}</p>
               <button onClick={(e) => handleReplyToReplySubmit(e, reply.id)}>Trả lời</button>
-
-              {reply.replies && reply.replies.length > 0 && (
-                <div className="nested-replies">
-                  {reply.replies.map((nestedReply) => (
-                    <div key={nestedReply.id} className="nested-reply">
-                      <strong>{nestedReply.username}</strong>
-                      <span>{formatDate(nestedReply.created_at)}</span>
-                      <p>{nestedReply.content}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           ))}
         </div>
@@ -211,22 +199,22 @@ const Reviews = ({ productId }) => {
     }));
   };
 
-
-  const handleReplySubmit = async (e, reviewId) => {
+  const handleReplySubmit = async (e, reviewId, parentId) => {
     e.preventDefault();
     if (!userId) {
       setMessage("Vui lòng đăng nhập để trả lời!");
       return;
     }
+
     try {
-      const content = replyContents[reviewId];
-      const data = await postReply(reviewId, userId, content);
+      const content = replyContents[reviewId]; 
+      const data = await postReply(reviewId, userId, content, parentId); 
 
       const scrollPosition = window.scrollY;
 
       setReplies((prev) => ({
         ...prev,
-        [reviewId]: [...(prev[reviewId] || []), data],
+        [reviewId]: [...(prev[reviewId] || []), data], 
       }));
 
       setReplyContents((prev) => ({ ...prev, [reviewId]: "" }));
@@ -236,13 +224,10 @@ const Reviews = ({ productId }) => {
       setTimeout(() => {
         window.scrollTo(0, scrollPosition);
       }, 0);
-
     } catch (error) {
       setMessage("Gửi phản hồi thất bại!");
     }
   };
-
-
 
   return (
     <div ref={evaluateRef} className="reviews-section">

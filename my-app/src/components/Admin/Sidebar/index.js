@@ -351,6 +351,25 @@ const Sidebar = () => {
                     </Button>
                   )}
                 </NavLink>
+                <NavLink to="/admin/orders/order cancelled">
+                  {({ isActive }) => (
+                    <Button
+                      justifyContent="flex-start"
+                      alignItems="center"
+                      bg={isActive ? activeBg : "inherit"}
+                      color={isActive ? activeColor : linkColor}
+                      fontWeight={isActive ? "bold" : "normal"}
+                      _hover={{ bg: activeBg, textDecoration: "none" }}
+                      _active={{ bg: activeBg, color: activeColor }}
+                      borderRadius="15px"
+                      w="100%"
+                      height="40px"
+                      // fontSize="xl"
+                    >
+                      Đơn hàng đã hủy
+                    </Button>
+                  )}
+                </NavLink>
               </Stack>
             )}
           </Stack>

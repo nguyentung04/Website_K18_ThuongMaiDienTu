@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { Link, useParams } from "react-router-dom";
 import {
-  fetchOrderDetailById,
+  fetchAdminOrderDetailById,
   updateOrderDetailStatus,
   deleteOrderDetail,
 } from "../../../../service/api/order_items";
@@ -39,7 +39,7 @@ const OrderDetailTable = () => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        const data = await fetchOrderDetailById(id);
+        const data = await fetchAdminOrderDetailById(id);
         setOrderDetails(data);
       } catch (error) {
         setError("Failed to fetch order details");
@@ -175,7 +175,7 @@ const OrderDetailTable = () => {
             </GridItem>
             <GridItem colSpan={1}>
               <Text>
-                <strong>Số điện thoại:</strong> {item.phone}
+                <strong>Số điện thoại:</strong> {item.userPhone}
               </Text>
             </GridItem>
             <GridItem colSpan={1}>

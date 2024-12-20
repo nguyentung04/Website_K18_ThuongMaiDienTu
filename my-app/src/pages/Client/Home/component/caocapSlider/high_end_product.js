@@ -269,12 +269,7 @@ const addToCart = async (product) => {
     setSelectedButton(buttonName);
   };
 
-  const handleSubmitModel = (e) => {
-    e.preventDefault();
-    // Logic xử lý form gửi đi
-    console.log("Form data submitted:", formData);
-    handleCloseModal();
-  };
+
 
   return (
     <div className="custom-slider-container">
@@ -291,20 +286,7 @@ const addToCart = async (product) => {
           className="main-slider"
           slidesPerView={3}
         >
-          <div className="button-brand">
-            <button onClick={() => handleButtonClick("Tất cả")} className={selectedButton === "Tất cả" ? "active-button" : ""}>
-              Tất cả
-            </button>
-            <button onClick={() => handleButtonClick("Giới hạn")} className={selectedButton === "Giới hạn" ? "active-button" : ""}>
-              Giới hạn
-            </button>
-            <button onClick={() => handleButtonClick("Nam")} className={selectedButton === "Nam" ? "active-button" : ""}>
-              Nam
-            </button>
-            <button onClick={() => handleButtonClick("Nữ")} className={selectedButton === "Nữ" ? "active-button" : ""}>
-              Nữ
-            </button>
-          </div>
+       
           {loading ? (
             <SwiperSlide>Loading...</SwiperSlide>
           ) : (

@@ -189,39 +189,3 @@
   transform: translate3d(0px, 0, 0);
   display: flex;
 }
-
-/* ========================================================================================================================== */
-.button-brand {
-  display: flex;
-  gap: 20px;
-  flex-wrap: nowrap;
-}
-
-.button-brand button {
-  background-color: #f5e9dc;
-  width: 78px;
-  height: 36px;
-  border-radius: 4px;
-  color: black;
-  font-weight: 500;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.3s ease; /* Thêm hiệu ứng mượt mà cho tất cả các thay đổi */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Thêm bóng nhẹ */
-}
-
-.button-brand button:hover {
-  background-color: #fff7e5; /* Thêm hiệu ứng khi hover */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Bóng đậm hơn khi hover */
-}
-
-.button-brand button.active-button {
-  background: #ffffff;
-  border: 3px solid #b29c6e; /* Màu sắc của đường viền khi active */
-  color: #b29c6e;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); /* Bóng nhẹ khi active */
-}
-
-.button-brand button.active-button:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25); /* Bóng đậm hơn khi hover và active */
-}

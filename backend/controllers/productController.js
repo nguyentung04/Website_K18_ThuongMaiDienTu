@@ -174,7 +174,7 @@ exports.getProductById = (req, res) => {
   const query = `
     SELECT 
       p.id,
-      p.name,
+      p.name, p.category_id,
       p.short_description,
       p.description,
       p.price,

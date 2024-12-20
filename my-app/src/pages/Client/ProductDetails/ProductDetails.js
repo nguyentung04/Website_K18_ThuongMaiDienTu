@@ -11,7 +11,7 @@ import { CameraIcon } from "../../../components/icon/icon";
 import "./ProductDetails.css";
 import ProductSimilar from "./../Home/component/ProductSimilar/ProductSimilar";
 import Reviews from "./../Home/component/Reviews/Reviews";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 
 const BASE_URL = "http://localhost:3000";
@@ -64,6 +64,7 @@ const ProductDetails = () => {
     };
     fetchProduct();
   }, [id]);
+  
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -172,9 +173,7 @@ const ProductDetails = () => {
 
     setIsAddingToCart(true);
     // Chỉ chuyển trang nếu `shouldNavigate` là true
-    if (shouldNavigate == true) {
-      navigate("/cart");
-    }
+
     try {
       const response = await axios.post(`${BASE_URL}/api/cart`, cartData, {
         headers: {
@@ -182,15 +181,18 @@ const ProductDetails = () => {
           Authorization: `Bearer ${token}`, // Thêm token vào header nếu cần
         },
       });
-  
+
       if (response.data.message) {
         toast.success("Thêm vào giỏ hàng thành công!", {
-        position: "bottom-center",
+          position: "bottom-center",
           autoClose: 5000,
         });
+        if (shouldNavigate) {
+          navigate("/cart");
+        }
       } else {
         toast.error(response.data.error || "Đã xảy ra lỗi, vui lòng thử lại.", {
-        position: "bottom-center",
+          position: "bottom-center",
           autoClose: 5000,
         });
       }
@@ -199,7 +201,7 @@ const ProductDetails = () => {
       toast.error(
         error.response?.data?.error || "Có lỗi xảy ra, vui lòng thử lại.",
         {
-        position: "bottom-center",
+          position: "bottom-center",
           autoClose: 5000,
         }
       );
@@ -221,8 +223,9 @@ const ProductDetails = () => {
 
   return (
     <div className="product-details">
+         <ToastContainer position="top-right" autoClose={5000} />
       <div className="container">
-        <hr />
+        
         <div className="product-detail-container">
           <div className="product-image-section">
             {product.images &&
@@ -330,7 +333,6 @@ const ProductDetails = () => {
                 <button
                   onClick={scrollToSpecifications}
                   className="scroll-button parameter"
-                  
                 >
                   THÔNG SỐ
                 </button>
@@ -369,31 +371,45 @@ const ProductDetails = () => {
             </button>
           </div>
         </div>
-        <div ref={specificationsRef} className="bg-gray" >
+        <div ref={specificationsRef} className="bg-gray">
           <div className="m-product-specification">
             <div className="m-product-specification__list">
               <x className="m-product-specification__name_full">
                 <h2>THÔNG SỐ</h2>
               </x>
               <div className="m-product-specification__item">
-                <span className="m-product-specification__label">Thương hiệu : </span>
+                <span className="m-product-specification__label">
+                  Thương hiệu :{" "}
+                </span>
                 <span className="m-product-specification__name">
-                   {product.category || "N/A"}
+                  {product.category || "N/A"}
                 </span>
               </div>
               <div className="m-product-specification__item">
-                <span className="m-product-specification__label">Chất liệu dây : </span>
+                <span className="m-product-specification__label">
+                  Chất liệu dây :{" "}
+                </span>
                 <span className="m-product-specification__name">
-                   {product.wire_material || "N/A"}
+                  {product.wire_material || "N/A"}
                 </span>
               </div>
               <div className="m-product-specification__item">
-                <span className="m-product-specification__label">Tên sản phẩm : </span>
-                <span className="m-product-specification__name"> {product.name}</span>
+                <span className="m-product-specification__label">
+                  Tên sản phẩm :{" "}
+                </span>
+                <span className="m-product-specification__name">
+                  {" "}
+                  {product.name}
+                </span>
               </div>
               <div className="m-product-specification__item">
-                <span className="m-product-specification__label">Đường kính mặt đồng hồ : </span>
-                <span className="m-product-specification__name"> {product.diameter || "N/A"} mm</span>
+                <span className="m-product-specification__label">
+                  Đường kính mặt đồng hồ :{" "}
+                </span>
+                <span className="m-product-specification__name">
+                  {" "}
+                  {product.diameter || "N/A"} mm
+                </span>
               </div>
             </div>
           </div>

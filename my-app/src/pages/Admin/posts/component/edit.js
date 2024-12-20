@@ -19,6 +19,8 @@ import {
 } from "../../../../service/api/posts";
 import axios from "axios";
 
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 const EditPostPage = () => {
   const { id } = useParams();
   const [title, setTitle] = useState("");
@@ -163,9 +165,9 @@ const EditPostPage = () => {
 
         <FormControl id="content" mb={4} isInvalid={errors.content}>
           <FormLabel>Nội dung bài viết</FormLabel>
-          <Textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
+          <ReactQuill
+          value={content}
+            onChange={(value) => setContent(value)}
             placeholder="Nhập nội dung bài viết"
           />
           {errors.content && <FormErrorMessage>{errors.content}</FormErrorMessage>}

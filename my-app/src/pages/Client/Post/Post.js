@@ -15,7 +15,7 @@ const truncateText = (text, maxLength) => {
 const Post = () => {
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // Current page
-  const postsPerPage = 16; // Number of posts per page
+  const postsPerPage = 12; // Number of posts per page
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 

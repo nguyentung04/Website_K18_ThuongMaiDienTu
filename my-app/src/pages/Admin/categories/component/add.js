@@ -27,7 +27,7 @@ const AddCategoryPage = () => {
   const validate = () => {
     const newErrors = {};
     if (!name) newErrors.name = "Tên thương hiệu là bắt buộc.";
-    if (!description) newErrors.description = "Mô tả là bắt buộc.";
+    // if (!description) newErrors.description = "Mô tả là bắt buộc.";
     if (!imageFile) newErrors.image = "Ảnh logo là bắt buộc.";
     return newErrors;
   };

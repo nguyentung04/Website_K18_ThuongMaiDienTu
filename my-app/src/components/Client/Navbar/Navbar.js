@@ -8,6 +8,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./Navbar.css";
 import { jwtDecode } from "jwt-decode";
 import { fetchCategories } from "../../../service/api/Category";
+import { List, ListItem } from "@chakra-ui/react";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -16,6 +17,9 @@ const Navbar = () => {
   const isLoggedIn = !!username;
   const { getTotalUniqueItems } = useContext(CartContext);
   const [categories, setCategories] = useState([]);
+
+  const [suggestions, setSuggestions] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -30,33 +34,55 @@ const Navbar = () => {
     loadCategories();
   }, []);
 
+  //thanh Tìm kiếm
+  const handleInputChange = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    if (query !== "") {
+      const filteredSuggestions = categories.filter((category) =>
+        category.name.toLowerCase().includes(query)
+      );
+      setSuggestions(filteredSuggestions);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion.name);
+    setSuggestions([]);
+  };
+  //-------------------------------------------------------------
   const chunkedCategories = [];
   for (let i = 0; i < categories.length; i += 4) {
     chunkedCategories.push(categories.slice(i, i + 4));
   }
 
-// Đăng xuất và xóa thông tin localStorage
-const handleLogout = () => {
-  // Xóa tất cả dữ liệu liên quan đến phiên người dùng
-  localStorage.removeItem("token"); // Xóa token
-  localStorage.removeItem("username"); // Xóa tên đăng nhập
-  localStorage.removeItem("userData"); 
-  localStorage.removeItem("role");
-  localStorage.removeItem("userEmail"); // Xóa email người dùng
-  localStorage.removeItem("userName"); // Xóa tên người dùng
-  localStorage.removeItem("user"); 
-  localStorage.removeItem("userId");
-  
-  // ... có thể thêm các mục khác nếu cần
-  
-  // Chuyển hướng người dùng về trang đăng nhập
-  navigate("/signin");
-  
-  // Tải lại trang
-  window.location.reload();
-};
+  // Đăng xuất và xóa thông tin localStorage
+  const handleLogout = () => {
+    // Xóa tất cả dữ liệu liên quan đến phiên người dùng
+    localStorage.removeItem("token"); // Xóa token
+    localStorage.removeItem("username"); // Xóa tên đăng nhập
+    localStorage.removeItem("userData");
+    localStorage.removeItem("role");
+    localStorage.removeItem("userEmail"); // Xóa email người dùng
+    localStorage.removeItem("userName"); // Xóa tên người dùng
+    localStorage.removeItem("user");
+    localStorage.removeItem("userId");
 
-  const [activeLink, setActiveLink] = useState(localStorage.getItem("activeLink") || "");
+    // ... có thể thêm các mục khác nếu cần
+
+    // Chuyển hướng người dùng về trang đăng nhập
+    navigate("/signin");
+
+    // Tải lại trang
+    window.location.reload();
+  };
+
+  const [activeLink, setActiveLink] = useState(
+    localStorage.getItem("activeLink") || ""
+  );
 
   const handleLinkClick = (link) => {
     setActiveLink(link);
@@ -109,19 +135,27 @@ const handleLogout = () => {
             className="navbar-logo"
             onClick={() => handleLinkClick("/")}
           >
-            <img src="/assets/logo/logo-dong-ho.png" alt="Logo" className="logo-image" />
+            <img
+              src="/assets/logo/logo-dong-ho.png"
+              alt="Logo"
+              className="logo-image"
+            />
           </Link>
           <div className="navbar-links">
             <Link
               to="/"
-              className={`nav-link-trend ${activeLink === "/" ? "active-link" : ""}`}
+              className={`nav-link-trend ${
+                activeLink === "/" ? "active-link" : ""
+              }`}
               onClick={() => handleLinkClick("/")}
             >
               Trang chủ
             </Link>
             <Link
               to="/about"
-              className={`nav-link-introduce ${activeLink === "/about" ? "active-link" : ""}`}
+              className={`nav-link-introduce ${
+                activeLink === "/about" ? "active-link" : ""
+              }`}
               onClick={() => handleLinkClick("/about")}
             >
               Giới thiệu
@@ -129,7 +163,9 @@ const handleLogout = () => {
             <div className="dropdown">
               <Link
                 to="/products"
-                className={`dropbtn ${activeLink === "/menu" ? "active-link" : ""}`}
+                className={`dropbtn ${
+                  activeLink === "/menu" ? "active-link" : ""
+                }`}
                 onClick={() => handleLinkClick("/menu")}
               >
                 Sản phẩm <CgChevronDown />
@@ -140,7 +176,9 @@ const handleLogout = () => {
                     <ul className="category-row">
                       {chunk.map((category) => (
                         <li key={category.id}>
-                          <Link to={`/products?category=${category.id}`}>{category.name}</Link>
+                          <Link to={`/products?category=${category.id}`}>
+                            {category.name}
+                          </Link>
                         </li>
                       ))}
                     </ul>
@@ -151,16 +189,18 @@ const handleLogout = () => {
 
             <Link
               to="/contact"
-              className={`nav-link-trend ${activeLink === "/contact" ? "active-link" : ""
-                }`}
+              className={`nav-link-trend ${
+                activeLink === "/contact" ? "active-link" : ""
+              }`}
               onClick={() => handleLinkClick("/contact")}
             >
               Liên hệ
             </Link>
             <Link
               to="/post"
-              className={`nav-link-trend ${activeLink === "/post" ? "active-link" : ""
-                }`}
+              className={`nav-link-trend ${
+                activeLink === "/post" ? "active-link" : ""
+              }`}
               onClick={() => handleLinkClick("/post")}
             >
               Bài viết
@@ -179,12 +219,47 @@ const handleLogout = () => {
                   </svg>
                 </button>
                 <input
-                  className="formcontrol me-2"
+                  value={searchQuery}
+                  onChange={handleInputChange}
+                  className="formcontrol me-2 "
                   type="search"
                   placeholder="Tìm kiếm"
-                />
+                  variant="outline"
+                  borderColor="#00aa9f"
+                  color="black"
+                  mr={2}
+                  width="200px"
+                  
+                  
+                />{" "}
+           {suggestions.length > 0 && (
+                  <List
+                    border="1px solid #ccc"
+                    borderRadius="md"
+                    bg="white"
+                    position="absolute"
+                  marginBottom={-106}
+                    width="200px"
+                    paddingLeft={0}
+                  >
+                    {suggestions.map((suggestion) => (
+                      <ListItem
+                        key={suggestion.id}
+                        p={2}
+                        _hover={{ bg: "gray.200", cursor: "pointer" }}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                      >
+                         <Link to={`/products?category=${suggestion.id}`}>
+                            {suggestion.name}
+                          </Link>
+                      </ListItem>
+                    ))}
+                  </List>
+                )}  
               </div>
+                 
             </form>
+            
           </div>
 
           <div className="navbar-auth">
@@ -264,7 +339,7 @@ const handleLogout = () => {
                                   height="16"
                                   fill="#b29c6e"
                                 >
-<path d="M304 128a80 80 0 1 0 -160 0 80 80 0 1 0 160 0zM96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM49.3 464l349.5 0c-8.9-63.3-63.3-112-129-112l-91.4 0c-65.7 0-120.1 48.7-129 112zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3z" />
+                                  <path d="M304 128a80 80 0 1 0 -160 0 80 80 0 1 0 160 0zM96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM49.3 464l349.5 0c-8.9-63.3-63.3-112-129-112l-91.4 0c-65.7 0-120.1 48.7-129 112zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3z" />
                                 </svg>
                                 Thông tin cá nhân
                               </a>
@@ -310,7 +385,7 @@ const handleLogout = () => {
                                   height="16"
                                   fill="#b29c6e"
                                 >
-<path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" />
+                                  <path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" />
                                 </svg>
                                 Đăng xuất
                               </a>
@@ -322,7 +397,6 @@ const handleLogout = () => {
                   </div>
                 </nav>
               </>
-        
             ) : (
               <>
                 <Link to="/signin">

@@ -191,8 +191,8 @@ const PostsPage = () => {
                 />
               </Td>
               <Td>{post.title}</Td>
-              <Td maxW="200px" isTruncated>
-                {post.content}
+              <Td maxW="200px" isTruncated   dangerouslySetInnerHTML={{ __html: (post.content) }}>
+               
               </Td>
               {/* <Td>{post.views}</Td> */}
               <Td>{post.post_categories_id}</Td>

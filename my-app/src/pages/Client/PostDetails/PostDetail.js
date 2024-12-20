@@ -78,7 +78,7 @@ const PostDetail = () => {
       </div>
       <div className="post-content">
         <h2>Nội dung bài viết</h2>
-        <p>{post.content}</p>
+        <p dangerouslySetInnerHTML={{ __html: (post.content) }}></p>
       </div>
     </div>
   );

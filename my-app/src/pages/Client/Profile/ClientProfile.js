@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { updatePassword, updateUser } from "../../../service/api/users";
 import SuccessModal from "../../../components/Modals/SuccessModal";
 import "./ClientProfile.css";
-
-const Profile = () => {
+import { Table, Tbody, Tr, Td, Img } from "@chakra-ui/react";const Profile = () => {
   const [values, setValues] = useState({
     name: "",
     email: "",
@@ -44,59 +43,72 @@ const Profile = () => {
   };
 
 
+  const decodeUtf8 = (str) => {
+    try {
+      return decodeURIComponent(escape(str));
+    } catch (e) {
+      console.error("Error decoding UTF-8:", e);
+      return str;
+    }
+  };
+    
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = JSON.parse(localStorage.getItem('userData'));
+    const token = localStorage.getItem("token");
+    const userData = JSON.parse(localStorage.getItem("userData"));
 
     if (token && !isTokenExpired(token)) {
       if (!userData) {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace('-', '+').replace('_', '/');
+        const base64Url = token.split(".")[1];
+        const base64 = base64Url.replace("-", "+").replace("_", "/");
         const decoded = JSON.parse(window.atob(base64));
 
+        console.log("Dữ liệu JWT gốc:", decoded);
+
         const newUserData = {
-          id: decoded.id,          
-          name: decoded.name,       
-          email: decoded.email,     
-          phone: decoded.phone,   
+          id: decoded.id,
+          name: decodeUtf8(decoded.name),
+          email: decoded.email,
+          phone: decoded.phone,
           google_id: decoded.google_id,
         };
-        
-        localStorage.setItem('userData', JSON.stringify(newUserData));
-        
-        const storedData = JSON.parse(localStorage.getItem('userData'));        
-        storedData.name = decodeURIComponent(storedData.name);
+
+        console.log("Dữ liệu giải mã:", newUserData);
+
+        localStorage.setItem("userData", JSON.stringify(newUserData));
+
+        const storedData = JSON.parse(localStorage.getItem("userData"));
         setValues({
-          name: newUserData.name || '',
-          email: newUserData.email || '',
-          phone: newUserData.phone || '',
-          avatar: newUserData.avatar || 'https://via.placeholder.com/150',
+          name: storedData.name || "",
+          email: storedData.email || "",
+          phone: storedData.phone || "",
+          avatar: storedData.avatar || "https://via.placeholder.com/150",
         });
       } else {
         setValues({
-          name: userData.name || '',
-          email: userData.email || '',
-          phone: userData.phone || '',
-          avatar: userData.avatar || 'https://via.placeholder.com/150',
+          name: userData.name || "",
+          email: userData.email || "",
+          phone: userData.phone || "",
+          avatar: userData.avatar || "https://via.placeholder.com/150",
         });
       }
     } else {
-      navigate('/signin');
+      navigate("/signin");
     }
   }, [navigate]);
+
 
   const validateField = (field, value) => {
     let error = "";
     if (!value) {
       error = `${field === "name"
-          ? "Họ tên"
-          : field === "email"
-            ? "Email"
-            : "Số điện thoại"
+        ? "Họ tên"
+        : field === "email"
+          ? "Email"
+          : "Số điện thoại"
         } là bắt buộc.`;
-    if (field === "email" && !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(value)){
-      error = "Email không hợp lệ.";
-    }        
+      if (field === "email" && !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(value)) {
+        error = "Email không hợp lệ.";
+      }
     } else if (field === "phone" && !/^\d{10}$/.test(value)) {
       error = "Số điện thoại không hợp lệ.";
     }
@@ -198,18 +210,28 @@ const Profile = () => {
   return (
     <div className="Profile">
       <div className="profile-container">
+      <Table>
         <div className="profile-container1">
-          <img src={values.avatar} alt="Avatar" className="avatar" />
-          <h3>{values.name}</h3>
-          <p>{values.email}</p>
-        </div>
-        <button className="logout-button" onClick={() => navigate("/login")}>
+          <Td>
+              <Img
+                src={`http://localhost:3000/uploads/users/${values.image}`}
+                boxSize="50px"
+                objectFit="cover"
+                borderRadius="full"
+                alt=""
+              />
+            </Td>
+            <h3>{values.name}</h3>
+            <p>{values.email}</p>
+          </div>
+        <button className="logout-button" onClick={() => navigate("/signin")}>
           Đăng xuất
         </button>
+        </Table>
       </div>
 
       <div className="personal-info">
-        
+
         {Object.entries(values)
           .filter(([key]) => key !== "avatar")
           .map(([key, value]) => (

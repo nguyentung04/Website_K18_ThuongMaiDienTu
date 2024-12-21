@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { updatePassword, updateUser } from "../../../service/api/users";
-import SuccessModal from "../../../components/Modals/SuccessModal"; // Import modal
+import SuccessModal from "../../../components/Modals/SuccessModal";
 import "./ClientProfile.css";
 
 const Profile = () => {
@@ -28,7 +28,7 @@ const Profile = () => {
     confirmNewPassword: "",
   });
 
-  const [successMessage, setSuccessMessage] = useState(""); // Thêm state để quản lý modal
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
 
   const isTokenExpired = (token) => {
@@ -36,10 +36,10 @@ const Profile = () => {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace('-', '+').replace('_', '/');
       const decoded = JSON.parse(window.atob(base64));
-      console.log(decoded); // Kiểm tra toàn bộ dữ liệu trả về từ Google
+      console.log(decoded);
       return decoded.exp * 1000 < Date.now();
     } catch (error) {
-      return true; // Nếu có lỗi khi giải mã token, coi như token hết hạn
+      return true
     }
   };
 
@@ -48,39 +48,35 @@ const Profile = () => {
     const token = localStorage.getItem('token');
     const userData = JSON.parse(localStorage.getItem('userData'));
 
-    // Kiểm tra token và xử lý thông tin người dùng
     if (token && !isTokenExpired(token)) {
       if (!userData) {
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace('-', '+').replace('_', '/');
         const decoded = JSON.parse(window.atob(base64));
 
-        // Chắc chắn rằng các thông tin được lấy chính xác
         const newUserData = {
           id: decoded.id,          
           name: decoded.name,       
           email: decoded.email,     
           phone: decoded.phone,   
-          google_id: decoded.google_id, // Thêm google_id vào
+          google_id: decoded.google_id,
         };
         
-        // Lưu lại thông tin người dùng vào localStorage
         localStorage.setItem('userData', JSON.stringify(newUserData));
         
-        // Lấy lại thông tin người dùng từ localStorage
         const storedData = JSON.parse(localStorage.getItem('userData'));        
-        storedData.name = decodeURIComponent(storedData.name);  // Giải mã tên nếu cần
+        storedData.name = decodeURIComponent(storedData.name);
         setValues({
           name: newUserData.name || '',
           email: newUserData.email || '',
-          phone: newUserData.phone || '', // Đảm bảo là có phone nếu cần
+          phone: newUserData.phone || '',
           avatar: newUserData.avatar || 'https://via.placeholder.com/150',
         });
       } else {
         setValues({
           name: userData.name || '',
           email: userData.email || '',
-          phone: userData.phone || '', // Đảm bảo là có phone nếu cần
+          phone: userData.phone || '',
           avatar: userData.avatar || 'https://via.placeholder.com/150',
         });
       }
@@ -88,9 +84,6 @@ const Profile = () => {
       navigate('/signin');
     }
   }, [navigate]);
-
-
-
 
   const validateField = (field, value) => {
     let error = "";
@@ -101,8 +94,9 @@ const Profile = () => {
             ? "Email"
             : "Số điện thoại"
         } là bắt buộc.`;
-    } else if (field === "email" && !/\S+@\S+\.\S+/.test(value)) {
+    if (field === "email" && !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(value)){
       error = "Email không hợp lệ.";
+    }        
     } else if (field === "phone" && !/^\d{10}$/.test(value)) {
       error = "Số điện thoại không hợp lệ.";
     }

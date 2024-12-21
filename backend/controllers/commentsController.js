@@ -1,5 +1,4 @@
 const connection = require("../config/database");
-
 // Lấy tất cả đánh giá sản phẩm
 exports.getAllReviews = (req, res) => {
   connection.query(
@@ -22,7 +21,6 @@ exports.getAllReviews = (req, res) => {
     }
   );
 };
-
 
 // Lấy đánh giá sản phẩm theo ID
 exports.getReviewById = (req, res) => {
@@ -110,7 +108,6 @@ exports.postReviewByProductID = async (req, res) => {
       return res.status(400).send("User ID không hợp lệ.");
     }
 
-    // Kiểm tra sản phẩm có tồn tại
     const [productRows] = await connection.promise().query(
       "SELECT id FROM products WHERE id = ?",
       [product_id]
@@ -120,7 +117,6 @@ exports.postReviewByProductID = async (req, res) => {
       return res.status(404).send("Sản phẩm không tồn tại.");
     }
 
-    // Nếu `order_id` bị null, tự động lấy `order_id` từ cơ sở dữ liệu
     let validOrderId = order_id;
     if (!validOrderId) {
       const [orderRows] = await connection.promise().query(
@@ -142,7 +138,6 @@ exports.postReviewByProductID = async (req, res) => {
       return res.status(400).send("Order ID không hợp lệ.");
     }
 
-    // Thêm đánh giá
     await connection.promise().beginTransaction();
     transactionStarted = true;
 
@@ -171,9 +166,10 @@ exports.postReviewByProductID = async (req, res) => {
 
 
 
+// Cập nhật trả lời
 exports.postReplyByReviewDetailID = async (req, res) => {
   try {
-    const { user_id, content, review_id, parent_id } = req.body;  // Thêm `parent_id` vào
+    const { user_id, content, review_id, parent_id } = req.body;
 
     if (!content) {
       return res.status(400).send("Nội dung phản hồi không được để trống.");
@@ -194,18 +190,17 @@ exports.postReplyByReviewDetailID = async (req, res) => {
       INSERT INTO reply (review_id, user_id, content, parent_id)
       VALUES (?, ?, ?, ?);
     `;
-    await connection.promise().query(insertReplyQuery, [review_id, user_id, content, parent_id]);
+    const [replyResult] = await connection.promise().query(insertReplyQuery, [review_id, user_id, content, parent_id]);
 
     await connection.promise().commit();
 
-    res.status(201).send("Phản hồi đã được thêm thành công.");
+    res.status(201).send({ replyId: replyResult.insertId, message: "Phản hồi đã được thêm thành công." });
   } catch (error) {
     console.error("Lỗi khi thêm phản hồi:", error.message);
     await connection.promise().rollback();
     res.status(500).send("Có lỗi xảy ra khi thêm phản hồi.");
   }
 };
-
 
 
 exports.getRepliesByReviewDetailID = async (req, res) => {
@@ -260,15 +255,16 @@ exports.getReplyCountByDetailID = (req, res) => {
   });
 };
 
-// Lấy phản hồi theo review_id (sửa lại backend route để hỗ trợ ID review)
 exports.getRepliesByReviewId = async (req, res) => {
   try {
     const { reviewId } = req.params;
 
     const getRepliesQuery = `
-      SELECT r.id, r.user_id, r.content, r.created_at, u.username
+      SELECT r.id, r.user_id, r.content, r.created_at, u.username AS reply_username, ur.username AS replied_username
       FROM reply r
       JOIN users u ON r.user_id = u.id
+      JOIN product_reviews pr ON r.review_id = pr.id
+      JOIN users ur ON pr.user_id = ur.id
       WHERE r.review_id = ?;
     `;
 
@@ -278,10 +274,15 @@ exports.getRepliesByReviewId = async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy phản hồi nào cho đánh giá này." });
     }
 
+    const repliesWithMessages = repliesRows.map(reply => ({
+      ...reply,
+      message: `${reply.reply_username} đã trả lời ${reply.replied_username}`,
+    }));
+
     res.status(200).json({
       success: true,
       message: "Lấy phản hồi thành công.",
-      replies: repliesRows,
+      replies: repliesWithMessages,
     });
   } catch (error) {
     console.error("Lỗi khi lấy phản hồi:", error.message);
@@ -292,3 +293,4 @@ exports.getRepliesByReviewId = async (req, res) => {
     });
   }
 };
+

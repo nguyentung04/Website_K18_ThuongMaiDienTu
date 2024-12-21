@@ -13,11 +13,10 @@ function generateToken(user) {
   return jwt.sign(
     {
       id: user.id,
-      name: user.name,
+      name: user.name,  // Không cần mã hóa thêm
       google_id: user.google_id,
-      email: user.email,   // Thêm email vào token
-      phone: user.phone,  // Thêm avatar vào token
-      // Thêm các thông tin khác nếu cần
+      email: user.email,
+      phone: user.phone,
     },
     process.env.JWT_SECRET,
     { expiresIn: '1h' }
@@ -46,13 +45,15 @@ passport.use(new GoogleStrategy({
     const newUser = {
       google_id: profile.id,
       email: profile.emails[0]?.value || null,
-      name: profile.displayName || 'Anonymous',
+      name: profile.displayName || 'Anonymous', // Đảm bảo không có mã hóa không cần thiết
       username: profile.displayName.replace(/\s+/g, '').toLowerCase(),
       role: 'user',
       status: '1',
       createdAt: new Date(),
       image: profile.photos?.[0]?.value || null,
     };
+    
+    
 
     const result = await query('INSERT INTO users SET ?', newUser);
     newUser.id = result.insertId;

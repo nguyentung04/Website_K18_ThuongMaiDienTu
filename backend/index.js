@@ -22,7 +22,6 @@ const comment = require("./routes/comment");
 const product_detailRoutes = require("./routes/product_detail/index");
 const order_itemsRoutes = require("./routes/order_items/index");
 const cart = require("./routes/cart/index");
-
 const ordersRoutes = require("./routes/orders/index");
 const app = express();
 const port = process.env.PORT || 3000;
@@ -176,8 +175,6 @@ app.post("/payment", async (req, res) => {
     orderGroupId,
     signature,
   });
-
-  console.log("Request body:", requestBody);
 
   const options = {
     method: "POST",

@@ -48,6 +48,7 @@
     "slick-carousel": "^1.8.1",
     "stream-http": "^3.2.0",
     "swiper": "^11.1.15",
+    "utf8": "^3.0.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

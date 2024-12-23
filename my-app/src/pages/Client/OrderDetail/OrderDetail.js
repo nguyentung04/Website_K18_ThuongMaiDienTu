@@ -35,6 +35,7 @@ const OrderDetail = () => {
   const cancelRef = useRef();
   const [productToDelete, setProductToDelete] = useState(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState(""); // State lưu lý do hủy
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -80,7 +81,6 @@ const OrderDetail = () => {
   };
 
   // Xử lý khi người dùng xác nhận hủy sản phẩm
-  // Xử lý khi người dùng xác nhận hủy sản phẩm
   const handleCancelledOrder = async () => {
     const username = localStorage.getItem("username");
 
@@ -88,7 +88,7 @@ const OrderDetail = () => {
       try {
         const response = await axios.put(
           `${BASE_URL}/api/order_items/${productToDelete}`, // URL API kèm theo ID của sản phẩm
-          { status: "đã hủy" }, // Dữ liệu cần cập nhật: trạng thái "đã hủy"
+          { status: "đã hủy", reason: cancelReason }, // Gửi lý do hủy kèm trạng thái
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`, // Header chứa token để xác thực
@@ -98,11 +98,8 @@ const OrderDetail = () => {
 
         if (response.status === 200) {
           setOrder((prevOrder) =>
-            prevOrder.map(
-              (item) =>
-                item.id === productToDelete
-                  ? { ...item, status: "đã hủy" }
-                  : item // Cập nhật trạng thái thành "đã hủy"
+            prevOrder.map((item) =>
+              item.id === productToDelete ? { ...item, status: "đã hủy" } : item
             )
           );
           setIsSuccessModalOpen(true); // Mở modal thông báo thành công
@@ -116,7 +113,7 @@ const OrderDetail = () => {
         onClose(); // Đóng hộp thoại xác nhận
       }
     } else {
-      setError("Thiếu thông tin tên người dùng.");
+      setError("Thiếu thông tin tên người dùng hoặc lý do hủy.");
       onClose();
     }
   };
@@ -274,7 +271,7 @@ const OrderDetail = () => {
           Quay lại
         </Button>
       </div>
-
+      {/* // Cập nhật giao diện AlertDialog */}
       <AlertDialog
         isOpen={isOpen}
         leastDestructiveRef={cancelRef}
@@ -283,26 +280,42 @@ const OrderDetail = () => {
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Xác nhận hủy sản phẩm này không
+              Xác nhận hủy sản phẩm
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              Bạn có chắc chắn muốn hủy sản phẩm này không?
+              <p>Bạn có chắc chắn muốn hủy sản phẩm này không?</p>
+              <textarea
+                placeholder="Nhập lý do hủy..."
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                style={{
+                  width: "100%",
+                  marginTop: "10px",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: "1px solid #ccc",
+                }}
+              />
             </AlertDialogBody>
 
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose} colorScheme="blue">
                 Không
               </Button>
-              <Button colorScheme="red" onClick={handleCancelledOrder} ml={3}>
+              <Button
+                colorScheme="red"
+                onClick={handleCancelledOrder}
+                ml={3}
+                isDisabled={!cancelReason.trim()} // Disable nút nếu lý do trống
+              >
                 Hủy sản phẩm
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
-
-      {/* Success Modal */}
+      ;{/* Success Modal */}
       <Modal isOpen={isSuccessModalOpen} onClose={closeSuccessModal}>
         <ModalOverlay />
         <ModalContent>

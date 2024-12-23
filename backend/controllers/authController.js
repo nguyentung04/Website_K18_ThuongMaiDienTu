@@ -63,20 +63,20 @@ exports.googleAuth = async (req, res) => {
     if (!user) {
       // Người dùng chưa tồn tại, tạo mới
       const newUser = {
-        google_id: id,                    
-        name,                              
-        email,                             
-        image,                             
-        username: name.replace(/\s+/g, '').toLowerCase(),
-        role: 'user',                      
-        status: '1',                       
-        createdAt: new Date(),
+        google_id: id,                    // ID từ Google
+        name,                             // Tên người dùng
+        email,                            // Email người dùng
+        image,                            // Ảnh người dùng
+        username: name.replace(/\s+/g, '').toLowerCase(), // Tạo username từ tên
+        role: 'user',                     // Vai trò mặc định là 'user'
+        status: '1',                      // Trạng thái người dùng
+        createdAt: new Date(),            // Ngày tạo
       };
 
       // Thêm người dùng mới vào database
       const insertResult = await query('INSERT INTO users SET ?', newUser);
-      newUser.id = insertResult.insertId; 
-      user = newUser;                     
+      newUser.id = insertResult.insertId; // Lấy ID của người dùng mới
+      user = newUser;                     // Gán người dùng mới vào biến user
     }
 
     // Tạo JWT token cho người dùng
@@ -89,8 +89,8 @@ exports.googleAuth = async (req, res) => {
     // Redirect đến frontend với token
     return res.redirect(`http://localhost:3001?token=${token}`);
   } catch (err) {
-    console.error("GoogleAuth error:", err.message);
-    return res.status(500).json({ error: 'Có lỗi xảy ra, vui lòng thử lại sau!' });
+    console.error("GoogleAuth error:", err.message); // Log lỗi nếu có
+    return res.status(500).json({ error: 'Có lỗi xảy ra, vui lòng thử lại sau!' }); // Trả về lỗi
   }
 };
 
@@ -114,4 +114,3 @@ function authenticateToken(req, res, next) {
 }
 
 module.exports = { authenticateToken };
-

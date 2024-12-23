@@ -98,6 +98,7 @@ const CheckoutForm = () => {
     fetchUserAndCart(); // Gọi hàm lấy dữ liệu khi component được render
   }, []);
   
+  // Xử lý khi người dùng chọn tỉnh/thành phố
   const handleProvinceChange = async (e) => {
     const selectedCode = e.target.value; // Giá trị của tỉnh/thành phố
     setSelectedProvince(selectedCode);

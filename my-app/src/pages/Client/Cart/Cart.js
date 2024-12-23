@@ -291,15 +291,6 @@ const Cart = () => {
     }).format(price);
   };
 
-  // Hàm xử lý khi người dùng nhấn nút thanh toán
-  // const handleCheckout = () => {
-  //   if (!username) {
-  //     // Kiểm tra nếu người dùng chưa đăng nhập
-  //     alert("Vui lòng đăng nhập trước khi thanh toán."); // Hiển thị thông báo yêu cầu đăng nhập
-  //     return;
-  //   }
-  //   setShowCheckoutForm(true); // Hiển thị form thanh toán
-  // };
 
   // Hiển thị thông báo đang tải nếu dữ liệu giỏ hàng chưa được load xong
   if (loading) {

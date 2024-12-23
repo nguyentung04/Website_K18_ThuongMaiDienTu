@@ -90,7 +90,7 @@ const Dashboard = () => {
     }
   
     orders
-      .filter((order) => order.status === "đã nhận") // Lọc các đơn hàng có trạng thái "đã nhận"
+      .filter((order) => order.status === "đã nhận") 
       .forEach((order) => {
         const orderDate = new Date(order.created_at);
         const monthKey = `${orderDate.getMonth() + 1}/${orderDate.getFullYear()}`;
@@ -213,7 +213,7 @@ const Dashboard = () => {
         </Box>
         <Flex direction={{ base: "column", lg: "row" }} gap={4}>
           <ChartBox
-            title="Thống kê người dùng"
+            title="Tổng người dùng trong tháng"
             data={chartData(
               userCounts,
               "Số người dùng đã đăng ký",

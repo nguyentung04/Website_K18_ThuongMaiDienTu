@@ -80,7 +80,6 @@ const OrderDetail = () => {
   };
 
   // Xử lý khi người dùng xác nhận hủy sản phẩm
-  // Xử lý khi người dùng xác nhận hủy sản phẩm
   const handleCancelledOrder = async () => {
     const username = localStorage.getItem("username");
 
@@ -142,7 +141,7 @@ const OrderDetail = () => {
         setOrder((prevOrder) =>
           prevOrder.map(
             (item) =>
-              item.id === order_id ? { ...item, status: "đã hoàn thành" } : item // Nếu ID trùng, thay đổi trạng thái thành "completed"
+              item.id === order_id ? { ...item, status: "đã nhận" } : item // Nếu ID trùng, thay đổi trạng thái thành "completed"
           )
         );
       }
@@ -252,6 +251,9 @@ const OrderDetail = () => {
               )}
               {item.status === "đã hủy" && (
                 <p className="text-danger">Sản phẩm đã bị hủy</p>
+              )}
+              {item.status === "đã nhận" && (
+                <p className="text-danger">Sản phẩm đã được nhận</p>
               )}
             </div>
           </>

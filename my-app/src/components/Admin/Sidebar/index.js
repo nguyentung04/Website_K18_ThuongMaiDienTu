@@ -210,7 +210,7 @@ const Sidebar = () => {
                 </Button>
               )}
             </NavLink>{" "}
-            <NavLink
+            {/* <NavLink
               to="/admin/comments"
               style={({ isActive }) => getLinkStyles({ isActive })}
             >
@@ -241,7 +241,7 @@ const Sidebar = () => {
                   Bình luận
                 </Button>
               )}
-            </NavLink>
+            </NavLink> */}
             <NavLink to="/admin/user">
               {({ isActive }) => (
                 <Button

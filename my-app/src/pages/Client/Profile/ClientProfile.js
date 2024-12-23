@@ -69,6 +69,7 @@ import { Table, Tbody, Tr, Td, Img } from "@chakra-ui/react";const Profile = () 
           name: decodeUtf8(decoded.name),
           email: decoded.email,
           phone: decoded.phone,
+          username: decoded.username,
           google_id: decoded.google_id,
         };
 
@@ -81,6 +82,7 @@ import { Table, Tbody, Tr, Td, Img } from "@chakra-ui/react";const Profile = () 
           name: storedData.name || "",
           email: storedData.email || "",
           phone: storedData.phone || "",
+          username: userData.username || "",
           avatar: storedData.avatar || "https://via.placeholder.com/150",
         });
       } else {
@@ -213,23 +215,20 @@ import { Table, Tbody, Tr, Td, Img } from "@chakra-ui/react";const Profile = () 
       <Table>
         <div className="profile-container1">
           <Td>
-              <Img
-                src={`http://localhost:3000/uploads/users/${values.image}`}
+              {/* <Img
+                src={`http://localhost:3000/uploads/users/${values.avatar}`}
                 boxSize="50px"
                 objectFit="cover"
                 borderRadius="full"
                 alt=""
-              />
+              /> */}
             </Td>
             <h3>{values.name}</h3>
             <p>{values.email}</p>
+            <p>{values.username}</p>
           </div>
-        <button className="logout-button" onClick={() => navigate("/signin")}>
-          Đăng xuất
-        </button>
         </Table>
       </div>
-
       <div className="personal-info">
 
         {Object.entries(values)

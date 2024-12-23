@@ -346,13 +346,13 @@ const Navbar = () => {
                             aria-expanded="false"
                           >
                             {/* Avatar image */}
-                            <div className="avatar-container">
+                            {/* <div className="avatar-container">
                               <img
                                 src="https://khoinguonsangtao.vn/wp-content/uploads/2022/10/hinh-anh-vu-tru-ngan-ha.jpg"
                                 alt="User Avatar"
                                 className="avatar"
                               />
-                            </div>
+                            </div> */}
                             {/* Username */}
                             <p className="mb-0 username-text">
                               <h4>{username}</h4>

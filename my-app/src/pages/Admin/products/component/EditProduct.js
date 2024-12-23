@@ -254,8 +254,8 @@ const EditProduct = () => {
             onChange={(e) => setGender(e.target.value)}
             placeholder="Chọn giới tính"
           >
-            <option value="male">Nam</option>
-            <option value="female">Nữ</option>
+            <option value="Nam">Nam</option>
+            <option value="Nữ">Nữ</option>
           </Select>
           {errors.gender && (
             <FormErrorMessage>{errors.gender}</FormErrorMessage>

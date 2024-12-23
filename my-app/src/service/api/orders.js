@@ -54,22 +54,23 @@ export const fetchOrderById = async (id) => {
   }
 };
 
-export const deleteOrder = async (id) => {
+// Function to update the status of an order
+export const updateOrderStatus = async (orderId, status) => {
   try {
-    const response = await axios.delete(`${BASE_URL}/orders/${id}`);
+    const response = await axios.put(`${BASE_URL}/orders/${orderId}/status`, { status });
     return response.data;
   } catch (error) {
-    console.error("Error deleting order:", error);
+    console.error("Error updating order status:", error);
     throw error;
   }
 };
 
-export const updateOrderStatus = async (id) => {
+export const deleteOrderDetail = async (id) => {
   try {
-    const response = await axios.get(`${BASE_URL}/order_detail/${id}`);
+    const response = await axios.delete(`${BASE_URL}/order_items/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching order:", error);
+    console.error("Error deleting order:", error);
     throw error;
   }
 };

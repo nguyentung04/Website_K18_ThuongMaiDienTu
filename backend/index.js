@@ -18,7 +18,6 @@ const comment_detailRoutes = require("./routes/comment_detailRoute");
 const posts = require("./routes/posts");
 const post_categories = require("./routes/post_categories");
 const comment = require("./routes/comment");
-// const momoRoutes = require("./routes/momoRoutes");
 const product_detailRoutes = require("./routes/product_detail/index");
 const order_itemsRoutes = require("./routes/order_items/index");
 const cart = require("./routes/cart/index");

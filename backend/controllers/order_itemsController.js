@@ -62,36 +62,30 @@ exports.getOrderClientDetailById = (req, res) => {
 
 const { validationResult } = require('express-validator'); // Optional: để xác thực yêu cầu
 
-// Update order status
-exports.updateOrder_itemsDetailStatus = (req, res) => {
-  const { id } = req.params; // ID đơn hàng từ URL
-  const { status } = req.body; // Trạng thái mới từ nội dung yêu cầu
-  console.log("Received status:", status);
+// // Update order status
+// exports.updateOrder_itemsDetailStatus = (req, res) => {
+//   const { id } = req.params;
+//   const { status } = req.body;
 
+//   // Kiểm tra xem id có hợp lệ không
+//   if (!id || isNaN(id)) {
+//     return res.status(400).json({ error: "Invalid order item ID" });
+//   }
 
-  // Xác thực đầu vào (tùy chọn)
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  // Truy vấn SQL để cập nhật trạng thái của đơn hàng
-  const query = `UPDATE orders SET status = ? WHERE id = ?`;
-
-  // Execute the query
-  connection.query(query, [status, id], (err, results) => {
-    if (err) {
-      console.error("Error updating order status:", err);
-      return res.status(500).json({ error: err.message });
-    }
-
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-
-    res.status(200).json({ message: "Order status updated successfully" });
-  });
-};
+//   connection.query(
+//     "UPDATE order_items SET status = ? WHERE id = ?",
+//     [status, id],
+//     (err, results) => {
+//       if (err) {
+//         return res.status(500).json({ error: "Database query error: " + err.message });
+//       }
+//       if (results.affectedRows === 0) {
+//         return res.status(404).json({ error: "Order item not found" });
+//       }
+//       res.status(200).json({ message: "Order item status updated successfully" });
+//     }
+//   );
+// };
 
 
 exports.deleteOrder_items = (req, res) => {

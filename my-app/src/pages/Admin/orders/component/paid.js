@@ -7,23 +7,30 @@ import {
   Tr,
   Th,
   Td,
-  Button,
-  useColorModeValue,
   Text,
+  Input,
+  InputGroup,
+  InputRightElement,
+  InputLeftElement,
+  IconButton,
+  useColorModeValue,
+  Button,
 } from "@chakra-ui/react";
+import { SearchIcon, CloseIcon } from "@chakra-ui/icons";
+import { fetchOrders } from "../../../../service/api/orders"; // Import hàm fetchOrders
 import { Link } from "react-router-dom";
-import { fetchOrdersPaid } from "../../../../service/api/orders"; // Import service functions
 
-const PaidTable = () => {
+const PaidOrders = () => {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Trạng thái tải dữ liệu
+  const [searchTerm, setSearchTerm] = useState(""); // Trạng thái tìm kiếm đơn hàng
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
 
-  // Fetch orders
+  // Lấy danh sách đơn hàng
   useEffect(() => {
     const getOrders = async () => {
       try {
-        const fetchedData = await fetchOrdersPaid();
+        const fetchedData = await fetchOrders();
         if (fetchedData) {
           setOrders(fetchedData);
         }
@@ -36,13 +43,38 @@ const PaidTable = () => {
     getOrders();
   }, []);
 
+  // Lọc danh sách đơn hàng dựa trên giá trị tìm kiếm
+  const filteredOrders = orders.filter((order) =>
+    order.userName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <Box p={5} bg="white" borderRadius="lg" boxShadow="md">
-      {isLoading ? ( // Hiển thị thông báo tải dữ liệu
+      <InputGroup mb={4} width="300px" boxShadow="md" borderRadius="md">
+        <InputLeftElement pointerEvents="none">
+          <SearchIcon color="gray.300" />
+        </InputLeftElement>
+        <Input
+          placeholder="Tìm kiếm đơn hàng..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          borderRadius="md"
+        />
+        <InputRightElement>
+          <IconButton
+            size="sm"
+            icon={<CloseIcon />}
+            onClick={() => setSearchTerm("")}
+            variant="ghost"
+            aria-label="Clear search"
+          />
+        </InputRightElement>
+      </InputGroup>
+      {isLoading ? ( // Kiểm tra trạng thái tải
         <Text>Đang tải dữ liệu...</Text>
-      ) : orders.length === 0 ? ( // Hiển thị thông báo nếu không có dữ liệu
+      ) : filteredOrders.length === 0 ? ( // Kiểm tra nếu không có dữ liệu
         <Text fontSize="lg" color="gray.500" textAlign="center">
-          Không có đơn hàng đã thanh toán nào.
+          Không có đơn hàng nào đã thanh toán.
         </Text>
       ) : (
         <Table variant="simple">
@@ -54,14 +86,14 @@ const PaidTable = () => {
               <Th>Tỉnh</Th>
               <Th>Quận/Huyện</Th>
               <Th>Trạng thái</Th>
-              <Th> Số lượng</Th>
+              <Th>Số lượng</Th>
               <Th>Phương thức thanh toán</Th>
               <Th>Chi tiết</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {orders.map((order, index) => (
-              <Tr key={order.orderid} _hover={{ bg: hoverBgColor }}>
+            {filteredOrders.map((order, index) => (
+              <Tr key={order.id} _hover={{ bg: hoverBgColor }}>
                 <Td fontWeight="bold">{index + 1}</Td>
                 <Td>{order.userName}</Td>
                 <Td>{order.shipping_address}</Td>
@@ -71,7 +103,7 @@ const PaidTable = () => {
                 <Td>{order.total_quantity}</Td>
                 <Td>{order.payment_method}</Td>
                 <Td>
-                  <Link to={`/admin/orders/paid/order_items/${order.orderid}`}>
+                <Link to={`/admin/orders/paid/order_items/${order.orderid}`}>
                     <Button colorScheme="blue" size="sm">
                       Chi tiết
                     </Button>
@@ -86,4 +118,4 @@ const PaidTable = () => {
   );
 };
 
-export default PaidTable;
+export default PaidOrders;

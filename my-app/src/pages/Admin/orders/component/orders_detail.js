@@ -8,33 +8,16 @@ import {
   useToast,
   Grid,
   GridItem,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogContent,
-  AlertDialogOverlay,
-  useDisclosure,
-  Flex,
 } from "@chakra-ui/react";
 import { Link, useParams } from "react-router-dom";
-import {
-  fetchAdminOrderDetailById,
-  updateOrderDetailStatus,
-  deleteOrderDetail,
-} from "../../../../service/api/order_items";
+import { fetchAdminOrderDetailById } from "../../../../service/api/order_items";
 
 const OrderDetailTable = () => {
   const { id } = useParams();
   const [orderDetails, setOrderDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [itemToDelete, setItemToDelete] = useState(null);
-  const toast = useToast();
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const cancelRef = useRef();
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -57,69 +40,6 @@ const OrderDetailTable = () => {
       style: "currency",
       currency: "VND",
     }).format(value);
-  };
-  const handleApprove = async (itemId) => {
-    try {
-      console.log(`Updating status for order ID: ${itemId}`);
-      await updateOrderDetailStatus(itemId, "đã nhận");
-
-      // Cập nhật trạng thái trong state
-      setOrderDetails((prevDetails) =>
-        prevDetails.map((item) =>
-          item.id === itemId ? { ...item, status: "đã nhận" } : item
-        )
-      );
-
-      toast({
-        title: "Đơn hàng đã được duyệt.",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
-
-      // Tải lại trang sau khi duyệt thành công
-      window.location.reload(); // Tải lại trang
-    } catch (error) {
-      console.error("Error updating order status:", error);
-      toast({
-        title: "Có lỗi xảy ra.",
-        description: "Không thể duyệt đơn hàng.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-  };
-
-  const handleDeleteConfirmation = (itemId) => {
-    setItemToDelete(itemId);
-    onOpen();
-  };
-
-  const handleConfirmDelete = async () => {
-    try {
-      await deleteOrderDetail(itemToDelete);
-      setOrderDetails((prevDetails) =>
-        prevDetails.filter((item) => item.id !== itemToDelete)
-      );
-      toast({
-        title: "Đơn hàng đã bị hủy.",
-        status: "warning",
-        duration: 3000,
-        isClosable: true,
-      });
-    } catch (error) {
-      console.error("Error deleting order:", error);
-      toast({
-        title: "Có lỗi xảy ra.",
-        description: "Không thể hủy đơn hàng.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    } finally {
-      onClose();
-    }
   };
 
   if (loading) {
@@ -154,7 +74,7 @@ const OrderDetailTable = () => {
       >
         <Text fontSize="2xl">Chi tiết đơn hàng #{id}</Text>
 
-        <Button as={Link} to="/admin/orders/paid" colorScheme="blue">
+        <Button as={Link} to="/admin/orders" colorScheme="blue">
           Quay lại
         </Button>
       </Box>
@@ -213,58 +133,14 @@ const OrderDetailTable = () => {
                 <strong>Trạng thái:</strong> {item.status}
               </Text>
             </GridItem>
-            <GridItem colSpan={3} textAlign="right">
-              {item.status === "chờ xử lý" && (
-                <Button
-                  colorScheme="green"
-                  size="sm"
-                  margin="10px"
-                  onClick={() => handleApprove(item.order_id)}
-                >
-                  Duyệt
-                </Button>
-              )}
-              {item.status !== "Đã hủy" && (
-                <Button
-                  display={"none"}
-                  colorScheme="red"
-                  size="sm"
-                  onClick={() => handleDeleteConfirmation(item.id)}
-                >
-                  Hủy đơn hàng
-                </Button>
-              )}
+            <GridItem colSpan={1}>
+              <Text>
+                <strong>Nội dung hủy đơn :</strong> {item.shipping_address}
+              </Text>
             </GridItem>
           </Grid>
         </Box>
       ))}
-
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Xác nhận hủy đơn hàng
-            </AlertDialogHeader>
-
-            <AlertDialogBody>
-              Bạn có chắc chắn muốn hủy đơn hàng này không?
-            </AlertDialogBody>
-
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose} colorScheme="blue">
-                Hủy
-              </Button>
-              <Button colorScheme="red" onClick={handleConfirmDelete} ml={3}>
-                Xóa
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
     </Box>
   );
 };

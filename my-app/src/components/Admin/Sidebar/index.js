@@ -294,6 +294,25 @@ const Sidebar = () => {
             </Button>
             {isOrderOpen && (
               <Stack spacing={2} pl={8}>
+                    <NavLink to="/admin/orders">
+                  {({ isActive }) => (
+                    <Button
+                      justifyContent="flex-start"
+                      alignItems="center"
+                      bg={isActive ? activeBg : "inherit"}
+                      color={isActive ? activeColor : linkColor}
+                      fontWeight={isActive ? "bold" : "normal"}
+                      _hover={{ bg: activeBg, textDecoration: "none" }}
+                      _active={{ bg: activeBg, color: activeColor }}
+                      borderRadius="15px"
+                      w="100%"
+                      height="40px"
+                      // fontSize="xl"
+                    >
+                     tất cả  Đơn hàng
+                    </Button>
+                  )}
+                </NavLink>
                 <NavLink to="/admin/orders/paid">
                   {({ isActive }) => (
                     <Button
@@ -332,44 +351,6 @@ const Sidebar = () => {
                     </Button>
                   )}
                 </NavLink>{" "}
-                <NavLink to="/admin/orders/Order Delivered">
-                  {({ isActive }) => (
-                    <Button
-                      justifyContent="flex-start"
-                      alignItems="center"
-                      bg={isActive ? activeBg : "inherit"}
-                      color={isActive ? activeColor : linkColor}
-                      fontWeight={isActive ? "bold" : "normal"}
-                      _hover={{ bg: activeBg, textDecoration: "none" }}
-                      _active={{ bg: activeBg, color: activeColor }}
-                      borderRadius="15px"
-                      w="100%"
-                      height="40px"
-                      // fontSize="xl"
-                    >
-                      Đơn hàng đã giao
-                    </Button>
-                  )}
-                </NavLink>
-                <NavLink to="/admin/orders/order cancelled">
-                  {({ isActive }) => (
-                    <Button
-                      justifyContent="flex-start"
-                      alignItems="center"
-                      bg={isActive ? activeBg : "inherit"}
-                      color={isActive ? activeColor : linkColor}
-                      fontWeight={isActive ? "bold" : "normal"}
-                      _hover={{ bg: activeBg, textDecoration: "none" }}
-                      _active={{ bg: activeBg, color: activeColor }}
-                      borderRadius="15px"
-                      w="100%"
-                      height="40px"
-                      // fontSize="xl"
-                    >
-                      Đơn hàng đã hủy
-                    </Button>
-                  )}
-                </NavLink>
               </Stack>
             )}
           </Stack>

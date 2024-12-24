@@ -236,7 +236,7 @@ const OrderDetail = () => {
                   Hủy sản phẩm
                 </button>
               )}
-              {item.status === "đã nhận" && (
+              {item.status === "đang giao" && (
                 <button
                   type="button"
                   className="btn btn-success action-button received-button p-2"

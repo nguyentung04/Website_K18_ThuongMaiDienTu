@@ -122,8 +122,8 @@ const OrderDetail = () => {
     try {
       // Gửi yêu cầu cập nhật trạng thái của sản phẩm thành "completed"
       const response = await axios.put(
-        `${BASE_URL}/api/order_items/${order_id}`, // URL API kèm theo ID của sản phẩm
-        { status: "đã hoàn thành" }, // Dữ liệu cần cập nhật, trong trường hợp này là trạng thái "completed"
+        `${BASE_URL}/api/orders/${order_id}/status`, // URL API kèm theo ID của sản phẩm
+        { status: "đã nhận" }, // Dữ liệu cần cập nhật, trong trường hợp này là trạng thái "completed"
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`, // Header chứa token để xác thực
@@ -137,7 +137,7 @@ const OrderDetail = () => {
         setOrder((prevOrder) =>
           prevOrder.map(
             (item) =>
-              item.id === order_id ? { ...item, status: "đã hoàn thành" } : item // Nếu ID trùng, thay đổi trạng thái thành "completed"
+              item.id === order_id ? { ...item, status: "đã nhận" } : item // Nếu ID trùng, thay đổi trạng thái thành "completed"
           )
         );
       }
@@ -247,6 +247,8 @@ const OrderDetail = () => {
               )}
               {item.status === "đã hủy" && (
                 <p className="text-danger">Sản phẩm đã bị hủy</p>
+              )} {item.status === "đã nhận" && (
+                <p className="text-success">Sản phẩm đã nhận</p>
               )}
             </div>
           </>

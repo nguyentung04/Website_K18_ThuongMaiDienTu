@@ -60,33 +60,6 @@ exports.getOrderClientDetailById = (req, res) => {
 };
 
 
-const { validationResult } = require('express-validator'); // Optional: để xác thực yêu cầu
-
-// // Update order status
-// exports.updateOrder_itemsDetailStatus = (req, res) => {
-//   const { id } = req.params;
-//   const { status } = req.body;
-
-//   // Kiểm tra xem id có hợp lệ không
-//   if (!id || isNaN(id)) {
-//     return res.status(400).json({ error: "Invalid order item ID" });
-//   }
-
-//   connection.query(
-//     "UPDATE order_items SET status = ? WHERE id = ?",
-//     [status, id],
-//     (err, results) => {
-//       if (err) {
-//         return res.status(500).json({ error: "Database query error: " + err.message });
-//       }
-//       if (results.affectedRows === 0) {
-//         return res.status(404).json({ error: "Order item not found" });
-//       }
-//       res.status(200).json({ message: "Order item status updated successfully" });
-//     }
-//   );
-// };
-
 
 exports.deleteOrder_items = (req, res) => {
   const postId = req.params.id; // Sử dụng cách đặt tên camelCase nhất quán

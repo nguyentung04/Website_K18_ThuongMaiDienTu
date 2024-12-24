@@ -179,8 +179,10 @@ const OrdersTable = () => {
                 <Td>{order.Districts}</Td>
                 <Td>{order.Provinces}</Td>
                 <Td>
-                  {order.status === "đã hủy" ? (
+                {order.status === "đã hủy" ? (
                     <Text>Đã hủy</Text>
+                  ) : order.status === "đã nhận" ? (
+                    <Text>Đã nhận</Text>
                   ) : (
                     <Select
                       value={order.status}

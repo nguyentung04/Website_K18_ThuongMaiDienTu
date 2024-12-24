@@ -82,20 +82,18 @@ const OrderDetail = () => {
 
   // Xử lý khi người dùng xác nhận hủy sản phẩm
   const handleCancelledOrder = async () => {
-    const username = localStorage.getItem("username");
-
-    if (username && productToDelete) {
+    if (productToDelete) {
       try {
         const response = await axios.put(
           `${BASE_URL}/api/order_items/${productToDelete}`, // URL API kèm theo ID của sản phẩm
-          { status: "đã hủy", reason: cancelReason }, // Gửi lý do hủy kèm trạng thái
+          { status: "đã hủy" }, // Chỉ gửi trạng thái
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`, // Header chứa token để xác thực
             },
           }
         );
-
+  
         if (response.status === 200) {
           setOrder((prevOrder) =>
             prevOrder.map((item) =>
@@ -103,6 +101,7 @@ const OrderDetail = () => {
             )
           );
           setIsSuccessModalOpen(true); // Mở modal thông báo thành công
+          window.location.reload(); // Tải lại trang sau khi cập nhật thành công
         } else {
           setError("Có lỗi xảy ra khi cập nhật trạng thái sản phẩm.");
         }
@@ -113,13 +112,12 @@ const OrderDetail = () => {
         onClose(); // Đóng hộp thoại xác nhận
       }
     } else {
-      setError("Thiếu thông tin tên người dùng hoặc lý do hủy.");
+      setError("Thiếu thông tin sản phẩm.");
       onClose();
     }
-  };
-
+  };  
+  
   //để cập nhật trạng thái đơn hàng thành completed.
-
   const handleMarkAsReceived = async (order_id) => {
     try {
       // Gửi yêu cầu cập nhật trạng thái của sản phẩm thành "completed"
@@ -238,7 +236,7 @@ const OrderDetail = () => {
                   Hủy sản phẩm
                 </button>
               )}
-              {item.status === "đã nhận" && (
+              {item.status === "đang giao" && (
                 <button
                   type="button"
                   className="btn btn-success action-button received-button p-2"
@@ -305,9 +303,8 @@ const OrderDetail = () => {
               </Button>
               <Button
                 colorScheme="red"
-                onClick={handleCancelledOrder}
+                onClick={handleCancelledOrder} // Gọi hàm xử lý hủy sản phẩm
                 ml={3}
-                isDisabled={!cancelReason.trim()} // Disable nút nếu lý do trống
               >
                 Hủy sản phẩm
               </Button>
@@ -315,6 +312,7 @@ const OrderDetail = () => {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
+
       ;{/* Success Modal */}
       <Modal isOpen={isSuccessModalOpen} onClose={closeSuccessModal}>
         <ModalOverlay />
